@@ -1,0 +1,10 @@
+## Interface: 20400
+## Title: sDKP
+## Notes: Siarkowy's Dragon Kill Points manager.
+## Author: Siarkowy
+## Version: 1.2.1
+## SavedVariables: sDKP_DB
+
+embeds.xml
+sDKP.lua
+modules.xml

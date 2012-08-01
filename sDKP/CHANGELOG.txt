@@ -1,0 +1,46 @@
+--------------------------------------------------------------------------------
+--	sDKP (c) 2011-2012 by Siarkowy
+--	Released under the terms of GNU GPL v3 license.
+--------------------------------------------------------------------------------
+
+CHANGE LOG
+
+1.2.1
+
+* Whisper announces now notify alts too.
+* Typo in Stat module fixed.
+* Typo in /sdkp option whispers fixed.
+* Minor change log cleanup.
+* Added copyright info to files.
+* Versioning of addon and its modules unified.
+
+1.2.0
+
+* DKP changes are now queued instead of being done all at once to prevent player numeration errors.
+* Negative values now working properly.
+* Added ability to perform operation log searches.
+
+1.1.0
+
+* Comm module introduced.
+* Ironman operations logging added.
+* Added ability to synchronize ironman data on demand.
+* Raid bosses death detection and logging for Tier 4-6 added.
+* Changes to :Print; :Printf and :Echo added as well.
+* Event handlers now get addon object (self, ...) as first param.
+* Cannot start ironman bonus if previous was not cancelled or awarded.
+* Added missing slash command order data in ironman module.
+
+1.0.0
+
+* Initial version.
+* Basic loot and DKP operations logging implemented.
+* Unsaved data loss on disconnect prevented.
+* Ironman functions implemented: start, award, player exclude, include.
+* Alt management functions: clear, set, swap player's alts.
+* Announce functions implemented with ChatThrottleLib incorporated.
+* Chat links to quickly charge looter's DKP and link handlers added.
+* Custom note format set for all guild officers using guild info.
+* Slash command handler implemented similar to Ace2 Framework's one.
+* Officer notes' backup module implemented.
+* Simple database versioning system implemented.
