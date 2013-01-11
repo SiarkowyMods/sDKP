@@ -218,6 +218,75 @@ function sDKP:StatByTotValues() -- total DKP ranking
 function sDKP:StatRosterLookup(query)
 --]]
 
+function sDKP:StatWho(param)
+    param, chan = Util.ExtractChannel(param, "SELF")
+
+    local _name = param:match('n%-"([^"]+)"') or param:match('n%-(%w+)')
+    local _minrank, _maxrank = param:match("r%-(%d+)%-?(%d*)")
+    local _rankname = param:match('R%-"([^"]+)"') or param:match('R%-(%S+)')
+    local _minlvl, _maxlvl = param:match("l%-(%d+)%-?(%d*)")
+    local _class = param:match('c%-(%w+)')
+    local _zone = param:match('z%-"([^"]+)"') or param:match("z%-(%w+)")
+    local _note = param:match('N%-"([^"]+)"') or param:match("N%-(%S+)")
+    local _onote = param:match('[Oo]%-"([^"]+)"') or param:match("[Oo]%-(%S+)")
+    local _online = param:match('online')
+    local _inraid = param:match('raid')
+
+    self:Announce(chan, "Guild Who List: %s", param)
+
+    _minrank = tonumber(_minrank)
+    _maxrank = tonumber(_maxrank) or _minrank
+
+    _minlvl = tonumber(_minlvl)
+    _maxlvl = tonumber(_maxlvl) or _minlvl
+
+    if _minrank and _minrank > _maxrank then _minrank, _maxrank = _maxrank, _minrank end
+    if _minlvl and _minlvl > _maxlvl then _minlvl, _maxlvl = _maxlvl, _minlvl end
+
+    local count = 0
+
+    for i = 1, GetNumGuildMembers() do
+        local name, rankname, rank, level, class, zone, note, onote, online = GetGuildRosterInfo(i)
+
+        if not _name or name:lower():match(_name) then
+            if not _minrank or rank >= _minrank then
+                if not _maxrank or rank <= _maxrank then
+                    if not _rankname or rankname:lower():match(_rankname) then
+                        if not _minlvl or level >= _minlvl then
+                            if not _maxlvl or level <= _maxlvl then
+                                if not _class or class:lower():match(_class) then
+                                    if not _zone or zone:lower():match(_zone) then
+                                        if not _note or note:match(_note) then
+                                            if not _onote or onote:match(_onote) then
+                                                if not _online or online then
+                                                    if not _inraid or UnitInRaid(name) then
+                                                        count = count + 1
+                                                        self:Announce(chan, "   %s%s - Lvl %d %s (%s) - %s", (chan == "SELF" and "|Hplayer:%1$s|h[%1$s]|h" or "[%s]"):format(name), UnitInRaid(name) and " |cFFFFA500<RAID>|r" or "", level, class, rankname, zone)
+
+                                                        if _note and note then
+                                                            self:Announce(chan, "   Player note: |cff00ff00%q|r", note)
+                                                        end
+
+                                                        if _onote and onote then
+                                                            self:Announce(chan, "   Officer note: |cff00ffff%q|r", onote)
+                                                        end
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+
+    self:Announce(chan, "Total characters: %d", count)
+end
+
 sDKP.Slash.args.stat = {
 	name = "Stat",
 	desc = "Statistics module functions.",
@@ -273,6 +342,13 @@ sDKP.Slash.args.stat = {
 			func = "StatByZone"
 		}
 	}
+}
+
+sDKP.Slash.args.who = {
+    name = "Who",
+    desc = "Who-like utility for current guild.",
+    type = "execute",
+    func = "StatWho"
 }
 
 sDKP.Modules.Stats = GetTime()

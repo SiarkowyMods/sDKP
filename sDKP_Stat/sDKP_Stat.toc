@@ -2,7 +2,7 @@
 ## Title: sDKP [|cffeda55fStat|r]
 ## Notes: Statistics module for sDKP.
 ## Author: Siarkowy
-## Version: 1.3
+## Version: 1.4
 ## Dependencies: sDKP
 
 sDKP_Stat.lua
