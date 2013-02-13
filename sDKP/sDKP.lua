@@ -10,43 +10,23 @@ sDKP = {
     player  = (UnitName("player")),
     version = GetAddOnMetadata("sDKP", "Version"),
 
-    Comms   = { },  -- comm message handlers
-    LogData = { },  -- operations' log
-    Modules = { },  -- enabled modules
-    Options = { },  -- options database
-    Roster  = { },  -- guild roster data
-    Versions = { }  -- guild mates' versions
+    Comms   = {},   -- comm message handlers
+    LogData = {},   -- operations' log
+    Modules = {},   -- enabled modules
+    Options = {},   -- options database
+    Roster  = {},   -- guild roster data
+    Versions = {}   -- guild mates' versions
 }
 
 local sDKP = sDKP
+local frame = sDKP.frame
+
+local DB_VERSION = 20130213
+local prompt = format("|cff56a3ff%s:|r ", sDKP.name)
 
 local format = format
 local select = select
 local tostring = tostring
-
-local frame = sDKP.frame
-local prompt = format("|cff56a3ff%s:|r ", sDKP.name)
-
-local DATABASE_VERSION = 20111217
-local sDKP_DB_DEFAULTS = {
-    Data = { }, -- misc. data
-    Options = {
-        -- core
-        Core_IgnoreGuildInfoNoteFormat = nil,       -- disable Guild Info supplied DKP note format
-        Core_NoteFormat = "Net:%n Tot:%t Hrs:%h",   -- current note format
-        Core_VerboseDiff = nil,                     -- verbose diff to chat frame on every officer note change
-        -- chat
-        Chat_FilterMinRarity = 4,                   -- min. quality to display chat charge links while in a raid (4 = epic)
-        Chat_HideLootHyperlinks = nil,              -- disable all chat charge links
-        Chat_IgnoreItemIds = {                      -- item IDs to ignore from appending charge links
-            [29434] = true, -- Badge of Justice
-        },
-        -- log
-        Log_FilterMinRarity = 4,                    -- min. quality to log item loot
-    },
-    Roster = { }, -- current DKP data
-    Version = DATABASE_VERSION,
-}
 
 -- Chat functions
 function sDKP:Print(s, ...) DEFAULT_CHAT_FRAME:AddMessage(prompt .. tostring(s), ...) end
@@ -66,37 +46,42 @@ function sDKP:Init()
     self:Printf("Version %s enabled. Usage info: /sdkp", self.version)
 end
 
---- Loads database defaults if database is not present or its format is older than current,
--- otherwise wipes database defaults table.
-function sDKP:CheckDatabaseVersion()
-    if not sDKP_DB or sDKP_DB.Version < DATABASE_VERSION then
-        sDKP_DB = sDKP_DB_DEFAULTS
-        self:Print("New database version. All data resetted to defaults.")
-    else
-        local function wipe(t)
-            for k, v in pairs(t) do
-                if type(v) == "table" then
-                    wipe(t[k])
-                end
-                t[k] = nil
-            end
-            t = nil
-        end
-
-        wipe(sDKP_DB_DEFAULTS)
-    end
-end
-
 --- Variables Loaded event handler.
 function sDKP:VARIABLES_LOADED()
     self:UnregisterEvent("VARIABLES_LOADED")
+
     self:RegisterEvent("GUILD_ROSTER_UPDATE")
     self:RegisterEvent("PLAYER_GUILD_UPDATE")
     self:RegisterEvent("RAID_ROSTER_UPDATE")
 
-    self:CheckDatabaseVersion()
+    -- database management
+    sDKP_DB = sDKP_DB and sDKP_DB.Version == DB_VERSION and sDKP_DB or
+    self:Print("Database initialised.") or {
+        Data = {}, -- misc. data
+        Options = {
+            -- chat
+            Chat_FilterMinRarity = 4,                   -- [charge links] min. item quality (epic)
+            Chat_HideLootHyperlinks = false,            -- [charge links] toggle
+            Chat_IgnoreItemIds = {                      -- [charge links] ignored item IDs
+                [29434] = true, -- Badge of Justice
+            },
 
-    self.DB         = sDKP_DB   -- general database
+            -- core
+            Core_IgnoreGuildInfoFormat = false,         -- [core] Guild Info DKP note format ignore toggle
+            Core_NoteFormat = "Net:%n Tot:%t Hrs:%h",   -- [core] DKP note format
+            Core_VerboseDiff = true,                    -- [core] verbose diff toggle
+            Core_WhisperAnnounce = true,                -- [core] whisper announce toggle
+
+            -- log
+            Log_FilterMinRarity = 4,                    -- [log] min. item quality (epic)
+        },
+        Roster = {}, -- current DKP data
+
+        -- database version
+        Version = DB_VERSION
+    }
+
+    self.DB         = sDKP_DB
     self.Options    = sDKP_DB.Options
     self.Roster     = sDKP_DB.Roster
 
@@ -106,4 +91,5 @@ function sDKP:VARIABLES_LOADED()
 end
 
 sDKP:Init()
+
 sDKP.Modules.Base = GetTime()
