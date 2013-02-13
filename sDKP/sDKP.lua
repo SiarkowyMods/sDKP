@@ -9,6 +9,13 @@ sDKP = {
     name    = "sDKP",
     player  = (UnitName("player")),
     version = GetAddOnMetadata("sDKP", "Version"),
+
+    Comms   = { },  -- comm message handlers
+    LogData = { },  -- operations' log
+    Modules = { },  -- enabled modules
+    Options = { },  -- options database
+    Roster  = { },  -- guild roster data
+    Versions = { }  -- guild mates' versions
 }
 
 local sDKP = sDKP
@@ -51,16 +58,11 @@ function sDKP:RegisterEvent(e) frame:RegisterEvent(e) end
 function sDKP:UnregisterEvent(e) frame:UnregisterEvent(e) end
 
 function sDKP:Init()
-    self.Comms = { }    -- comm message handlers
-    self.LogData = { }  -- operations' log
-    self.Modules = { }  -- enabled modules
-    self.Options = { }  -- options database
-    self.Roster = { }   -- guild roster data
-    self.Versions = { } -- guild mates' versions
+    frame:SetScript("OnEvent", function(frame, event, ...)
+        self[event](self, ...)
+    end)
 
-    frame:SetScript("OnEvent", self.OnEvent)
     self:RegisterEvent("VARIABLES_LOADED")
-
     self:Printf("Version %s enabled. Usage info: /sdkp", self.version)
 end
 
@@ -85,24 +87,19 @@ function sDKP:CheckDatabaseVersion()
     end
 end
 
---- Generic OnEvent handler.
--- @param frame Target frame.
--- @param event Event.
--- @param ... Additional args tuple.
-function sDKP.OnEvent(frame, event, ...)
-    sDKP[event](sDKP, ...)
-end
-
 --- Variables Loaded event handler.
 function sDKP:VARIABLES_LOADED()
     self:UnregisterEvent("VARIABLES_LOADED")
     self:RegisterEvent("GUILD_ROSTER_UPDATE")
     self:RegisterEvent("PLAYER_GUILD_UPDATE")
     self:RegisterEvent("RAID_ROSTER_UPDATE")
+
     self:CheckDatabaseVersion()
+
     self.DB         = sDKP_DB   -- general database
     self.Options    = sDKP_DB.Options
     self.Roster     = sDKP_DB.Roster
+
     self:PLAYER_GUILD_UPDATE("player")
     self:CleanupRoster()
     self:CommSend("HI")
