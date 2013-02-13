@@ -2,7 +2,7 @@
 ## Title: sDKP
 ## Notes: Siarkowy's Dragon Kill Points manager.
 ## Author: Siarkowy
-## Version: 1.2.1
+## Version: 1.2.2
 ## SavedVariables: sDKP_DB
 
 # Libs
