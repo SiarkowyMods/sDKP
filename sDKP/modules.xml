@@ -13,6 +13,7 @@
 <Script file="Modules\Chat.lua" />
 <Script file="Modules\Announce.lua" />
 
+<Script file="Modules\Aliases.lua" />
 <Script file="Modules\Alts.lua" />
 <Script file="Modules\Ironman.lua" />
 

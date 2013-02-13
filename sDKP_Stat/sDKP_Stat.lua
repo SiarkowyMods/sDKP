@@ -44,7 +44,7 @@ function sDKP:StatTopQuery(param)
 
 	local c = 0
 	local m = mode and "tot" or "net"
-	self:Announce(chan, "Top %d %s%s:", count, m, class ~= "" and format(" for class %s", class) or "")
+	self:Announce(chan, "Top %d %s ranking%s:", count, m, class ~= "" and format(" for class %s", class) or "")
 	for i = maxD, minD, -1 do
 		if data[i] then
 			c = c + 1
@@ -58,7 +58,7 @@ end
 
 --- Prints: Guild <%s>: %d members, %d mains, %d alts.
 function sDKP:StatGeneralInfo(param)
-	local _, chan = Util.ExtractChannel(param, "SELF")
+	local param, chan = Util.ExtractChannel(param, "SELF")
 
 	local mains			= 0
 	local mainsonline	= 0
@@ -77,10 +77,10 @@ function sDKP:StatGeneralInfo(param)
 
 	local num = GetNumGuildMembers()
 	local mainsP = mains / num * 100
-	self:Announce(chan, "<%s> guild information:", self.guild)
-	self:Announce(chan, " ~ overall members: %d, online: %d", num, mainsonline + altsonline)
-	self:Announce(chan, " ~ mains: %d (%.2f%%), online: %d", mains, mainsP, mainsonline)
-	self:Announce(chan, " ~ alts: %d (%.2f%%), online: %d", alts, 100 - mainsP, altsonline)
+	self:Announce(chan, "General information for <%s>:", self.guild)
+	self:Announce(chan, "   Overall members: %d, online: %d", num, mainsonline + altsonline)
+	self:Announce(chan, "   Mains: %d (%.1f%%), online: %d", mains, mainsP, mainsonline)
+	self:Announce(chan, "   Alts: %d (%.1f%%), online: %d", alts, 100 - mainsP, altsonline)
 end
 
 --- Prints: Druids: %d, Hunters: %d, ...
@@ -90,12 +90,12 @@ function sDKP:StatByClass(param)
 
 	for i = 1, num do
 		local _, _, _, _, class = GetGuildRosterInfo(i)
-		data[class] = data[class] and data[class] + 1 or 1
+		data[class] = (data[class] or 0) + 1
 	end
 
 	self:Announce(chan, "Guild class breakdown:")
 	for class, count in Util.PairsByKeys(data) do
-		self:Announce(chan, " ~ %s: %d (%.2f%%)", class, count, count / num * 100)
+		self:Announce(chan, "   %s: %d (%.1f%%)", class, count, count / num * 100)
 	end
 
 	clear()
@@ -103,18 +103,18 @@ end
 
 --- Prints: Guild level range: 70: %d, 68: %d, ...
 function sDKP:StatByLevel(param)
-	local _, chan = Util.ExtractChannel(param, "SELF")
+	local param, chan = Util.ExtractChannel(param, "SELF")
 	local num = GetNumGuildMembers()
 
 	for i = 1, num do
 		local _, _, _, level = GetGuildRosterInfo(i)
-		data[level] = data[level] and data[level] + 1 or 1
+		data[level] = (data[level] or 0) + 1
 	end
 
 	self:Announce(chan, "Guild level breakdown:")
-	for i = 70, 1 do
+	for i = 70, 1, -1 do
 		if data[i] then
-			self:Announce(chan, " ~ level %d: %d (%.2f%%)", i, data[i], data[i] / num * 100)
+			self:Announce(chan, "   Level %d: %d (%.1f%%)", i, data[i], data[i] / num * 100)
 		end
 	end
 
@@ -123,19 +123,20 @@ end
 
 --- Prints: GM: %d, Vice GM: %d, ...
 function sDKP:StatByRank(param)
-	local _, chan = Util.ExtractChannel(param, "SELF")
+	local param, chan = Util.ExtractChannel(param, "SELF")
 	local num = GetNumGuildMembers()
 
-	for i = 1, GuildControlGetNumRanks() do data[i - 1] = 0 end
+	for i = 1, GuildControlGetNumRanks() do data[i] = 0 end
 
 	for i = 1, num do
 		local _, _, rankId = GetGuildRosterInfo(i)
+        rankId = rankId + 1
 		data[rankId] = data[rankId] + 1
 	end
 
 	self:Announce(chan, "Guild rank breakdown:")
 	for rank, count in ipairs(data) do
-		self:Announce(chan, " ~ %s: %d (%.2f%%)", GuildControlGetRankName(rank + 1), count, count / num * 100)
+		self:Announce(chan, "   %s: %d (%.1f%%)", GuildControlGetRankName(rank), count, count / num * 100)
 	end
 
 	clear()
@@ -143,17 +144,17 @@ end
 
 --- Prints: Shattrath City: %d, Black Temple: %d, ...
 function sDKP:StatByZone(param)
-	local _, chan = Util.ExtractChannel(param, "SELF")
+	local param, chan = Util.ExtractChannel(param, "SELF")
 	local num = GetNumGuildMembers()
 
 	for i = 1, num do
 		local _, _, _, _, _, zone = GetGuildRosterInfo(i)
-		data[zone] = data[zone] and data[zone] + 1 or 1
+		data[zone] = (data[zone] or 0) + 1
 	end
 
 	self:Announce(chan, "Guild zone breakdown:")
 	for zone, count in Util.PairsByKeys(data) do
-		self:Announce(chan, " ~ %s: %d (%.2f%%)", zone, count, count / num * 100)
+		self:Announce(chan, "   %s: %d (%.1f%%)", zone, count, count / num * 100)
 	end
 
 	clear()
@@ -175,51 +176,60 @@ function sDKP:StatBySpec(param)
 		local name, _, _, _, _, _, note = GetGuildRosterInfo(i)
 		for spec in (note:match("%[(.-)%]") or ""):gmatch("%w+") do
 			spec = spec:upper()
-			data[spec] = data[spec] and data[spec] + 1 or 1
+			data[spec] = (data[spec] or 0) + 1
 		end
 	end
 
-	self:Announce(chan, "Specialization breakdown:")
+	self:Announce(chan, "Guild specialization breakdown:")
 	for spec, count in Util.PairsByKeys(data) do
-		sDKP:Announce(chan, " ~ %s: %d", specs[spec] or UNKNOWN, count)
+		sDKP:Announce(chan, "   %s: %d", specs[spec] or UNKNOWN, count)
 	end
 
 	clear()
 end
 
 function sDKP:StatBySpent(param)
-	local _, chan = Util.ExtractChannel(param, "SELF")
+    local param, chan = Util.ExtractChannel(param, "SELF")
+    local count = tonumber(param:match("%d+") or 5)
 
-	local min = 0
-	local max = 0
-	local spent
+    self:Announce(chan, "Top %d spent DKP ranking", count)
 
-	for name, d in pairs(self.Roster) do
-		if not d.main then
-			spent = d.tot - d.net
-			if spent < min then min = spent end
-			if spent > max then max = spent end
-			data[name] = spent
-		end
-	end
+    local spent
+    for name, info in pairs(self.Roster) do
+        spent = info.tot - info.net
+        if spent > 0 then
+            tinsert(data, format("%s %d", Util.ClassColoredPlayerName(name), spent))
+        end
+    end
 
-	for name, value in pairs(data) do
-		self:Echo("%s = %d", name, value)
-	end
+    sort(data, function(a, b) return a:match("%d+$") < b:match("%d+$") end)
+
+    for i, info in ipairs(data) do
+        self:Announce(chan, "   %d. %s", i, info)
+        if i >= count then return clear() end
+    end
 
 	clear()
 end
 
 --[[
-function sDKP:StatByNetValues() -- net DKP ranking
+function sDKP:StatByNetto()     -- net DKP ranking
 function sDKP:StatByProf()      -- Blacksmiths: %d, Jewelcrafters: %d, ...
 function sDKP:StatBySpec()      -- Tanks: %d (%d online), Healers: %d (%d online), Ranged: %d (%d online), Melee: %d (%d online)
-function sDKP:StatByTotValues() -- total DKP ranking
-function sDKP:StatRosterLookup(query)
+function sDKP:StatByTotal()     -- total DKP ranking
 --]]
 
+--- Guild Who-Like utility.
+-- Similar to /who command with some slight differences.
 function sDKP:StatWho(param)
-    param, chan = Util.ExtractChannel(param, "SELF")
+    if param:lower() == "help" then
+        self:Print("Guild Who List: Usage")
+        self:Echo("/sdkp who [n-Name] [r-MinRank[-MaxRank]] [R-RankName] [l-MinLvl[-MaxLvl]] [c-Class] [z-Zone] [N-PlayerNote] [o-OfficerNote] [online] [raid]")
+        self:Echo("   All string lookups are treated as string parts. They also use Lua pattern matching mechanisms so characters ^$()%%.[]*+-? need to be escaped: %%., %%%%, %%* etc.")
+        return
+    end
+
+    local param, chan = Util.ExtractChannel(param, "SELF")
 
     local _name = param:match('n%-"([^"]+)"') or param:match('n%-(%w+)')
     local _minrank, _maxrank = param:match("r%-(%d+)%-?(%d*)")
@@ -347,6 +357,7 @@ sDKP.Slash.args.stat = {
 sDKP.Slash.args.who = {
     name = "Who",
     desc = "Who-like utility for current guild.",
+    usage = "help || <query>",
     type = "execute",
     func = "StatWho"
 }
