@@ -12,18 +12,18 @@ local format = format
 local strjoin = strjoin
 local strsplit = strsplit
 
-local CTL_PRIO	= "NORMAL"
+local CTL_PRIO  = "NORMAL"
 local DELIMETER = "\a"
 
 sDKP.commPrefix = "sDKP"
 local comms = sDKP.Comms
 
 function sDKP:CHAT_MSG_ADDON(prefix, msg, distr, sender)
-	if not self:GetMainName(sender) then return end
-	if prefix ~= self.commPrefix or sender == self.player then return end
-	local type, data = strsplit(DELIMETER, msg, 2)
-	if not comms[type] then return end
-	comms[type](self, data, distr, sender)
+    if not self:GetMainName(sender) then return end
+    if prefix ~= self.commPrefix or sender == self.player then return end
+    local type, data = strsplit(DELIMETER, msg, 2)
+    if not comms[type] then return end
+    comms[type](self, data, distr, sender)
 end
 
 sDKP:RegisterEvent("CHAT_MSG_ADDON")
@@ -32,8 +32,8 @@ sDKP:RegisterEvent("CHAT_MSG_ADDON")
 -- @param type Handler type.
 -- @param func Handler function.
 function sDKP:CommRegisterHandler(type, func)
-	assert(type and func, format("sDKP: Could not register comm of type %s.", type or "<?>"))
-	comms[type] = func
+    assert(type and func, format("sDKP: Could not register comm of type %s.", type or "<?>"))
+    comms[type] = func
 end
 
 -- ------------------------------------------------------------------
@@ -49,15 +49,15 @@ end
 --     message sender
 -- ------------------------------------------------------------------
 function comms.TEST(self, data, distr, sender)
-	self:Print(format("%q %q %q", data or "?", distr or "?", sender or "?"))
+    self:Print(format("%q %q %q", data or "?", distr or "?", sender or "?"))
 end
 
 function comms.HI(self, data, distr, sender)
-	self:CommSend("VER", self.version, "WHISPER", sender)
+    self:CommSend("VER", self.version, "WHISPER", sender)
 end
 
 function comms.VER(self, data, distr, sender)
-	self.Versions[sender] = data
+    self.Versions[sender] = data
 end
 
 --- Sends comm message.
@@ -66,21 +66,21 @@ end
 -- @param distr Distribution type (optional, defaults to "GUILD").
 -- @param chan Channel for "WHISPER" or "CHANNEL" destination (optional).
 function sDKP:CommSend(type, data, distr, chan)
-	ctl:SendAddonMessage(CTL_PRIO, self.commPrefix, data and strjoin(DELIMETER, type, data) or type, distr or "GUILD", chan)
+    ctl:SendAddonMessage(CTL_PRIO, self.commPrefix, data and strjoin(DELIMETER, type, data) or type, distr or "GUILD", chan)
 end
 
 --- Prints guild mates' addon versions to chat frame.
 function sDKP:VersionDump()
-	local version = self.version
-	local Util = self.Util
-	compare = Util.VersionCompare
-	self:Print("Guild mates' versions detected:")
-	local count = 0
-	for n, v in Util.PairsByKeys(self.Versions) do
-		self:Echo("   %s |cff%s%s|r", n, compare(v, version) and "33ff33" or (v == version) and "ffffff" or "ff3333", v)
-		count = count + 1
-	end
-	self:Echo("Total of %d |4player:players;.", count)
+    local version = self.version
+    local Util = self.Util
+    compare = Util.VersionCompare
+    self:Print("Guild mates' versions detected:")
+    local count = 0
+    for n, v in Util.PairsByKeys(self.Versions) do
+        self:Echo("   %s |cff%s%s|r", n, compare(v, version) and "33ff33" or (v == version) and "ffffff" or "ff3333", v)
+        count = count + 1
+    end
+    self:Echo("Total of %d |4player:players;.", count)
 end
 
 sDKP.Modules.Comm = GetTime()

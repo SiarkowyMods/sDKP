@@ -20,16 +20,16 @@ local tinsert = tinsert
 local tonumber = tonumber
 
 function Util.CreateHyperlink(kind, visual, ...)
-	return format("|Hsdkp:%s:%s|h|cff88ff88(%s)|h", kind, strjoin(':', ...), visual)
+    return format("|Hsdkp:%s:%s|h|cff88ff88(%s)|h", kind, strjoin(':', ...), visual)
 end
 
 function Util.ClassColoredPlayerName(player)
-	if not self.Roster[player] then
-		return player
-	end
-	
-	local c = RAID_CLASS_COLORS[self.Roster[player].class]
-	return format("%s%s|r", Util.DecimalToHexColor(c.r, c.g, c.b), player)
+    if not self.Roster[player] then
+        return player
+    end
+    
+    local c = RAID_CLASS_COLORS[self.Roster[player].class]
+    return format("%s%s|r", Util.DecimalToHexColor(c.r, c.g, c.b), player)
 end
 
 --- Returns hex encoded color string from float red, green and blue values.
@@ -47,37 +47,37 @@ end
 -- @return string - Message without channel part.
 -- @return string - Channel if any.
 function Util.ExtractChannel(msg, defchan)
-	local channel
+    local channel
 
-	local func = function(m)
-		channel = m
-		return ""
-	end
+    local func = function(m)
+        channel = m
+        return ""
+    end
 
-	msg = msg:gsub("@(%S+)", func):trim()
-	return msg, (channel or defchan)
+    msg = msg:gsub("@(%S+)", func):trim()
+    return msg, (channel or defchan)
 end
 
 do
-	local data = { }
-	--- Returns formatted note data string from given player data
-	-- to be enclosed in curly brackets and stored to officer note.
-	-- @param d Player data table (form Roster table).
-	-- @param netD Net amount delta. This will be added to current value (optional, defaults to 0).
-	-- @param totD Total amount delta. This will be added to current value (optional, defaults to 0).
-	-- @param hrsD Hours count delta. This will be added to current value (optional, defaults to 0).
-	-- @return string - Formatted note data.
-	function Util.FormatNoteData(d, netD, totD, hrsD)
-		data.d = date("%d")
-		data.m = date("%m")
-		data.Y = date("%Y")
+    local data = { }
+    --- Returns formatted note data string from given player data
+    -- to be enclosed in curly brackets and stored to officer note.
+    -- @param d Player data table (form Roster table).
+    -- @param netD Net amount delta. This will be added to current value (optional, defaults to 0).
+    -- @param totD Total amount delta. This will be added to current value (optional, defaults to 0).
+    -- @param hrsD Hours count delta. This will be added to current value (optional, defaults to 0).
+    -- @return string - Formatted note data.
+    function Util.FormatNoteData(d, netD, totD, hrsD)
+        data.d = date("%d")
+        data.m = date("%m")
+        data.Y = date("%Y")
 
-		data.n = d.net + (netD or 0)
-		data.t = d.tot + (totD or 0)
-		data.h = d.hrs + (hrsD or 0)
+        data.n = d.net + (netD or 0)
+        data.t = d.tot + (totD or 0)
+        data.h = d.hrs + (hrsD or 0)
 
-		return gsub(self.Options.Core_NoteFormat, "%%(.)", data)
-	end
+        return gsub(self.Options.Core_NoteFormat, "%%(.)", data)
+    end
 end
 
 --- Returns an iterator to traverse hash indexed table in alphabetical order.
@@ -85,32 +85,32 @@ end
 -- @param f Sort function for table's keys.
 -- @return function - Hash table alphabetical iterator.
 function Util.PairsByKeys(t, f) -- from http://www.lua.org/pil/19.3.html
-	local a = {}
-	for n in pairs(t) do tinsert(a, n) end
-	sort(a, f)
-	local i = 0				-- iterator variable
-	local iter = function()	-- iterator function
-		i = i + 1
-		if a[i] == nil then return nil
-		else return a[i], t[a[i]] end
-	end
-	return iter
+    local a = {}
+    for n in pairs(t) do tinsert(a, n) end
+    sort(a, f)
+    local i = 0             -- iterator variable
+    local iter = function() -- iterator function
+        i = i + 1
+        if a[i] == nil then return nil
+        else return a[i], t[a[i]] end
+    end
+    return iter
 end
 
 --- Returns decimal timestamp from given date string.
 -- @param param String timestamp.
 -- @return number - Integer timestamp.
 function Util.ParamToTimestamp(param)
-	local timestamp
-	local year, month, day, hour, min, sec = param:match("(%d+).(%d+).(%d+)%s*(%d+).(%d+).(%d+)")
+    local timestamp
+    local year, month, day, hour, min, sec = param:match("(%d+).(%d+).(%d+)%s*(%d+).(%d+).(%d+)")
 
-	if sec then
-		timestamp = time{year = year, month = month, day = day, hour = hour, min = min, sec = sec}
-	else
-		timestamp = tonumber(param:match("%d+"))
-	end
+    if sec then
+        timestamp = time{year = year, month = month, day = day, hour = hour, min = min, sec = sec}
+    else
+        timestamp = tonumber(param:match("%d+"))
+    end
 
-	return timestamp
+    return timestamp
 end
 
 --- Parses loot message for item looter, ID and count.
@@ -119,16 +119,16 @@ end
 -- @return mixed - Item ID or nil.
 -- @return mixed - Count or false.
 function Util.ParseLootMessage(msg)
-	local player, id, count
-	player, id = msg:match("(%S+) receives? loot:.*item:(%d+)")
-	if not player or not id then
-		player, id = msg:match("(%S+) won:.*item:(%d+)")
-	end
-	
-	count = msg:match("x(%d+)") or id and 1
-	if player then player = gsub(player, "^You$", self.player) end
-	
-	return player, id, count
+    local player, id, count
+    player, id = msg:match("(%S+) receives? loot:.*item:(%d+)")
+    if not player or not id then
+        player, id = msg:match("(%S+) won:.*item:(%d+)")
+    end
+    
+    count = msg:match("x(%d+)") or id and 1
+    if player then player = gsub(player, "^You$", self.player) end
+    
+    return player, id, count
 end
 
 --- Returns alt status and DKP amounts from given officer note string.
@@ -138,18 +138,18 @@ end
 -- @return number - Total amount.
 -- @return number - Hours count.
 function Util.ParseOfficerNote(o)
-	local param = o or ""
-	local between = param:match("{(.-)}") or ""
-	
-	if between:match("%D+") == between then -- alt
-		return between, 0, 0, 0
-	end
-	
-	local net = tonumber(between:match("Ne?t?.([-]?%d+)")) or 0
-	local tot = tonumber(between:match("To?t?.([-]?%d+)")) or 0
-	local hrs = tonumber(between:match("Hr?s?.([-]?%d+)")) or 0
-	
-	return nil, net, tot, hrs
+    local param = o or ""
+    local between = param:match("{(.-)}") or ""
+    
+    if between:match("%D+") == between then -- alt
+        return between, 0, 0, 0
+    end
+    
+    local net = tonumber(between:match("Ne?t?.([-]?%d+)")) or 0
+    local tot = tonumber(between:match("To?t?.([-]?%d+)")) or 0
+    local hrs = tonumber(between:match("Hr?s?.([-]?%d+)")) or 0
+    
+    return nil, net, tot, hrs
 end
 
 --- Returns boolean.
@@ -157,14 +157,14 @@ end
 -- @param ver2 Version string.
 -- @return boolean - True if first version is newer than second, false otherwise.
 function Util.VersionCompare(ver1, ver2)
-	local a, b, c = ver1:match("(%d+).(%d+).(%d+)")
-	local d, e, f = ver2:match("(%d+).(%d+).(%d+)")
+    local a, b, c = ver1:match("(%d+).(%d+).(%d+)")
+    local d, e, f = ver2:match("(%d+).(%d+).(%d+)")
 
-	if a > d then return true
-	elseif a < d then return false
-	elseif b > e then return true
-	elseif b < e then return false
-	else return c > f end
+    if a > d then return true
+    elseif a < d then return false
+    elseif b > e then return true
+    elseif b < e then return false
+    else return c > f end
 end
 
 sDKP.Modules.Util = GetTime()

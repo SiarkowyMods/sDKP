@@ -6,11 +6,11 @@
 local sDKP = sDKP
 
 function sDKP:GetOpt(option)
-	return self.Options[option]
+    return self.Options[option]
 end
 
 function sDKP:SetOpt(option, value)
-	self.Options[option] = value
+    self.Options[option] = value
 end
 
 sDKP.Modules.Options = GetTime()
