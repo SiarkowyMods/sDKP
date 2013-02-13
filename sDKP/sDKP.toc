@@ -5,6 +5,23 @@
 ## Version: 1.2.1
 ## SavedVariables: sDKP_DB
 
-embeds.xml
+# Libs
+Libs\ChatThrottleLib\ChatThrottleLib.lua
+
+# Core
 sDKP.lua
-modules.xml
+
+# Modules
+Modules\Util.lua
+Modules\Slash.lua
+Modules\Hyperlinks.lua
+Modules\Queue.lua
+Modules\Core.lua
+Modules\Comm.lua
+Modules\Log.lua
+Modules\Boss.lua
+Modules\Chat.lua
+Modules\Announce.lua
+Modules\Aliases.lua
+Modules\Alts.lua
+Modules\Ironman.lua
