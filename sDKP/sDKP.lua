@@ -88,8 +88,6 @@ function sDKP:VARIABLES_LOADED()
     self:PLAYER_GUILD_UPDATE("player")
     self:CleanupRoster()
     self:CommSend("HI")
-
-    if IsInGuild() then GuildRoster() end
 end
 
 sDKP:Init()

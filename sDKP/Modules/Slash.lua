@@ -58,61 +58,110 @@ local function criteriaClassOnlineInRaid(d, class)
     return d.raid and d.class == class and d.on
 end
 
+local GINFO_ZONE = 6
+
+local function criteriaSameZoneInRaid(d)
+    return d.raid and select(GINFO_ZONE, GetGuildRosterInfo(d.id)) == GetRealZoneText() and d.on
+end
+
+local function criteriaOtherZoneInRaid(d)
+    return d.raid and select(GINFO_ZONE, GetGuildRosterInfo(d.id)) ~= GetRealZoneText() and d.on
+end
+
 function sDKP:ModifyChatWrapper(who, points, reason, announce)
     local output
-    
+
     points = tonumber(points) or 0
-    
+
     if announce then
         output = reason:match("@(%S+)")
         if output then
             reason = trim(gsub(reason, "@(%S+)", ""))
         end
     end
-    
+
     if lower(who) == "raid" then
         self:Discard()
         self:RosterIterateAction(actionModify, {points}, criteriaOnlineInRaid)
+
         if announce then
             self:Announce(output, "raid %+d DKP%s", points, reason ~= "" and ": " .. reason or "")
         end
+
         local count = self:Store()
         self:Printf("%d |4player was:players were; %s %d DKP%s.", count, points >= 0 and "awarded" or "charged", abs(points), reason ~= "" and ": " .. reason or "")
+
         if reason ~= "" then
             self:Log(LOG_DKP_RAID, count, points, match(reason, "item:(%d+)") or reason)
         else
             self:Log(LOG_DKP_RAID, count, points)
         end
+
+    elseif lower(who) == "zone" then
+        self:Discard()
+        self:RosterIterateAction(actionModify, {points}, criteriaSameZoneInRaid)
+
+        if announce then
+            self:Announce(output, "zone %+d DKP%s", points, reason ~= "" and ": " .. reason or "")
+        end
+
+        local count = self:Store()
+        self:Printf("%d |4player was:players were; %s %d DKP%s.", count, points >= 0 and "awarded" or "charged", abs(points), reason ~= "" and ": " .. reason or "")
+
+        -- TODO: zone DKP logging
+
+    elseif lower(who) == "otherzone" then
+        self:Discard()
+        self:RosterIterateAction(actionModify, {points}, criteriaOtherZoneInRaid)
+
+        if announce then
+            self:Announce(output, "out of zone %+d DKP%s", points, reason ~= "" and ": " .. reason or "")
+        end
+
+        local count = self:Store()
+        self:Printf("%d |4player was:players were; %s %d DKP%s.", count, points >= 0 and "awarded" or "charged", abs(points), reason ~= "" and ": " .. reason or "")
+
+        -- TODO: zone DKP logging
+
     elseif COLORS[upper(who)] then
         local classUpper = upper(who)
         local classLower = lower(who)
+
         self:Discard()
         self:RosterIterateAction(actionModify, {points}, criteriaClassOnlineInRaid, {classUpper})
+
         if announce then
             local r, g, b = COLORS[classUpper].r, COLORS[classUpper].g, COLORS[classUpper].b
             self:Announce(output, "%s%ss|r %+d DKP%s", Util.DecimalToHexColor(r, g, b), classLower, points, reason ~= "" and ": " .. reason or "")
         end
+
         local count = self:Store()
         self:Printf("%d |4player was:players were; %s %d DKP%s.", count, points >= 0 and "awarded" or "charged", abs(points), reason ~= "" and ": " .. reason or "")
+
         if reason ~= "" then
             self:Log(LOG_DKP_CLASS, classLower, count, points, match(reason, "item:(%d+)") or reason)
         else
             self:Log(LOG_DKP_CLASS, classLower, count, points)
         end
+
     elseif self:GetMainName(who) then
         self:Discard(who)
-        sDKP:Modify(who, points, (points > 0) and points or 0, 0)
+        self:Modify(who, points, (points > 0) and points or 0, 0)
+
         local player = Util.ClassColoredPlayerName(who)
         if announce then
             self:Announce(output, "%s %+d DKP%s", player, points, reason ~= "" and ": " .. reason or "")
         end
+
         self:Store(self:GetMainName(who))
         self:Printf("%s was %s %d DKP%s.", player, points >= 0 and "awarded" or "charged", abs(points), reason ~= "" and ": " .. reason or "")
+
         if reason ~= "" then
             self:Log(LOG_DKP_MODIFY, who, points, match(reason, "item:(%d+)") or reason)
         else
             self:Log(LOG_DKP_MODIFY, who, points)
         end
+
     else
         self:Print("Character has to be in your guild. No notes changed.")
         return

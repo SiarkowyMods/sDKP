@@ -58,9 +58,9 @@ function sDKP:CHAT_MSG_LOOT(msg)
     if not self.inRaid then return end
     player, id, count = Util.ParseLootMessage(msg)
     if player and id then
-        local _, _, rarity = GetItemInfo(id)
+        local _, link, rarity = GetItemInfo(id)
         if rarity >= O.Log_FilterMinRarity then
-            self:Log(LOG_LOOT, player, id, count)
+            self:Log(LOG_LOOT, player, link, count)
         end
     end
 end

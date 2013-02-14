@@ -100,9 +100,8 @@ end -- do
 -- 0, player, item[, count]
 log[LOG_PLAYER_LOOT] = function(player, item, count)
     local _, link = GetItemInfo(item)
-    link = link or "<unknown item>"
     count = tonumber(count) or 1
-    return format("%s looted %s%s.", Util.ClassColoredPlayerName(player), link, count > 1 and format("x%d", count) or "")
+    return format("%s looted %s%s.", Util.ClassColoredPlayerName(player), link or "<unknown item>", count > 1 and format("x%d", count) or "")
 end
     
 -- 1, player, points[, reason]
