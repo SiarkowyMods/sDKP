@@ -43,7 +43,7 @@ function sDKP:Init()
     end)
 
     self:RegisterEvent("VARIABLES_LOADED")
-    self:Printf("Version %s enabled. Usage info: /sdkp", self.version)
+    self:Printf("Version %s enabled. Usage: /sdkp", self.version)
 end
 
 --- Variables Loaded event handler.
@@ -88,6 +88,8 @@ function sDKP:VARIABLES_LOADED()
     self:PLAYER_GUILD_UPDATE("player")
     self:CleanupRoster()
     self:CommSend("HI")
+
+    if IsInGuild() then GuildRoster() end
 end
 
 sDKP:Init()
