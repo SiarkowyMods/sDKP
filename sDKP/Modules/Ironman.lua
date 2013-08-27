@@ -103,6 +103,31 @@ function sDKP:IronManCancelAnn(param)
     self:Announce(output, "Ironman canceled%s", param ~= "" and ": " .. param or "")
 end
 
+function sDKP:IronManReinvite()
+    if not self:IronManCheck() then
+        self:Print("No ironman data found.")
+        return
+    end
+
+    if not UnitInRaid("player") then
+        self:Print("You have to be in a raid group.")
+        return
+    end
+
+    for name, d in pairs(self.Roster) do
+        if d.iron then
+            if not d.raid and d.on and name ~= self.player then
+                InviteUnit(name)
+            else
+                local alt = self:GetPlayerOnlineAlt(name)
+                local a = self.Roster[alt]
+
+                if alt and not a.raid then InviteUnit(alt) end
+            end
+        end
+    end
+end
+
 local function wipe(t) for k, v in pairs(t) do t[k] = nil end end
 local t = { }
 
@@ -305,6 +330,13 @@ sDKP.Slash.args.ironman = {
             type = "execute",
             func = "IronManStartAnn",
             order = 10
+        },
+        reinvite = {
+            name = "Reinvite",
+            desc = "Reinvite ironman eligible players who remain out of raid.",
+            type = "execute",
+            func = "IronManReinvite",
+            order = 11
         },
     }
 }
