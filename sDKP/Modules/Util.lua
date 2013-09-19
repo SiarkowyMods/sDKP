@@ -45,7 +45,7 @@ end
 -- @param msg Message to extract channel from.
 -- @param defchan Default channel if not found.
 -- @return string - Message without channel part.
--- @return string - Channel if any.
+-- @return string - Extracted or default channel.
 function Util.ExtractChannel(msg, defchan)
     local channel
 
