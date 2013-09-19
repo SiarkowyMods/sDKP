@@ -279,6 +279,28 @@ sDKP.Slash = {
             desc = "Options management.",
             type = "group",
             args = {
+                dkpformat = {
+                    name = "DKP note format",
+                    desc = "Sets DKP format for officer notes. Use %n for netto, %t - total, %h - hour counter.",
+                    type = "execute",
+                    usage = "<format>",
+                    func = function(self, param)
+                        local O = self.Options
+                        O.Core_NoteFormat = param ~= "" and param or "Net:%n Tot:%t Hrs:%h"
+                        self:Printf("DKP note format set to %q.", O.Core_NoteFormat)
+                    end
+                },
+                ignoreginfo = {
+                    name = "Ignore guild info note format",
+                    desc = "Controls whether to load DKP note format from guild info.",
+                    type = "execute",
+                    usage = "off||on",
+                    func = function(self, param)
+                        local O = self.Options
+                        O.Core_IgnoreGuildInfoFormat = param:match("^on$") and true or nil
+                        self:Printf("Guild info DKP note format ignore %s.", O.Core_IgnoreGuildInfoFormat and "enabled" or "disabled")
+                    end
+                },
                 verbosediff = {
                     name = "Verbose diff",
                     desc = "Prints chat message on DKP change.",
