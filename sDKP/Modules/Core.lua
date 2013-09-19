@@ -21,9 +21,11 @@ function sDKP:GUILD_ROSTER_UPDATE()
     if not GetGuildRosterShowOffline() then
         GuildFrameLFGButton:Click()
         self:Print("Enabled offline guild members visibility for addon to remain functional.")
+        return
     end
 
     GuildFrameLFGButton:Disable()
+    self:OnGuildRosterUpdate()
     self.GUILD_ROSTER_UPDATE = self.OnGuildRosterUpdate
 end
 
