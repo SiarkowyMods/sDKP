@@ -12,6 +12,7 @@ Libs\ChatThrottleLib\ChatThrottleLib.lua
 sDKP.lua
 
 # Modules
+Modules\Table.lua
 Modules\Util.lua
 Modules\Slash.lua
 Modules\Hyperlinks.lua
