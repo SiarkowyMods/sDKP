@@ -120,6 +120,8 @@ function sDKP:GetMainName(n)
             return
         end
         return n
+    elseif self.Externals[n] and self.Roster[self.Externals[n]] then
+        return self.Externals[n]
     end
     return
 end

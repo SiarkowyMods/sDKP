@@ -21,7 +21,7 @@ sDKP = {
 local sDKP = sDKP
 local frame = sDKP.frame
 
-local DB_VERSION = 20130213
+local DB_VERSION = 20130919
 local prompt = format("|cff56a3ff%s:|r ", sDKP.name)
 
 local format = format
@@ -58,6 +58,7 @@ function sDKP:VARIABLES_LOADED()
     sDKP_DB = sDKP_DB and sDKP_DB.Version == DB_VERSION and sDKP_DB or
     self:Print("Database initialised.") or {
         Data = {}, -- misc. data
+        Externals = {}, -- out of guild aliases to guild mains
         Options = {
             -- chat
             Chat_FilterMinRarity = 4,                   -- [charge links] min. item quality (epic)
@@ -82,6 +83,7 @@ function sDKP:VARIABLES_LOADED()
     }
 
     self.DB         = sDKP_DB
+    self.Externals  = sDKP_DB.Externals
     self.Options    = sDKP_DB.Options
     self.Roster     = sDKP_DB.Roster
 
