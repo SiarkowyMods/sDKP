@@ -3,9 +3,7 @@
 --  Released under the terms of GNU GPL v3 license.
 --------------------------------------------------------------------------------
 
-local ctl = ChatThrottleLib
-
-assert(ctl, "sDKP: Required ChatThrottleLib instance not found.")
+local ctl = assert(ChatThrottleLib, "sDKP: Required ChatThrottleLib instance not found.")
 
 local GetChannelName = GetChannelName
 local IsRaidLeader = IsRaidLeader
@@ -32,7 +30,7 @@ sDKP.VALID_CHANNELS = CHANNELS
 
 --- Sends given message to preferred channel using ChatThrottleLib.
 -- @param channel Destination channel (optional, defaults to :GetProperAnnounceChannel()).
--- @param message Message to send.
+-- @param ... Message args tuple for format() to send.
 function sDKP:Announce(channel, ...)
     channel = channel or self.Options.Core_AnnounceChannel or self:GetProperAnnounceChannel()
     local message = format(...)
