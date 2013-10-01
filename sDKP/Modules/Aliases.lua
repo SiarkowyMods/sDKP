@@ -13,16 +13,23 @@ local sub = string.sub
 local trim = string.trim
 local GetGuildRosterInfo = GetGuildRosterInfo
 
---- Sets external alt status for given player.
--- @param external External alt character name.
+--- Sets alias status for given character.
+-- @param alias Alias character name.
 -- @param main Main character name.
 -- @return boolean - success flag.
-function sDKP:SetAlias(external, main)
-    assert(external, "External character name required.")
+function sDKP:SetAlias(alias, main)
+    assert(alias, "Alias character name required.")
     assert(self.Roster[main] or not main, "Guild member or no name required.")
 
-    self.Externals[external] = main
+    self.aliases[alias] = main
     return true
+end
+
+--- Returns guild member name for specified alias.
+-- @param alias Alias character name.
+-- @return string - Guild member name.
+function sDKP:Unalias(alias)
+    return self.aliases[alias]
 end
 
 sDKP.Slash.args.alias = {
@@ -48,8 +55,8 @@ sDKP.Slash.args.alias = {
             func = function(self, name)
                 self:Print("Current aliases:")
 
-                for external, main in pairs(self.Externals) do
-                    self:Echo("   %s --> %s", external, main)
+                for alias, main in pairs(self.aliases) do
+                    self:Echo("   %s --> %s", alias, main)
                 end
             end
         },
@@ -57,7 +64,7 @@ sDKP.Slash.args.alias = {
             name = "Set",
             desc = "Set alias status.",
             type = "execute",
-            usage = "<external> <main>",
+            usage = "<alias> <main>",
             func = function(self, param)
                 local alias, main = match(param, "(%S+)%s*(%S+)")
                 self:SetAlias(alias, main)
