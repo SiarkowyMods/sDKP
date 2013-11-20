@@ -53,17 +53,11 @@ function sDKP:PLAYER_GUILD_UPDATE(unit)
     self:CheckLogPresence()
 end
 
-do
-    local temp = {}
-    function sDKP:RAID_ROSTER_UPDATE()
-        if UnitInRaid("player") then
-            for i = 1, GetNumRaidMembers() do
-                local n, _, pt, _, _, _, _, on = GetRaidRosterInfo(i)
-                if n and on then temp[n] = pt end
-            end
-        end
-        for name, d in pairs(self.Roster) do d.raid = temp[name] end
-        for k, v in pairs(temp) do temp[k] = nil end
+--- Updates subgroup info.
+function sDKP:RAID_ROSTER_UPDATE()
+    for name, o in pairs(self.Roster) do
+        local id = UnitInRaid(name)
+        o.raid = id and select(3, GetRaidRosterInfo(id + 1)) or nil
     end
 end
 
