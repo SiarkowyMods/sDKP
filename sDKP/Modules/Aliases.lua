@@ -14,14 +14,14 @@ local trim = string.trim
 local GetGuildRosterInfo = GetGuildRosterInfo
 
 --- Sets alias status for given character.
--- @param alias Alias character name.
--- @param main Main character name.
+-- @param alias Alias character.
+-- @param owner Owner of alias character.
 -- @return boolean - success flag.
-function sDKP:SetAlias(alias, main)
+function sDKP:SetAlias(alias, owner)
     assert(alias, "Alias character name required.")
-    assert(self.Roster[main] or not main, "Guild member or no name required.")
+    assert(not owner or self:GetRoster(owner), "Guild member or no name required.")
 
-    self.aliases[alias] = main
+    self.Externals[alias] = owner
     return true
 end
 
@@ -29,7 +29,7 @@ end
 -- @param alias Alias character name.
 -- @return string - Guild member name.
 function sDKP:Unalias(alias)
-    return self.aliases[alias]
+    return self.Externals[alias]
 end
 
 sDKP.Slash.args.alias = {
@@ -55,8 +55,8 @@ sDKP.Slash.args.alias = {
             func = function(self, name)
                 self:Print("Current aliases:")
 
-                for alias, main in pairs(self.aliases) do
-                    self:Echo("   %s --> %s", alias, main)
+                for alias, main in self.Util.PairsByKeys(self.Externals) do
+                    self:Echo("   %s -> %s", alias, main)
                 end
             end
         },
