@@ -30,10 +30,11 @@ sDKP.VALID_CHANNELS = CHANNELS
 
 --- Sends given message to preferred channel using ChatThrottleLib.
 -- @param channel Destination channel (optional, defaults to :GetProperAnnounceChannel()).
+-- @param fmt Format string.
 -- @param ... Message args tuple for format() to send.
-function sDKP:Announce(channel, ...)
+function sDKP:Announce(channel, fmt, ...)
     channel = channel or self.Options.Core_AnnounceChannel or self:GetProperAnnounceChannel()
-    local message = format(...)
+    local message = format(fmt, ...)
 
     if channel:upper() == "SELF" then DEFAULT_CHAT_FRAME:AddMessage(message)
     elseif CHANNELS[upper(channel)] then ctl:SendChatMessage(CTL_PRIO, CTL_PREFIX, message, channel)
