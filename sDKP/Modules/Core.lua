@@ -17,6 +17,8 @@ local GetTime = GetTime
 local GuildRosterSetOfficerNote = GuildRosterSetOfficerNote
 local UnitInRaid = UnitInRaid
 
+-- Event handlers --------------------------------------------------------------
+
 function sDKP:GUILD_ROSTER_UPDATE()
     if not GetGuildRosterShowOffline() then
         GuildFrameLFGButton:Click()
@@ -61,6 +63,88 @@ function sDKP:RAID_ROSTER_UPDATE()
     end
 end
 
+-- Utility functions -----------------------------------------------------------
+
+--- Returns character object if name specified, otherwise the whole roster table.
+-- @param name (optional) Character name.
+-- @return table|nil - Roster table, character object or nil if character not found.
+function sDKP:GetRoster(name)
+    return not name and self.Roster or self.Roster[name]
+end
+
+--- Returns character object.
+-- @param name Character name.
+-- @return table|nil - Character object or nil if character not found.
+function sDKP:GetCharacter(name)
+    return self:GetRoster(assert(name, "Character name required."))
+end
+
+--- Returns main name.
+-- @param name Player name.
+-- @return mixed - Main name for alt or nil for main.
+function sDKP:GetMainName(n)
+    if self.Roster[n] then
+        if self.Roster[n].main then
+            if self.Roster[self.Roster[n].main] then
+                return self.Roster[n].main
+            end
+            return
+        end
+        return n
+    elseif self.Externals[n] and self.Roster[self.Externals[n]] then
+        return self.Externals[n]
+    end
+    return
+end
+
+--- Returns character object. Resolves aliases to their owner characters.
+-- @param name Character name.
+-- @return table|nil - Character object or nil if character not found.
+function sDKP:GetPlayer(name)
+    return self:GetRoster(assert(name, "Player name required.")) -- check roster
+        or self:Unalias(name) and self:GetRoster(self:Unalias(name)) -- check aliases
+end
+
+--- Returns player online alt.
+-- @param main Main name.
+-- @return mixed - Online alt name or nil if none.
+function sDKP:GetPlayerOnlineAlt(main)
+    for n, d in pairs(self.Roster) do
+        if d.main == main and d.on then
+            return n
+        end
+    end
+end
+
+--- Returns DKP values for given player
+-- @param name Character name.
+-- @return number - Net amount.
+-- @return number - Total value.
+-- @return number - Hours count.
+function sDKP:GetPlayerPointValues(n)
+    return self.Roster[n].net, self.Roster[n].tot, self.Roster[n].hrs
+end
+
+function sDKP:IsInGuild(name)
+    return not not self:GetPlayer(name)
+end
+
+--- Returns 1 if character is an officer,  i.e. can
+-- read and write to officer chat, or nil otherwise
+-- @param name Character name.
+-- @return boolean - True for officer, nil otherwise.
+function sDKP:IsOfficer(name)
+    if self:GetMainName(name) then
+        local _, _, rank = GetGuildRosterInfo(self.Roster[name].id)
+        GuildControlSetRank(rank + 1)
+        local _, _, oListen, oSpeak = GuildControlGetRankFlags()
+        return (oListen and oSpeak) or nil
+    end
+    return
+end
+
+-- Core functionality ----------------------------------------------------------
+
 --- Deletes all roster entries that do not contain unsaved data.
 function sDKP:CleanupRoster()
     for n, d in pairs(self.Roster) do
@@ -102,58 +186,6 @@ function sDKP:Discard(name)
         end
     end
     return count
-end
-
---- Returns main name.
--- @param name Player name.
--- @return mixed - Main name for alt or nil for main.
-function sDKP:GetMainName(n)
-    if self.Roster[n] then
-        if self.Roster[n].main then
-            if self.Roster[self.Roster[n].main] then
-                return self.Roster[n].main
-            end
-            return
-        end
-        return n
-    elseif self.Externals[n] and self.Roster[self.Externals[n]] then
-        return self.Externals[n]
-    end
-    return
-end
-
---- Returns player online alt.
--- @param main Main name.
--- @return mixed - Online alt name or nil if none.
-function sDKP:GetPlayerOnlineAlt(main)
-    for n, d in pairs(self.Roster) do
-        if d.main == main and d.on then
-            return n
-        end
-    end
-end
-
---- Returns DKP values for given player
--- @param name Character name.
--- @return number - Net amount.
--- @return number - Total value.
--- @return number - Hours count.
-function sDKP:GetPlayerPointValues(n)
-    return self.Roster[n].net, self.Roster[n].tot, self.Roster[n].hrs
-end
-
---- Returns 1 if character is an officer,  i.e. can
--- read and write to officer chat, or nil otherwise
--- @param name Character name.
--- @return boolean - True for officer, nil otherwise.
-function sDKP:IsOfficer(name)
-    if self:GetMainName(name) then
-        local _, _, rank = GetGuildRosterInfo(self.Roster[name].id)
-        GuildControlSetRank(rank + 1)
-        local _, _, oListen, oSpeak = GuildControlGetRankFlags()
-        return (oListen and oSpeak) or nil
-    end
-    return
 end
 
 --- Modifies relative DKP amounts of given player for future storage.
