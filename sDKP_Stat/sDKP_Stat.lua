@@ -270,6 +270,7 @@ function sDKP:StatWho(param)
     if _minTot and _maxTot and _minTot > _maxTot then _minTot, _maxTot = _maxTot, _minTot end
     if _minHrs and _maxHrs and _minHrs > _maxHrs then _minHrs, _maxHrs = _maxHrs, _minHrs end
 
+    local dkp = _minNet or _maxNet or _minTot or _maxTot or _minHrs or _maxHrs
     local parse = Util.ParseOfficerNote
     local count = 0
 
@@ -300,7 +301,10 @@ function sDKP:StatWho(param)
                           if not _minHrs or hrs >= _minHrs then
                            if not _maxHrs or hrs <= _maxHrs then
                             count = count + 1
-                            self:Announce(chan, "   %s%s - Lvl %d %s (%s) - %s", (chan == "SELF" and "|Hplayer:%1$s|h[%1$s]|h" or "[%s]"):format(name), UnitInRaid(name) and " |cFFFFA500<RAID>|r" or "", lvl, class, rankname, zone)
+                            self:Announce(chan, "   %s%s - Lvl %d %s (%s) - %s",
+                                format(chan == "SELF" and "|Hplayer:%1$s|h[%1$s]|h" or "[%s]", name),
+                                UnitInRaid(name) and " |cFFFFA500<RAID>|r" or "", lvl, class, rankname,
+                                dkp and format("DKP %d/%d/%d", net, tot, hrs) or zone)
 
                             if _note and note then
                                 self:Announce(chan, "   Player note: |cff00ff00%q|r", note)
