@@ -224,74 +224,111 @@ function sDKP:StatByTotal()     -- total DKP ranking
 function sDKP:StatWho(param)
     if param:lower() == "help" then
         self:Print("Guild Who List: Usage")
-        self:Echo("/sdkp who [n-Name] [r-MinRank[-MaxRank]] [R-RankName] [l-MinLvl[-MaxLvl]] [c-Class] [z-Zone] [N-PlayerNote] [o-OfficerNote] [online] [raid]")
+        self:Echo("/sdkp who [n-Name] [c-Class] [z-Zone] [N-PlayerNote] [O-OfficerNote] [R-RankName] [lvl-L || m<lvl<M] [rank-R || m<rank<M] [m<net<M] [m<tot<M] [m<hrs<M] [online] [raid] [main || alt]")
         self:Echo("   All string lookups are treated as string parts. They also use Lua pattern matching mechanisms so characters ^$()%%.[]*+-? need to be escaped: %%., %%%%, %%* etc.")
         return
     end
 
     local param, chan = Util.ExtractChannel(param, "SELF")
 
-    local _name = param:match('n%-"([^"]+)"') or param:match('n%-(%w+)')
-    local _minrank, _maxrank = param:match("r%-(%d+)%-?(%d*)")
+    -- strings
+    local _name     = param:match('n%-"([^"]+)"') or param:match('n%-(%w+)')
+    local _zone     = param:match('z%-"([^"]+)"') or param:match("z%-(%w+)")
+    local _note     = param:match('N%-"([^"]+)"') or param:match("N%-(%S+)")
+    local _onote    = param:match('O%-"([^"]+)"') or param:match("O%-(%S+)")
     local _rankname = param:match('R%-"([^"]+)"') or param:match('R%-(%S+)')
-    local _minlvl, _maxlvl = param:match("l%-(%d+)%-?(%d*)")
-    local _class = param:match('c%-(%w+)')
-    local _zone = param:match('z%-"([^"]+)"') or param:match("z%-(%w+)")
-    local _note = param:match('N%-"([^"]+)"') or param:match("N%-(%S+)")
-    local _onote = param:match('[Oo]%-"([^"]+)"') or param:match("[Oo]%-(%S+)")
-    local _online = param:match('online')
-    local _inraid = param:match('raid')
+    local _class    = param:match('c%-(%w+)')
+
+    -- Booleans
+    local _online = not not param:match('online')
+    local _raid   = not not param:match('raid')
+    local _main   = not not param:match('main')
+    local _alt    = not not param:match('alt')
+
+    -- decimals
+    local _lvl, _minLvl, _maxLvl = tonumber(param:match('lvl-(%d+)'))
+    local _rnk, _maxRnk, _minRnk = tonumber(param:match('rank-(%d+)'))
+
+    -- possible relative
+    local _maxLvl = _lvl or tonumber(param:match('lvl<(%d+)'))
+    local _minLvl = _lvl or tonumber(param:match('lvl>(%d+)') or param:match('(%d+)<lvl'))
+    local _maxRnk = _rnk or tonumber(param:match('rank<(%d+)'))
+    local _minRnk = _rnk or tonumber(param:match('rank>(%d+)') or param:match('(%d+)<rank'))
+
+    -- relative-only
+    local _maxNet = tonumber(param:match('net<(%d+)'))
+    local _minNet = tonumber(param:match('net>(%d+)') or param:match('(%d+)<net'))
+    local _maxTot = tonumber(param:match('tot<(%d+)'))
+    local _minTot = tonumber(param:match('tot>(%d+)') or param:match('(%d+)<tot'))
+    local _maxHrs = tonumber(param:match('hrs<(%d+)'))
+    local _minHrs = tonumber(param:match('hrs>(%d+)') or param:match('(%d+)<hrs'))
+
+    -- check order of min/max values
+    if _minRnk > _maxRnk then _minRnk, _maxRnk = _maxRnk, _minRnk end
+    if _minLvl > _maxLvl then _minLvl, _maxLvl = _maxLvl, _minLvl end
+    if _minNet > _maxNet then _minNet, _maxNet = _maxNet, _minNet end
+    if _minTot > _maxTot then _minTot, _maxTot = _maxTot, _minTot end
+    if _minHrs > _maxHrs then _minHrs, _maxHrs = _maxHrs, _minHrs end
+
+    local parse = Util.ParseOfficerNote
+    local count = 0
 
     self:Announce(chan, "Guild Who List: %s", param)
 
-    _minrank = tonumber(_minrank)
-    _maxrank = tonumber(_maxrank) or _minrank
-
-    _minlvl = tonumber(_minlvl)
-    _maxlvl = tonumber(_maxlvl) or _minlvl
-
-    if _minrank and _minrank > _maxrank then _minrank, _maxrank = _maxrank, _minrank end
-    if _minlvl and _minlvl > _maxlvl then _minlvl, _maxlvl = _maxlvl, _minlvl end
-
-    local count = 0
-
     for i = 1, GetNumGuildMembers() do
-        local name, rankname, rank, level, class, zone, note, onote, online = GetGuildRosterInfo(i)
+        local name, rankname, rnk, lvl, class, zone, note, onote, online = GetGuildRosterInfo(i)
+        local alt, net, tot, hrs = parse(onote)
 
         if not _name or name:lower():match(_name) then
-            if not _minrank or rank >= _minrank then
-                if not _maxrank or rank <= _maxrank then
-                    if not _rankname or rankname:lower():match(_rankname) then
-                        if not _minlvl or level >= _minlvl then
-                            if not _maxlvl or level <= _maxlvl then
-                                if not _class or class:lower():match(_class) then
-                                    if not _zone or zone:lower():match(_zone) then
-                                        if not _note or note:match(_note) then
-                                            if not _onote or onote:match(_onote) then
-                                                if not _online or online then
-                                                    if not _inraid or UnitInRaid(name) then
-                                                        count = count + 1
-                                                        self:Announce(chan, "   %s%s - Lvl %d %s (%s) - %s", (chan == "SELF" and "|Hplayer:%1$s|h[%1$s]|h" or "[%s]"):format(name), UnitInRaid(name) and " |cFFFFA500<RAID>|r" or "", level, class, rankname, zone)
+         if not _zone or zone:lower():match(_zone) then
+          if not _note or note:match(_note) then
+           if not _onote or onote:match(_onote) then
+            if not _rankname or rankname:lower():match(_rankname) then
+             if not _class or class:lower():match(_class) then
+              if not _online or online then
+               if not _raid or UnitInRaid(name) then
+                if not _main or not alt then
+                 if not _alt or alt then
+                  if not _minLvl or lvl >= _minLvl then
+                   if not _maxlvl or lvl <= _maxlvl then
+                    if not _minRnk or rnk >= _minRnk then
+                     if not _maxRnk or rnk <= _maxRnk then
+                      if not _minNet or net >= _minNet then
+                       if not _maxNet or net <= _maxNet then
+                        if not _minTot or tot >= _minTot then
+                         if not _maxTot or tot <= _maxTot then
+                          if not _minHrs or hrs >= _minHrs then
+                           if not _maxHrs or hrs <= _maxHrs then
+                            count = count + 1
+                            self:Announce(chan, "   %s%s - Lvl %d %s (%s) - %s", (chan == "SELF" and "|Hplayer:%1$s|h[%1$s]|h" or "[%s]"):format(name), UnitInRaid(name) and " |cFFFFA500<RAID>|r" or "", lvl, class, rankname, zone)
 
-                                                        if _note and note then
-                                                            self:Announce(chan, "   Player note: |cff00ff00%q|r", note)
-                                                        end
-
-                                                        if _onote and onote then
-                                                            self:Announce(chan, "   Officer note: |cff00ffff%q|r", onote)
-                                                        end
-                                                    end
-                                                end
-                                            end
-                                        end
-                                    end
-                                end
+                            if _note and note then
+                                self:Announce(chan, "   Player note: |cff00ff00%q|r", note)
                             end
-                        end
-                    end
-                end
-            end
-        end
+
+                            if _onote and onote then
+                                self:Announce(chan, "   Officer note: |cff00ffff%q|r", onote)
+                            end
+                           end -- maxHrs
+                          end -- minHrs
+                         end -- maxTot
+                        end -- minTot
+                       end -- maxNet
+                      end -- minNet
+                     end -- maxRnk
+                    end -- minRnk
+                   end -- maxLvl
+                  end -- minLvl
+                 end -- alt
+                end -- main
+               end -- raid
+              end -- online
+             end -- class
+            end -- rankname
+           end -- onote
+          end -- note
+         end -- zone
+        end -- name
     end
 
     self:Announce(chan, "Total characters: %d", count)
