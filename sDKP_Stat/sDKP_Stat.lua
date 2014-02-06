@@ -264,11 +264,11 @@ function sDKP:StatWho(param)
     local _minHrs = tonumber(param:match('hrs>(%d+)') or param:match('(%d+)<hrs'))
 
     -- check order of min/max values
-    if _minRnk > _maxRnk then _minRnk, _maxRnk = _maxRnk, _minRnk end
-    if _minLvl > _maxLvl then _minLvl, _maxLvl = _maxLvl, _minLvl end
-    if _minNet > _maxNet then _minNet, _maxNet = _maxNet, _minNet end
-    if _minTot > _maxTot then _minTot, _maxTot = _maxTot, _minTot end
-    if _minHrs > _maxHrs then _minHrs, _maxHrs = _maxHrs, _minHrs end
+    if _minRnk and _maxRnk and _minRnk > _maxRnk then _minRnk, _maxRnk = _maxRnk, _minRnk end
+    if _minLvl and _maxLvl and _minLvl > _maxLvl then _minLvl, _maxLvl = _maxLvl, _minLvl end
+    if _minNet and _maxNet and _minNet > _maxNet then _minNet, _maxNet = _maxNet, _minNet end
+    if _minTot and _maxTot and _minTot > _maxTot then _minTot, _maxTot = _maxTot, _minTot end
+    if _minHrs and _maxHrs and _minHrs > _maxHrs then _minHrs, _maxHrs = _maxHrs, _minHrs end
 
     local parse = Util.ParseOfficerNote
     local count = 0
