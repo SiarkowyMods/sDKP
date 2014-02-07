@@ -78,7 +78,7 @@ do
         
         local recipent = ann and n ~= self.player and ( d.on and n or self:GetPlayerOnlineAlt(n) )
         if recipent then
-            self:QueueWhisper(recipent, format("Your DKP now is: %d net, %d tot, %+d change.", d.net + d.netD, d.tot + d.totD, d.netD))
+            self:QueueWhisper(recipent, format("<sDKP> Points modified: %d net, %d tot, %+d change.", d.net + d.netD, d.tot + d.totD, d.netD))
         end
         
         d.hrsD = 0
