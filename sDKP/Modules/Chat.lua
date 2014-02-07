@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
---  sDKP (c) 2012 by Siarkowy
---  Released under the terms of GNU GPL v3 license.
+-- sDKP (c) 2011 by Siarkowy
+-- Released under the terms of GNU GPL v3 license.
 --------------------------------------------------------------------------------
 
 local sDKP = sDKP

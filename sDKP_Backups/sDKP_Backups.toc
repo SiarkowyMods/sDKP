@@ -1,10 +1,11 @@
 ## Interface: 20400
 ## Title: sDKP [|cffeda55fBackups|r]
 ## Notes: On demand backup and restore of guild officer notes.
-## Author: Siarkowy
-## Version: 1.1
-## Dependencies: sDKP
+## Author: Siarkowy <siarkowy@siarkowy.net>
+## X-Website: https://github.com/SiarkowyMods/sDKP
 ## SavedVariables: sDKP_BACKUPS
+## Dependencies: sDKP
+## Version: 1.1
 
 Module.lua
 SlashCommand.lua
