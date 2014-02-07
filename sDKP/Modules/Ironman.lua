@@ -340,5 +340,3 @@ sDKP.Slash.args.ironman = {
         },
     }
 }
-
-sDKP.Modules.Ironman = GetTime()

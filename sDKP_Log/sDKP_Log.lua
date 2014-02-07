@@ -8,6 +8,5 @@ function sDKP:VARIABLES_LOADED()
     VARIABLES_LOADED(self)
     sDKP_LOG = sDKP_LOG or { }
     self.LogData = sDKP_LOG
-    self.Modules.LogData = GetTime()
     self:Print("Log loaded.")
 end

@@ -72,5 +72,3 @@ sDKP.Slash.args.alias = {
         }
     }
 }
-
-sDKP.Modules.Aliases = GetTime()

@@ -82,5 +82,3 @@ function sDKP:VersionDump()
     end
     self:Echo("Total of %d |4player:players;.", count)
 end
-
-sDKP.Modules.Comm = GetTime()

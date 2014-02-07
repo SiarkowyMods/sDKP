@@ -110,5 +110,3 @@ do
         end
     end
 end
-
-sDKP.Modules.Queue = GetTime()

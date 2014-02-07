@@ -120,5 +120,3 @@ sDKP.HyperlinkHandlers.ch = function(btn, data)
         }
     end
 end
-
-sDKP.Modules.Chat = GetTime()

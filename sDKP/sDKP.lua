@@ -4,15 +4,14 @@
 --------------------------------------------------------------------------------
 
 sDKP = {
-    author  = GetAddOnMetadata("sDKP", "Author"),
-    frame   = CreateFrame("frame"),
     name    = "sDKP",
-    player  = (UnitName("player")),
+    author  = GetAddOnMetadata("sDKP", "Author"),
     version = GetAddOnMetadata("sDKP", "Version"),
+    frame   = CreateFrame("Frame", "sDKP_Frame"),
+    player  = UnitName("player"),
 
     Comms   = {},   -- comm message handlers
     LogData = {},   -- operations' log
-    Modules = {},   -- enabled modules
     Options = {},   -- options database
     Roster  = {},   -- guild roster data
     Versions = {}   -- guild mates' versions
@@ -93,5 +92,3 @@ function sDKP:VARIABLES_LOADED()
 end
 
 sDKP:Init()
-
-sDKP.Modules.Base = GetTime()

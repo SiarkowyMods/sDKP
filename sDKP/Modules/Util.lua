@@ -166,5 +166,3 @@ function Util.VersionCompare(ver1, ver2)
     elseif b < e then return false
     else return c > f end
 end
-
-sDKP.Modules.Util = GetTime()

@@ -114,5 +114,3 @@ do
         end
     end
 end
-
-sDKP.Modules.Backups = GetTime()

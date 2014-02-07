@@ -325,5 +325,3 @@ do
         end
     end
 end
-
-sDKP.Modules.Core = GetTime()

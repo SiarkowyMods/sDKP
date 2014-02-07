@@ -402,5 +402,3 @@ sDKP.Slash.args.who = {
     type = "execute",
     func = "StatWho"
 }
-
-sDKP.Modules.Stats = GetTime()

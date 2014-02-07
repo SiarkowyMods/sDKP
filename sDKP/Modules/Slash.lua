@@ -409,5 +409,3 @@ end
 SlashCmdList.SDKP = sDKP.SlashCommandHandler
 SLASH_SDKP1 = "/sdkp"
 SLASH_SDKP2 = "/dkp"
-
-sDKP.Modules.Slash = GetTime()

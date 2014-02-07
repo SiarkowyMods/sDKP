@@ -256,5 +256,3 @@ sDKP.Slash.args.log = {
         },
     }
 }
-
-sDKP.Modules.Log = GetTime()

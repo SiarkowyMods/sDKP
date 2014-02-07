@@ -46,5 +46,3 @@ end
 function sDKP:GetProperAnnounceChannel()
     return UnitInRaid("player") and ((IsRaidLeader() or IsRaidOfficer()) and "RAID_WARNING" or "RAID") or "GUILD"
 end
-
-sDKP.Modules.Announce = GetTime()

@@ -114,5 +114,3 @@ sDKP.Slash.args.alt = {
         },
     }
 }
-
-sDKP.Modules.Alts = GetTime()

@@ -17,5 +17,3 @@ function ChatFrame_OnHyperlinkShow(frame, link, btn)
         OrigHyperlinkFunc(frame, link, btn)
     end
 end
-
-sDKP.Modules.Hyperlinks = GetTime()
