@@ -283,9 +283,8 @@ sDKP.Slash = {
                     type = "execute",
                     usage = "<format>",
                     func = function(self, param)
-                        local O = self.Options
-                        O.Core_NoteFormat = param ~= "" and param or "Net:%n Tot:%t Hrs:%h"
-                        self:Printf("DKP note format set to %q.", O.Core_NoteFormat)
+                        self:Set("core.format", param ~= "" and param or "Net:%n Tot:%t Hrs:%h")
+                        self:Printf("DKP note format set to %q.", self:Get("core.format"))
                     end
                 },
                 ignoreginfo = {
@@ -294,9 +293,8 @@ sDKP.Slash = {
                     type = "execute",
                     usage = "off||on",
                     func = function(self, param)
-                        local O = self.Options
-                        O.Core_IgnoreGuildInfoFormat = param:match("^on$") and true or nil
-                        self:Printf("Guild info DKP note format ignore %s.", O.Core_IgnoreGuildInfoFormat and "enabled" or "disabled")
+                        self:Set("core.noginfo", param:match("^on$") and true or nil)
+                        self:Printf("Guild info DKP note format ignore %s.", self:Get("core.noginfo") and "enabled" or "disabled")
                     end
                 },
                 verbosediff = {
@@ -305,9 +303,8 @@ sDKP.Slash = {
                     type = "execute",
                     usage = "off||on",
                     func = function(self, param)
-                        local O = self.Options
-                        O.Core_VerboseDiff = param:match("^on$") and true or nil
-                        self:Printf("Verbose diff to chat frame %s.", O.Core_VerboseDiff and "enabled" or "disabled")
+                        self:Set("core.diff", param:match("^on$") and true or nil)
+                        self:Printf("Verbose diff to chat frame %s.", self:Get("core.diff") and "enabled" or "disabled")
                     end
                 },
                 whispers = {
@@ -316,9 +313,8 @@ sDKP.Slash = {
                     type = "execute",
                     usage = "off||on",
                     func = function(self, param)
-                        local O = self.Options
-                        O.Core_WhisperAnnounce = param:match("^on$") and true or nil
-                        self:Printf("Whisper announces %s.", O.Core_WhisperAnnounce and "enabled" or "disabled")
+                        self:Set("core.whispers", param:match("^on$") and true or nil)
+                        self:Printf("Whisper announces %s.", self:Get("core.whispers") and "enabled" or "disabled")
                     end
                 },
             }

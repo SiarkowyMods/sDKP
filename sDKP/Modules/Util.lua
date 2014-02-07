@@ -72,7 +72,7 @@ do
         data.t = d.tot + (totD or 0)
         data.h = d.hrs + (hrsD or 0)
 
-        return gsub(sDKP.Options.Core_NoteFormat, "%%(.)", data)
+        return gsub(sDKP:Get("core.format"), "%%(.)", data)
     end
 end
 

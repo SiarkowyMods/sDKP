@@ -28,7 +28,7 @@ do
     function sDKP:QueueActivate()
         if working then return end
         
-        ann = self.Options.Core_WhisperAnnounce
+        ann = self:Get("core.whispers")
         counter = 0
         working = true
         

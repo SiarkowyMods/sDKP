@@ -58,7 +58,7 @@ function sDKP:CHAT_MSG_LOOT(msg)
     player, id, count = self.ParseLootMessage(msg)
     if player and id then
         local _, link, rarity = GetItemInfo(id)
-        if rarity >= O.Log_FilterMinRarity then
+        if rarity >= self:Get("log.rarity") then
             self:Log(LOG_LOOT, player, link, count)
         end
     end
@@ -90,11 +90,11 @@ end
 sDKP:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 
 function sDKP.ChatMsgLootFilter(msg)
-    if sDKP.inRaid and not O.Chat_HideLootHyperlinks then
+    if sDKP.inRaid and not sDKP:Get("chat.nolootlinks") then
         local player, itemId = sDKP.ParseLootMessage(msg)
         if player and itemId then
             local name, link, rarity = GetItemInfo(itemId)
-            if rarity >= O.Chat_FilterMinRarity and not O.Chat_IgnoreItemIds[tonumber(itemId)] then
+            if rarity >= sDKP:Get("chat.rarity") and not sDKP:Get("chat.ignoredids")[tonumber(itemId)] then
                 msg = format("%s %s", msg, sDKP.CreateHyperlink("ch", "charge", player, itemId))
             end
         end

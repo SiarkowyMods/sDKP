@@ -30,11 +30,10 @@ function sDKP:GUILD_ROSTER_UPDATE()
 end
 
 function sDKP:OnGuildRosterUpdate()
-    local O = self.Options
-    if not O.Core_IgnoreGuildInfoFormat then
+    if not self:Get("core.noginfo") then
         local newformat = GetGuildInfoText():match("{dkp:(.-)}")
         if newformat then
-            O.Core_NoteFormat = newformat
+            self:Set("core.format", newformat)
         end
     end
 
@@ -210,6 +209,7 @@ end
 -- @param tot Total amount (optional, defaults to player's current tot).
 -- @param hrs Hours count (optional, defaults to player's current hours count).
 -- @return boolean - Success flag.
+--[[
 function sDKP:Set(name, net, tot, hrs)
     n = self:GetMainName(name)
     if not n then
@@ -233,6 +233,7 @@ function sDKP:Set(name, net, tot, hrs)
     
     return true
 end
+]]
 
 --- Enqueues officer note data storage and activates the queue.
 -- @param name Player to store data for (optional).
@@ -256,7 +257,7 @@ do
     
     --- Updates roster data.
     function sDKP:Update()
-        local diff = self.Options.Core_VerboseDiff
+        local diff = self:Get("core.diff")
         for i = 1, GetNumGuildMembers() do
             local n, _, _, _, _, _, _, o, on, _, class = GetGuildRosterInfo(i)
             
