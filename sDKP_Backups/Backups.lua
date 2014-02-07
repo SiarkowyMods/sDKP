@@ -16,13 +16,10 @@ local GetNumGuildMembers = GetNumGuildMembers
 local GuildRosterSetOfficerNote = GuildRosterSetOfficerNote
 local IsInGuild = IsInGuild
 
-local VARIABLES_LOADED = sDKP.VARIABLES_LOADED
-
-function sDKP:VARIABLES_LOADED()
-    VARIABLES_LOADED(self)
+hooksecurefunc(sDKP, "VARIABLES_LOADED", function(self)
     sDKP_BACKUPS = sDKP_BACKUPS or { }
     self.Backups = sDKP_BACKUPS
-end
+end)
 
 function sDKP:BackupsList(guild)
     local count = 0

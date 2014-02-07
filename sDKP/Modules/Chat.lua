@@ -5,8 +5,6 @@
 
 local sDKP = sDKP
 
-local O -- Options
-
 local format = format
 local tonumber = tonumber
 local GetItemInfo = GetItemInfo
@@ -14,12 +12,6 @@ local GetRealZoneText = GetRealZoneText
 local IsInInstance = IsInInstance
 
 local LOG_LOOT = 0
-
-local VARIABLES_LOADED = sDKP.VARIABLES_LOADED
-function sDKP:VARIABLES_LOADED()
-    VARIABLES_LOADED(self)
-    O = sDKP.Options
-end
 
 -- Static popup appearing after clicking charge links
 StaticPopupDialogs["SDKP_CHAT_CHARGE_PLAYER"] = {

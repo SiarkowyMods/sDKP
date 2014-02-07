@@ -7,4 +7,4 @@
 ## Dependencies: sDKP
 ## Version: 1.0
 
-sDKP_Log.lua
+Log.lua

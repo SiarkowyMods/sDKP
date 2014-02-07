@@ -7,6 +7,6 @@
 ## Dependencies: sDKP
 ## Version: 1.1
 
-Module.lua
-SlashCommand.lua
+Backups.lua
+Slash.lua
 Hyperlinks.lua
