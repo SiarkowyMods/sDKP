@@ -5,8 +5,7 @@
 
 local sDKP = sDKP
 
-local Util = sDKP.Util
-
+local extract = sDKP.ExtractChannel
 local gsub = gsub
 local match = string.match
 local max = max
@@ -16,12 +15,12 @@ local tonumber = tonumber
 local trim = string.trim
 local upper = string.upper
 
--- Util
+-- Utils
 local data = { }
 local function clear() for k, _ in pairs(data) do data[k] = nil end end
 
 function sDKP:StatTopQuery(param)
-    local param, chan = Util.ExtractChannel(param, "SELF")
+    local param, chan = extract(param, "SELF")
     param, gsubcount = gsub(param, "tot", "")
     local mode = gsubcount >= 1
     local count = tonumber(match(param, "%d+")) or 5
@@ -48,7 +47,7 @@ function sDKP:StatTopQuery(param)
     for i = maxD, minD, -1 do
         if data[i] then
             c = c + 1
-            self:Announce(chan, " %d. %s %d DKP", c, Util.ClassColoredPlayerName(data[i]), i)
+            self:Announce(chan, " %d. %s %d DKP", c, self.ClassColoredPlayerName(data[i]), i)
             if c >= count then clear() return end
         end
     end
@@ -58,7 +57,7 @@ end
 
 --- Prints: Guild <%s>: %d members, %d mains, %d alts.
 function sDKP:StatGeneralInfo(param)
-    local param, chan = Util.ExtractChannel(param, "SELF")
+    local param, chan = extract(param, "SELF")
 
     local mains         = 0
     local mainsonline   = 0
@@ -85,7 +84,7 @@ end
 
 --- Prints: Druids: %d, Hunters: %d, ...
 function sDKP:StatByClass(param)
-    local _, chan = Util.ExtractChannel(param, "SELF")
+    local _, chan = extract(param, "SELF")
     local num = GetNumGuildMembers()
 
     for i = 1, num do
@@ -94,7 +93,7 @@ function sDKP:StatByClass(param)
     end
 
     self:Announce(chan, "Guild class breakdown:")
-    for class, count in Util.PairsByKeys(data) do
+    for class, count in self.PairsByKeys(data) do
         self:Announce(chan, "   %s: %d (%.1f%%)", class, count, count / num * 100)
     end
 
@@ -103,7 +102,7 @@ end
 
 --- Prints: Guild level range: 70: %d, 68: %d, ...
 function sDKP:StatByLevel(param)
-    local param, chan = Util.ExtractChannel(param, "SELF")
+    local param, chan = extract(param, "SELF")
     local num = GetNumGuildMembers()
 
     for i = 1, num do
@@ -123,7 +122,7 @@ end
 
 --- Prints: GM: %d, Vice GM: %d, ...
 function sDKP:StatByRank(param)
-    local param, chan = Util.ExtractChannel(param, "SELF")
+    local param, chan = extract(param, "SELF")
     local num = GetNumGuildMembers()
 
     for i = 1, GuildControlGetNumRanks() do data[i] = 0 end
@@ -144,7 +143,7 @@ end
 
 --- Prints: Shattrath City: %d, Black Temple: %d, ...
 function sDKP:StatByZone(param)
-    local param, chan = Util.ExtractChannel(param, "SELF")
+    local param, chan = extract(param, "SELF")
     local num = GetNumGuildMembers()
 
     for i = 1, num do
@@ -153,7 +152,7 @@ function sDKP:StatByZone(param)
     end
 
     self:Announce(chan, "Guild zone breakdown:")
-    for zone, count in Util.PairsByKeys(data) do
+    for zone, count in self.PairsByKeys(data) do
         self:Announce(chan, "   %s: %d (%.1f%%)", zone, count, count / num * 100)
     end
 
@@ -169,7 +168,7 @@ local specs = {
 }
 
 function sDKP:StatBySpec(param)
-    local _, chan = Util.ExtractChannel(param, "SELF")
+    local _, chan = extract(param, "SELF")
     local num = GetNumGuildMembers()
 
     for i = 1, num do
@@ -181,15 +180,15 @@ function sDKP:StatBySpec(param)
     end
 
     self:Announce(chan, "Guild specialization breakdown:")
-    for spec, count in Util.PairsByKeys(data) do
-        sDKP:Announce(chan, "   %s: %d", specs[spec] or UNKNOWN, count)
+    for spec, count in self.PairsByKeys(data) do
+        self:Announce(chan, "   %s: %d", specs[spec] or UNKNOWN, count)
     end
 
     clear()
 end
 
 function sDKP:StatBySpent(param)
-    local param, chan = Util.ExtractChannel(param, "SELF")
+    local param, chan = extract(param, "SELF")
     local count = tonumber(param:match("%d+") or 5)
 
     self:Announce(chan, "Top %d spent DKP ranking", count)
@@ -198,7 +197,7 @@ function sDKP:StatBySpent(param)
     for name, info in pairs(self.Roster) do
         spent = info.tot - info.net
         if spent > 0 then
-            tinsert(data, format("%s %d", Util.ClassColoredPlayerName(name), spent))
+            tinsert(data, format("%s %d", self.ClassColoredPlayerName(name), spent))
         end
     end
 
@@ -229,7 +228,7 @@ function sDKP:StatWho(param)
         return
     end
 
-    local param, chan = Util.ExtractChannel(param, "SELF")
+    local param, chan = extract(param, "SELF")
 
     -- strings
     local _name     = param:match('n%-"([^"]+)"') or param:match('n%-(%w+)')
@@ -271,7 +270,7 @@ function sDKP:StatWho(param)
     if _minHrs and _maxHrs and _minHrs > _maxHrs then _minHrs, _maxHrs = _maxHrs, _minHrs end
 
     local dkp = _minNet or _maxNet or _minTot or _maxTot or _minHrs or _maxHrs
-    local parse = Util.ParseOfficerNote
+    local parse = self.ParseOfficerNote
     local count = 0
 
     self:Announce(chan, "Guild Who List: %s", param)

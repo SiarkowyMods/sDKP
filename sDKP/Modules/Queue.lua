@@ -6,7 +6,6 @@
 local sDKP = sDKP
 
 local ChatThrottleLib = ChatThrottleLib
-local Util = sDKP.Util
 
 local format = format
 local gsub = gsub
@@ -75,7 +74,7 @@ do
         assert(d)
         
         local oldnote = trim(gsub(select(8, GetGuildRosterInfo(d.id)), "{.-}", ""))
-        local newnote = trim(sub(format("{%s}%s", Util.FormatNoteData(d, d.netD, d.totD, d.hrsD), oldnote), 1, 31))
+        local newnote = trim(sub(format("{%s}%s", self.FormatNoteData(d, d.netD, d.totD, d.hrsD), oldnote), 1, 31))
         
         local recipent = ann and n ~= self.player and ( d.on and n or self:GetPlayerOnlineAlt(n) )
         if recipent then

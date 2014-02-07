@@ -5,8 +5,6 @@
 
 local sDKP = sDKP
 
-local Util = sDKP.Util
-
 local COLORS = RAID_CLASS_COLORS
 local assert = assert
 local format = format
@@ -132,7 +130,7 @@ function sDKP:ModifyChatWrapper(who, points, reason, announce)
 
         if announce then
             local r, g, b = COLORS[classUpper].r, COLORS[classUpper].g, COLORS[classUpper].b
-            self:Announce(output, "%s%ss|r %+d DKP%s", Util.DecimalToHexColor(r, g, b), classLower, points, reason ~= "" and ": " .. reason or "")
+            self:Announce(output, "%s%ss|r %+d DKP%s", self.DecimalToHexColor(r, g, b), classLower, points, reason ~= "" and ": " .. reason or "")
         end
 
         local count = self:Store()
@@ -148,7 +146,7 @@ function sDKP:ModifyChatWrapper(who, points, reason, announce)
         self:Discard(who)
         self:Modify(who, points, (points > 0) and points or 0, 0)
 
-        local player = Util.ClassColoredPlayerName(who)
+        local player = self.ClassColoredPlayerName(who)
         if announce then
             self:Announce(output, "%s %+d DKP%s", player, points, reason ~= "" and ": " .. reason or "")
         end
@@ -256,7 +254,7 @@ sDKP.Slash = {
                     return
                 end
                 local net, tot, hrs = self:GetPlayerPointValues(main)
-                self:Printf("%s: %d net, %d tot, %d hrs.", format(name ~= main and "%s (%s)" or "%2$s", Util.ClassColoredPlayerName(name), Util.ClassColoredPlayerName(main)), net, tot, hrs)
+                self:Printf("%s: %d net, %d tot, %d hrs.", format(name ~= main and "%s (%s)" or "%2$s", self.ClassColoredPlayerName(name), self.ClassColoredPlayerName(main)), net, tot, hrs)
             end,
         },
         modify = {
@@ -384,7 +382,7 @@ end
 
 function Actions.group(self, node, param)
     self:Printf(node.desc and "%s - %s" or "%s", node.name, node.desc)
-    for command, data in Util.PairsByKeys(node.args) do
+    for command, data in self.PairsByKeys(node.args) do
         self:Echo("   |cff56a3ff%s|r%s - %s", command, data.usage and format(" |cff88ffff%s|r", data.usage) or "", data.desc)
     end
 end

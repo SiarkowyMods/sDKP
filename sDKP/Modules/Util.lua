@@ -4,10 +4,6 @@
 --------------------------------------------------------------------------------
 
 local sDKP = sDKP
-local self = sDKP
-
-local Util = { }
-sDKP.Util = Util
 
 local date = date
 local format = format
@@ -19,17 +15,17 @@ local strjoin = strjoin
 local tinsert = tinsert
 local tonumber = tonumber
 
-function Util.CreateHyperlink(kind, visual, ...)
+function sDKP.CreateHyperlink(kind, visual, ...)
     return format("|Hsdkp:%s:%s|h|cff88ff88(%s)|h", kind, strjoin(':', ...), visual)
 end
 
-function Util.ClassColoredPlayerName(player)
-    if not self.Roster[player] then
+function sDKP.ClassColoredPlayerName(player)
+    if not sDKP.Roster[player] then
         return player
     end
     
-    local c = RAID_CLASS_COLORS[self.Roster[player].class]
-    return format("%s%s|r", Util.DecimalToHexColor(c.r, c.g, c.b), player)
+    local c = RAID_CLASS_COLORS[sDKP.Roster[player].class]
+    return format("%s%s|r", sDKP.DecimalToHexColor(c.r, c.g, c.b), player)
 end
 
 --- Returns hex encoded color string from float red, green and blue values.
@@ -37,7 +33,7 @@ end
 -- @param g Green value [0; 1].
 -- @param b Blue value [0; 1].
 -- @return string - Hex color string.
-function Util.DecimalToHexColor(r, g, b) -- from http://wowprogramming.com/snippets/Convert_decimal_classcolor_into_hex_27
+function sDKP.DecimalToHexColor(r, g, b) -- from http://wowprogramming.com/snippets/Convert_decimal_classcolor_into_hex_27
     return format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
 end
 
@@ -46,7 +42,7 @@ end
 -- @param defchan Default channel if not found.
 -- @return string - Message without channel part.
 -- @return string - Extracted or default channel.
-function Util.ExtractChannel(msg, defchan)
+function sDKP.ExtractChannel(msg, defchan)
     local channel
 
     local func = function(m)
@@ -67,7 +63,7 @@ do
     -- @param totD Total amount delta. This will be added to current value (optional, defaults to 0).
     -- @param hrsD Hours count delta. This will be added to current value (optional, defaults to 0).
     -- @return string - Formatted note data.
-    function Util.FormatNoteData(d, netD, totD, hrsD)
+    function sDKP.FormatNoteData(d, netD, totD, hrsD)
         data.d = date("%d")
         data.m = date("%m")
         data.Y = date("%Y")
@@ -76,7 +72,7 @@ do
         data.t = d.tot + (totD or 0)
         data.h = d.hrs + (hrsD or 0)
 
-        return gsub(self.Options.Core_NoteFormat, "%%(.)", data)
+        return gsub(sDKP.Options.Core_NoteFormat, "%%(.)", data)
     end
 end
 
@@ -84,7 +80,7 @@ end
 -- @param t Table.
 -- @param f Sort function for table's keys.
 -- @return function - Hash table alphabetical iterator.
-function Util.PairsByKeys(t, f) -- from http://www.lua.org/pil/19.3.html
+function sDKP.PairsByKeys(t, f) -- from http://www.lua.org/pil/19.3.html
     local a = {}
     for n in pairs(t) do tinsert(a, n) end
     sort(a, f)
@@ -100,7 +96,7 @@ end
 --- Returns decimal timestamp from given date string.
 -- @param param String timestamp.
 -- @return number - Integer timestamp.
-function Util.ParamToTimestamp(param)
+function sDKP.ParamToTimestamp(param)
     local timestamp
     local year, month, day, hour, min, sec = param:match("(%d+).(%d+).(%d+)%s*(%d+).(%d+).(%d+)")
 
@@ -118,7 +114,7 @@ end
 -- @return string - Item looter.
 -- @return mixed - Item ID or nil.
 -- @return mixed - Count or false.
-function Util.ParseLootMessage(msg)
+function sDKP.ParseLootMessage(msg)
     local player, id, count
     player, id = msg:match("(%S+) receives? loot:.*item:(%d+)")
     if not player or not id then
@@ -126,7 +122,7 @@ function Util.ParseLootMessage(msg)
     end
     
     count = msg:match("x(%d+)") or id and 1
-    if player then player = gsub(player, "^You$", self.player) end
+    if player then player = gsub(player, "^You$", sDKP.player) end
     
     return player, id, count
 end
@@ -137,7 +133,7 @@ end
 -- @return number - Net amount.
 -- @return number - Total amount.
 -- @return number - Hours count.
-function Util.ParseOfficerNote(o)
+function sDKP.ParseOfficerNote(o)
     local param = o or ""
     local between = param:match("{(.-)}") or ""
     
@@ -156,7 +152,7 @@ end
 -- @param ver1 Version string.
 -- @param ver2 Version string.
 -- @return boolean - True if first version is newer than second, false otherwise.
-function Util.VersionCompare(ver1, ver2)
+function sDKP.VersionCompare(ver1, ver2)
     local a, b, c = ver1:match("(%d+).(%d+).(%d+)")
     local d, e, f = ver2:match("(%d+).(%d+).(%d+)")
 

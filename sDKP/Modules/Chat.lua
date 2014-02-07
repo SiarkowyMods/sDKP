@@ -6,7 +6,6 @@
 local sDKP = sDKP
 
 local O -- Options
-local Util = sDKP.Util
 
 local format = format
 local tonumber = tonumber
@@ -56,7 +55,7 @@ StaticPopupDialogs["SDKP_CHAT_CHARGE_PLAYER"] = {
 
 function sDKP:CHAT_MSG_LOOT(msg)
     if not self.inRaid then return end
-    player, id, count = Util.ParseLootMessage(msg)
+    player, id, count = self.ParseLootMessage(msg)
     if player and id then
         local _, link, rarity = GetItemInfo(id)
         if rarity >= O.Log_FilterMinRarity then
@@ -92,11 +91,11 @@ sDKP:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 
 function sDKP.ChatMsgLootFilter(msg)
     if sDKP.inRaid and not O.Chat_HideLootHyperlinks then
-        local player, itemId = Util.ParseLootMessage(msg)
+        local player, itemId = sDKP.ParseLootMessage(msg)
         if player and itemId then
             local name, link, rarity = GetItemInfo(itemId)
             if rarity >= O.Chat_FilterMinRarity and not O.Chat_IgnoreItemIds[tonumber(itemId)] then
-                msg = format("%s %s", msg, Util.CreateHyperlink("ch", "charge", player, itemId))
+                msg = format("%s %s", msg, sDKP.CreateHyperlink("ch", "charge", player, itemId))
             end
         end
     end
@@ -112,7 +111,7 @@ sDKP.HyperlinkHandlers.ch = function(btn, data)
     end
     
     local iName, iLink, iRarity = GetItemInfo(itemId)
-    local dialog = StaticPopup_Show("SDKP_CHAT_CHARGE_PLAYER", Util.ClassColoredPlayerName(player), iLink)
+    local dialog = StaticPopup_Show("SDKP_CHAT_CHARGE_PLAYER", sDKP.ClassColoredPlayerName(player), iLink)
     if (dialog) then
         dialog.data = {
             iLink = iLink,

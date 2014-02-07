@@ -5,8 +5,6 @@
 
 local sDKP = sDKP
 
-local Util = sDKP.Util
-
 local pairs = pairs
 local tonumber = tonumber
 local GetGuildInfoText = GetGuildInfoText
@@ -262,7 +260,7 @@ function sDKP:Store(name)
 end
 
 do
-    local parse = Util.ParseOfficerNote
+    local parse = sDKP.ParseOfficerNote
     
     --- Updates roster data.
     function sDKP:Update()
@@ -321,7 +319,7 @@ do
     --- Prints a message with amount deltas on DKP change.
     function sDKP:VerboseDiff(n, net, tot, hrs, oldnet, oldtot, oldhrs)
         if net and tot and hrs and (oldnet ~= net or oldtot ~= tot or oldhrs ~= hrs) then
-            self:Echo("DKP change: %s %s%+d net|r, %s%+d tot|r, %s%+d hrs|r", Util.ClassColoredPlayerName(n), col(net, oldnet), oldnet - net, col(tot, oldtot), oldtot - tot, col(hrs, oldhrs), oldhrs - hrs)
+            self:Echo("DKP change: %s %s%+d net|r, %s%+d tot|r, %s%+d hrs|r", sDKP.ClassColoredPlayerName(n), col(net, oldnet), oldnet - net, col(tot, oldtot), oldtot - tot, col(hrs, oldhrs), oldhrs - hrs)
         end
     end
 end

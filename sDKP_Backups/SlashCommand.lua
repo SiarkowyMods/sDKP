@@ -4,7 +4,6 @@
 --------------------------------------------------------------------------------
 
 local sDKP = sDKP
-local Util = sDKP.Util
 
 sDKP.Slash.args.backup = {
     name = "Backup",
@@ -29,7 +28,7 @@ sDKP.Slash.args.backup = {
             type = "execute",
             usage = "<timestamp>",
             func = function(self, param)
-                if self:DeleteBackup(Util.ParamToTimestamp(param)) then
+                if self:DeleteBackup(self.ParamToTimestamp(param)) then
                     self:Print("Backup deleted.")
                 end
             end
@@ -40,7 +39,7 @@ sDKP.Slash.args.backup = {
             type = "execute",
             usage = "<timestamp>",
             func = function(self, param)
-                self:VisualDiff(Util.ParamToTimestamp(param))
+                self:VisualDiff(self.ParamToTimestamp(param))
             end
         },
         list = {
@@ -56,7 +55,7 @@ sDKP.Slash.args.backup = {
             type = "execute",
             usage = "<timestamp>",
             func = function(self, param)
-                self:Printf("%d |4note:notes; restored.", self:RestoreNotes(Util.ParamToTimestamp(param)) or 0)
+                self:Printf("%d |4note:notes; restored.", self:RestoreNotes(self.ParamToTimestamp(param)) or 0)
             end
         }
     }

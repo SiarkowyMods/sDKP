@@ -27,7 +27,7 @@ end
 function sDKP:BackupsList(guild)
     local count = 0
     self:Printf("Saved backups%s:", (guild ~= "") and format(" for guild <%s>", guild or "?") or "")
-    for timestamp, data in self.Util.PairsByKeys(self.Backups) do
+    for timestamp, data in self.PairsByKeys(self.Backups) do
         if not guild or guild == "" or guild == data[1] then
             count = count + 1
             self:Echo("   %s <%s> |Hsdkp:bkp:1:%3$d|h|cff88ffff(restore)|r|h |Hsdkp:bkp:2:%3$d|h|cff88ffff(delete)|r|h |Hsdkp:bkp:3:%3$d|h|cff88ffff(diff)|r|h", date("%Y.%m.%d %X", timestamp), data[1], timestamp)
@@ -100,7 +100,7 @@ do
             self:Printf("Visual diff between current and backed up data from %s:", date("%Y.%m.%d %X", timestamp))
             local count = 0
             for n, o in pairs(self.Backups[timestamp]) do
-                local _, net, tot, hrs = self.Util.ParseOfficerNote(o)
+                local _, net, tot, hrs = self.ParseOfficerNote(o)
                 local d = self.Roster[n]
                 
                 if d and (net ~= d.net or tot ~= d.tot or hrs ~= d.hrs) then

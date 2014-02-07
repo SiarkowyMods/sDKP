@@ -5,8 +5,6 @@
 
 local sDKP = sDKP
 
-local Util = sDKP.Util
-
 local abs = abs
 local assert = assert
 local format = format
@@ -63,11 +61,11 @@ local function unserialize(data)
 end
 
 -- Save to Util
-Util.tostringall = tostringall
-Util.LogSerialize = serialize
-Util.LogUnserialize = unserialize
+sDKP.tostringall = tostringall
+sDKP.LogSerialize = serialize
+sDKP.LogUnserialize = unserialize
 
-function Util.LogToString(data)
+function sDKP.LogToString(data)
     local type, a, b, c, d, e, f, g, h, i = unserialize(data)
     type = tonumber(type) or LOG_UNKNOWN
     return log[type](a, b, c, d, e, f, g, h, i)
@@ -101,7 +99,7 @@ end -- do
 log[LOG_PLAYER_LOOT] = function(player, item, count)
     local _, link = GetItemInfo(item)
     count = tonumber(count) or 1
-    return format("%s looted %s%s.", Util.ClassColoredPlayerName(player), link or "<unknown item>", count > 1 and format("x%d", count) or "")
+    return format("%s looted %s%s.", sDKP.ClassColoredPlayerName(player), link or "<unknown item>", count > 1 and format("x%d", count) or "")
 end
     
 -- 1, player, points[, reason]
@@ -110,7 +108,7 @@ log[LOG_DKP_MODIFY] = function(player, points, reason)
     if tonumber(reason) then
         _, reason = GetItemInfo(reason)
     end
-    return format("%s %+d DKP%s.", Util.ClassColoredPlayerName(player), points, reason and format(": %s", reason) or "")
+    return format("%s %+d DKP%s.", sDKP.ClassColoredPlayerName(player), points, reason and format(": %s", reason) or "")
 end
 
 -- 2, count, points[, reason]
@@ -165,26 +163,26 @@ function sDKP:LogDump()
     local node = self.LogData[self.guild]
     local count = 0
     for _, timestamp in pairs(self:PrepareLog(0)) do
-        self:Echo("|cff888888[%s]|r %s", date(LOG_DATEFORMAT, timestamp), Util.LogToString(node[timestamp]))
+        self:Echo("|cff888888[%s]|r %s", date(LOG_DATEFORMAT, timestamp), self.LogToString(node[timestamp]))
         count = count + 1
     end
     self:Echo("Total of %d |4entry:entries;.", count)
 end
 
 function sDKP:LogLast(param)
-    local timestamp = Util.ParamToTimestamp(param) or time() - 86400 -- 1 day
+    local timestamp = self.ParamToTimestamp(param) or time() - 86400 -- 1 day
     self:Printf("Log entry list from %s:", date(LOG_DATEFORMAT, timestamp))
     local node = self.LogData[self.guild]
     local count = 0
     for _, timestamp in pairs(self:PrepareLog(timestamp)) do
-        self:Echo("|cff888888[%s]|r %s", date(LOG_DATEFORMAT, timestamp), Util.LogToString(node[timestamp]))
+        self:Echo("|cff888888[%s]|r %s", date(LOG_DATEFORMAT, timestamp), self.LogToString(node[timestamp]))
         count = count + 1
     end
     self:Echo("Total of %d |4entry:entries;.", count)
 end
 
 function sDKP:LogPurge(param)
-    local timestamp = Util.ParamToTimestamp(param) or time() - 345600 -- 4 weeks
+    local timestamp = self.ParamToTimestamp(param) or time() - 345600 -- 4 weeks
     local node = self.LogData[self.guild]
     local count = 0
     for t, d in pairs(node) do
@@ -199,9 +197,9 @@ end
 function sDKP:LogSearch(param)
     local node = self.LogData[self.guild]
     local count = 0
-    for timestamp, entry in Util.PairsByKeys(node) do
+    for timestamp, entry in self.PairsByKeys(node) do
         if entry:match(param) then
-            self:Echo("|cff888888[%s]|r %s", date(LOG_DATEFORMAT, timestamp), Util.LogToString(entry))
+            self:Echo("|cff888888[%s]|r %s", date(LOG_DATEFORMAT, timestamp), self.LogToString(entry))
             count = count + 1
         end
     end

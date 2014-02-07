@@ -55,7 +55,7 @@ sDKP.Slash.args.alias = {
             func = function(self, name)
                 self:Print("Current aliases:")
 
-                for alias, main in self.Util.PairsByKeys(self.Externals) do
+                for alias, main in self.PairsByKeys(self.Externals) do
                     self:Echo("   %s -> %s", alias, main)
                 end
             end

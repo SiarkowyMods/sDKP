@@ -18,8 +18,8 @@ local LOG_IRONMAN_AWARD     = 7
 local GuildControlSetRank = GuildControlSetRank
 local GuildControlGetRankFlags = GuildControlGetRankFlags
 
-local unserialize = sDKP.Util.LogUnserialize
-local serialize = sDKP.Util.LogSerialize
+local unserialize = sDKP.LogUnserialize
+local serialize = sDKP.LogSerialize
 
 function sDKP:IronManCheck()
     for name, d in pairs(self.Roster) do
