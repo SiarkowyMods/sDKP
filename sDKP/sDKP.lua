@@ -51,7 +51,6 @@ function sDKP:VARIABLES_LOADED()
 
     self:RegisterEvent("GUILD_ROSTER_UPDATE")
     self:RegisterEvent("PLAYER_GUILD_UPDATE")
-    self:RegisterEvent("RAID_ROSTER_UPDATE")
 
     -- database management
     sDKP_DB = sDKP_DB and sDKP_DB.Version == DB_VERSION and sDKP_DB or

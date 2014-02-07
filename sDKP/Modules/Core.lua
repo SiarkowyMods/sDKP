@@ -53,14 +53,6 @@ function sDKP:PLAYER_GUILD_UPDATE(unit)
     self:CheckLogPresence()
 end
 
---- Updates subgroup info.
-function sDKP:RAID_ROSTER_UPDATE()
-    for name, o in pairs(self.Roster) do
-        local id = UnitInRaid(name)
-        o.raid = id and select(3, GetRaidRosterInfo(id + 1)) or nil
-    end
-end
-
 -- Utility functions -----------------------------------------------------------
 
 --- Returns character object if name specified, otherwise the whole roster table.
@@ -295,11 +287,8 @@ do
             d.net = net     -- netto DKP
             d.tot = tot     -- total DKP
             
-            d.raid = nil    -- raid subgroup or nil if not in raid
             d.on = on       -- online status
         end
-        
-        self:RAID_ROSTER_UPDATE()
     end
 end
 

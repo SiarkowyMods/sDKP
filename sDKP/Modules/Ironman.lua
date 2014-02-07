@@ -37,7 +37,7 @@ function sDKP:IronManStart()
     local count = 0
     for name, d in pairs(self.Roster) do
         name = self:GetMainName(name)
-        if d.raid and d.on then
+        if UnitInRaid(d.name) and d.on then
             self.Roster[name].iron = true
             count = count + 1
         end
@@ -67,7 +67,7 @@ function sDKP:IronManAward(award)
     end
     for name, d in pairs(self.Roster) do
         name = self:GetMainName(name)
-        if self.Roster[name].iron and d.raid and d.on then
+        if self.Roster[name].iron and UnitInRaid(d.name) and d.on then
             self:Modify(name, award, (award > 0) and award or 0, 0)
         end
     end
@@ -116,13 +116,13 @@ function sDKP:IronManReinvite()
 
     for name, d in pairs(self.Roster) do
         if d.iron then
-            if not d.raid and d.on and name ~= self.player then
+            if not UnitInRaid(d.name) and d.on and name ~= self.player then
                 InviteUnit(name)
             else
                 local alt = self:GetPlayerOnlineAlt(name)
                 local a = self.Roster[alt]
 
-                if alt and not a.raid then InviteUnit(alt) end
+                if alt and not UnitInRaid(a.name) then InviteUnit(alt) end
             end
         end
     end
@@ -137,7 +137,7 @@ function sDKP:IronManList()
     wipe(t)
     for name, d in pairs(self.Roster) do
         local name = self:GetMainName(name)
-        if self.Roster[name].iron and d.raid and d.on then
+        if self.Roster[name].iron and UnitInRaid(d.name) and d.on then
             tinsert(t, name)
             count = count + 1
             if #t >= 5 then

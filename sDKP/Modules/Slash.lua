@@ -49,21 +49,21 @@ local function actionModify(d, points)
 end
 
 local function criteriaOnlineInRaid(d)
-    return d.raid and d.on
+    return UnitInRaid(d.name) and d.on
 end
 
 local function criteriaClassOnlineInRaid(d, class)
-    return d.raid and d.class == class and d.on
+    return UnitInRaid(d.name) and d.class == class and d.on
 end
 
 local GINFO_ZONE = 6
 
 local function criteriaSameZoneInRaid(d)
-    return d.raid and select(GINFO_ZONE, GetGuildRosterInfo(d.id)) == GetRealZoneText() and d.on
+    return UnitInRaid(d.name) and select(GINFO_ZONE, GetGuildRosterInfo(d.id)) == GetRealZoneText() and d.on
 end
 
 local function criteriaOtherZoneInRaid(d)
-    return d.raid and select(GINFO_ZONE, GetGuildRosterInfo(d.id)) ~= GetRealZoneText() and d.on
+    return UnitInRaid(d.name) and select(GINFO_ZONE, GetGuildRosterInfo(d.id)) ~= GetRealZoneText() and d.on
 end
 
 function sDKP:ModifyChatWrapper(who, points, reason, announce)
