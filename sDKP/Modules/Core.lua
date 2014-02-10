@@ -227,7 +227,7 @@ function sDKP:Select(who)
                 end
 
                 if flag then
-                    list[name] = true
+                    list[char:GetMain().name] = name
                 end
             end
         end
