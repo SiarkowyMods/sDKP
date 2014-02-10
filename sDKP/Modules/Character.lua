@@ -167,11 +167,15 @@ end
 function Character:Modify(netD, totD, hrsD)
     if self.altof then self = self:GetMain() end
 
-    self.netD = (tonumber(self.netD) or 0) + (tonumber(netD) or 0)
-    self.totD = (tonumber(self.totD) or 0) + (tonumber(totD) or 0)
-    self.hrsD = (tonumber(self.hrsD) or 0) + (tonumber(hrsD) or 0)
+    netD = tonumber(netD) or 0
+    totD = tonumber(totD) or 0
+    hrsD = tonumber(hrsD) or 0
 
-    self.new = true
+    self.netD = (tonumber(self.netD) or 0) + netD
+    self.totD = (tonumber(self.totD) or 0) + totD
+    self.hrsD = (tonumber(self.hrsD) or 0) + hrsD
+
+    self.new = netD ~= 0 or totD ~= 0 or hrsD ~= 0
 
     return self
 end
