@@ -6,4 +6,4 @@
 ## Dependencies: sDKP
 ## Version: 1.6
 
-sDKP_Stat.lua
+Stat.lua

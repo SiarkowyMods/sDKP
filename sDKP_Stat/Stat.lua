@@ -5,11 +5,13 @@
 
 local sDKP = sDKP
 
+local dispose = sDKP.dispose
 local extract = sDKP.ExtractChannel
 local gsub = gsub
 local match = string.match
 local max = max
 local min = min
+local new = sDKP.table
 local select = select
 local tonumber = tonumber
 local trim = string.trim
