@@ -10,6 +10,7 @@ sDKP = {
     frame   = CreateFrame("Frame", "sDKP_Frame"),
     player  = UnitName("player"),
 
+    Class   = {},   -- object prototypes
     Comms   = {},   -- comm message handlers
     LogData = {},   -- operations' log
     Options = {},   -- options database
