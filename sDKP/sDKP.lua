@@ -29,7 +29,7 @@ local tostring = tostring
 
 -- Event handlers --------------------------------------------------------------
 
-local DB_VERSION = 20140210
+local DB_VERSION = 20140211
 
 function sDKP:VARIABLES_LOADED()
     self:UnregisterEvent("VARIABLES_LOADED")
@@ -52,13 +52,15 @@ function sDKP:VARIABLES_LOADED()
             -- Core
             ["core.diff"] = true,                       -- enable verbose diff
             ["core.format"] = "Net:%n Tot:%t Hrs:%h",   -- DKP note format
-                                                        -- DKP modify whisper
-            ["core.modifymsg"] = "<sDKP> Points modified: %d net, %d tot, %+d change.",
             ["core.noginfo"] = false,                   -- ignore ginfo note format
-            ["core.whispers"] = true,                   -- toggle whisper announce
 
             -- Log
             ["log.rarity"] = 4, -- epic                 -- min. item quality
+
+            -- Whispers
+                                                        -- DKP modify whisper
+            ["whisper.modify"] = "<sDKP> Points modified: %d net, %d tot, %+d change.",
+            ["whisper.toggle"] = true,                  -- toggle whisper announce
         },
 
         -- database version

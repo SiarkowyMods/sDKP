@@ -28,7 +28,7 @@ do
     function sDKP:QueueActivate()
         if working then return end
 
-        whisper = self:Get("core.whispers") and self:Get("core.modifymsg")
+        whisper = self:Get("whisper.toggle") and self:Get("whisper.modify")
         counter = 0
         working = true
 

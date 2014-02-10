@@ -313,8 +313,8 @@ sDKP.Slash = {
                     type = "execute",
                     usage = "off||on",
                     func = function(self, param)
-                        self:Set("core.whispers", param:match("^on$") and true or nil)
-                        self:Printf("Whisper announces %s.", self:Get("core.whispers") and "enabled" or "disabled")
+                        self:Set("whisper.toggle", param:match("^on$") and true or nil)
+                        self:Printf("Whisper announces %s.", self:Get("whisper.toggle") and "enabled" or "disabled")
                     end
                 },
             }
