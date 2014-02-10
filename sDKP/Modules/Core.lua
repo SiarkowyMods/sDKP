@@ -280,6 +280,18 @@ function sDKP:CleanupRoster()
     self.cleanup = nil
 end
 
+function sDKP:ForEach(list, func, ...)
+    assert(func)
+
+    for name, _ in pairs(list) do
+        local char = self:GetCharacter(name)
+
+        if char then
+            char[func](char, ...)
+        end
+    end
+end
+
 --- Discards all pending changes to player data.
 -- @return number - Discarded count.
 function sDKP:Discard()
