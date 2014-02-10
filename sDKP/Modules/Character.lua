@@ -214,12 +214,24 @@ function Character:Discard()
 end
 
 --- Stores pending modifications to officer note.
-function Character:Store(fmt)
-    -- todo
+function Character:Store(fmt, nodiscard)
+    if not fmt then fmt = sDKP:Get("core.format") end
+    local old = select(8, GetGuildRosterInfo(self.id))
+    local new = ("%s%s")
+        :format(self:GetNote(fmt), old:gsub("{.-}", ""))
+        :trim()
+        :sub(1, 31)
 
-    self.new = nil
+    if not nodiscard then
+        self:Discard()
+    end
 
-    return true
+    if new ~= old then
+        GuildRosterSetOfficerNote(self.id, new)
+        return true
+    end
+
+    return false
 end
 
 -- Expose to class registry

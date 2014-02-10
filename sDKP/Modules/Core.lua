@@ -301,7 +301,7 @@ function sDKP:Store()
 
     for name, char in self:GetChars() do
         if char.new then
-            self:QueueAdd(name, char)
+            self:QueueAdd(name)
             count = count + 1
         end
     end
