@@ -3,7 +3,7 @@
 -- Released under the terms of GNU GPL v3 license.
 --------------------------------------------------------------------------------
 
-sDKP = {
+sDKP = setmetatable({
     name    = "sDKP",
     author  = GetAddOnMetadata("sDKP", "Author"),
     version = GetAddOnMetadata("sDKP", "Version"),
@@ -16,7 +16,9 @@ sDKP = {
     Options = {},   -- options database
     Roster  = {},   -- guild roster data
     Versions = {}   -- guild mates' versions
-}
+}, {
+    __call = function(self, name) return self:GetCharacter(name) end
+})
 
 local sDKP = sDKP
 
