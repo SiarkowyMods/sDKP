@@ -29,7 +29,7 @@ local tostring = tostring
 
 -- Event handlers --------------------------------------------------------------
 
-local DB_VERSION = 20140208
+local DB_VERSION = 20140210
 
 function sDKP:VARIABLES_LOADED()
     self:UnregisterEvent("VARIABLES_LOADED")
@@ -52,6 +52,8 @@ function sDKP:VARIABLES_LOADED()
             -- Core
             ["core.diff"] = true,                       -- enable verbose diff
             ["core.format"] = "Net:%n Tot:%t Hrs:%h",   -- DKP note format
+                                                        -- DKP modify whisper
+            ["core.modifymsg"] = "<sDKP> Points modified: %d net, %d tot, %+d change.",
             ["core.noginfo"] = false,                   -- ignore ginfo note format
             ["core.whispers"] = true,                   -- toggle whisper announce
 
@@ -104,7 +106,7 @@ end
 -- @param class (string) Class name.
 -- @result table - Object of specified class.
 function sDKP:BindClass(o, class)
-    return setmetatable(o or new(), class and Class[class].__meta or nil), true
+    return setmetatable(o or self.table(), class and Class[class].__meta or nil), true
 end
 
 -- Initialization --------------------------------------------------------------

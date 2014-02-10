@@ -20,15 +20,15 @@ do
     local queue = { }
     sDKP.StorageQueue = queue
 
-    local ann
     local counter = 0
+    local whisper
     local working -- queue activated flag
 
     --- Begins operation queue if not yet active.
     function sDKP:QueueActivate()
         if working then return end
 
-        ann = self:Get("core.whispers")
+        whisper = self:Get("core.whispers") and self:Get("core.modifymsg")
         counter = 0
         working = true
 
@@ -53,10 +53,10 @@ do
                 if char:Store(nil, true) then
                     counter = counter + 1
 
-                    if ann then
+                    if whisper then
                         self:QueueWhisper(char:GetOwnerOnline(),
-                            format("<sDKP> Points modified: %d net, %d tot, %+d change.",
-                            char.net + char.netD, char.tot + char.totD, char.netD))
+                            format(whisper, char.net + char.netD,
+                                char.tot + char.totD, char.netD))
                     end
 
                     char:Discard()
@@ -67,7 +67,7 @@ do
         end
 
         self:Echo("Total of %d |4note:notes; affected.", counter)
-        if ann then self:SendQueuedWhispers() end
+        if whisper then self:SendQueuedWhispers() end
 
         working = nil
     end
