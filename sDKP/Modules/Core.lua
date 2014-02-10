@@ -172,6 +172,8 @@ local conds = {
     online  = function(self) return self.on end,
     raid    = function(self) return (self:GetRaidSubgroup() or 6) <= 5 end,
     standby = function(self) return self:IsStandBy() end,
+    zone    = function(self) return self:GetZone() == GetRealZoneText() end,
+    otherzone = function(self) return self:GetZone() ~= GetRealZoneText() end,
 
     -- general objects
     party   = function(self) return self:IsInParty() end,
@@ -215,7 +217,7 @@ conds.pt8 = conds.party8
 function sDKP:Select(who)
     local list = new()
 
-    for set in who:gmatch("[^,]+") do -- split who by commas into sets
+    for set in (who or ""):gmatch("[^,]+") do -- split who by commas into sets
         for name, char in self:GetChars() do -- for every character
             if not list[name] then -- check if already matches
                 local flag = true -- assume a match

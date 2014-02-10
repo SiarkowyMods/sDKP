@@ -21,13 +21,12 @@ local tonumber = tonumber
 --- Character object prototype.
 local Character = { --[[
     -- General:
-    id = number,        -- Guild roster ID number.
-    name = string,      -- Character name.
+    id    = number,     -- Guild roster ID number.
+    name  = string,     -- Character name.
     class = string,     -- Character class.
-    on = boolean,       -- Online flag.
+    on    = boolean,    -- Online flag.
     altof = nil|string, -- Main character reference if any.
-    raid = nil|number,  -- Raid subgroup or nil if not in raid.
-    new = boolean,      -- Data update flag for sDKP:Store().
+    new   = boolean,    -- Data update flag for sDKP:Store().
 
     -- DKP values:
     net = number,       -- Netto DKP value.
@@ -88,6 +87,10 @@ end
 function Character:GetRaidSubgroup()
     return UnitInRaid(self.name)
        and select(3, GetRaidRosterInfo(UnitInRaid(self.name) + 1))
+end
+
+function Character:GetZone()
+    return select(6, GetGuildRosterInfo(self.id))
 end
 
 function Character:IsAlt()
