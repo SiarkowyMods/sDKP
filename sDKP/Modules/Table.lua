@@ -11,7 +11,17 @@ local type = type
 -- Table pool management -------------------------------------------------------
 
 local pool = {}
-local dispose, table, wipe
+local count, dispose, table, wipe
+
+function count(t)
+    local size = 0
+
+    for k in pairs(t) do
+        size = size + 1
+    end
+
+    return size
+end
 
 function table()
     return tremove(pool) or {}
@@ -33,6 +43,7 @@ end
 
 -- Expose functions ------------------------------------------------------------
 
+sDKP.count = count
 sDKP.dispose = dispose
 sDKP.table = table
 sDKP.wipe = wipe

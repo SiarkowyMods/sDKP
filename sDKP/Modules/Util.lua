@@ -37,6 +37,20 @@ function sDKP.DecimalToHexColor(r, g, b) -- from http://wowprogramming.com/snipp
     return format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
 end
 
+local RED   = "|cffff3333"
+local GREEN = "|cff33ff33"
+local GRAY  = "|cff888888"
+
+function sDKP.DiffColorize(a, b)
+    a = tonumber(a) or 0
+    b = tonumber(b) or 0
+
+    if b > a then return GREEN end
+    if b < a then return RED end
+
+    return GRAY
+end
+
 --- Cuts out @channel part from string and returns it as second parameter.
 -- @param msg Message to extract channel from.
 -- @param defchan Default channel if not found.
@@ -52,28 +66,6 @@ function sDKP.ExtractChannel(msg, defchan)
 
     msg = msg:gsub("@(%S+)", func):trim()
     return msg, (channel or defchan)
-end
-
-do
-    local data = { }
-    --- Returns formatted note data string from given player data
-    -- to be enclosed in curly brackets and stored to officer note.
-    -- @param d Player data table (form Roster table).
-    -- @param netD Net amount delta. This will be added to current value (optional, defaults to 0).
-    -- @param totD Total amount delta. This will be added to current value (optional, defaults to 0).
-    -- @param hrsD Hours count delta. This will be added to current value (optional, defaults to 0).
-    -- @return string - Formatted note data.
-    function sDKP.FormatNoteData(d, netD, totD, hrsD)
-        data.d = date("%d")
-        data.m = date("%m")
-        data.Y = date("%Y")
-
-        data.n = d.net + (netD or 0)
-        data.t = d.tot + (totD or 0)
-        data.h = d.hrs + (hrsD or 0)
-
-        return gsub(sDKP:Get("core.format"), "%%(.)", data)
-    end
 end
 
 --- Returns an iterator to traverse hash indexed table in alphabetical order.
@@ -134,18 +126,16 @@ end
 -- @return number - Total amount.
 -- @return number - Hours count.
 function sDKP.ParseOfficerNote(o)
-    local param = o or ""
-    local between = param:match("{(.-)}") or ""
-    
-    if between:match("%D+") == between then -- alt
-        return between, 0, 0, 0
+    local data = (o or ""):match("{(.-)}") or ""
+
+    if data:match("%D+") == data then -- alt
+        return data, 0, 0, 0
     end
-    
-    local net = tonumber(between:match("Ne?t?.([-]?%d+)")) or 0
-    local tot = tonumber(between:match("To?t?.([-]?%d+)")) or 0
-    local hrs = tonumber(between:match("Hr?s?.([-]?%d+)")) or 0
-    
-    return nil, net, tot, hrs
+
+    return nil,
+        tonumber(data:match("Ne?t?.(%-?%d+)")) or 0,
+        tonumber(data:match("To?t?.(%-?%d+)")) or 0,
+        tonumber(data:match("Hr?s?.(%-?%d+)")) or 0
 end
 
 --- Returns boolean.

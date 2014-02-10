@@ -253,7 +253,7 @@ sDKP.Slash = {
                     self:Print("No character specified or player not in your guild.")
                     return
                 end
-                local net, tot, hrs = self:GetPlayerPointValues(main)
+                local net, tot, hrs = self:GetCharacter(main):GetPoints()
                 self:Printf("%s: %d net, %d tot, %d hrs.", format(name ~= main and "%s (%s)" or "%2$s", self.ClassColoredPlayerName(name), self.ClassColoredPlayerName(main)), net, tot, hrs)
             end,
         },
