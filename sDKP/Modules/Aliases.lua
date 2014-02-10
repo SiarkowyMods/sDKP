@@ -19,7 +19,7 @@ local GetGuildRosterInfo = GetGuildRosterInfo
 -- @return boolean - success flag.
 function sDKP:SetAlias(alias, owner)
     assert(alias, "Alias character name required.")
-    assert(not owner or self:GetCharacter(owner), "Guild member or no name required.")
+    assert(not owner or self(owner), "Guild member or no name required.")
 
     self.Externals[alias] = owner
     return true

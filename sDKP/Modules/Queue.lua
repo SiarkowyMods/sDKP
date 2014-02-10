@@ -46,7 +46,7 @@ do
         if not working then return end
 
         for name in pairs(queue) do
-            local char = self:GetCharacter(name)
+            local char = self(name)
             queue[name] = nil
 
             if char then
@@ -66,7 +66,7 @@ do
             end
         end
 
-        self:Echo("Total of %d |4note:notes; affected.", counter)
+        self:Printf("Total of %d |4note:notes; affected.", counter)
         if whisper then self:SendQueuedWhispers() end
 
         working = nil

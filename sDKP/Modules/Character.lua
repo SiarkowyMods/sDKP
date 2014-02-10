@@ -50,7 +50,7 @@ function Character:GetColoredName()
 end
 
 function Character:GetMain()
-    return self.altof and sDKP:GetCharacter(self.altof) or self
+    return self.altof and sDKP(self.altof) or self
 end
 
 --- Returns character data in officer note format.

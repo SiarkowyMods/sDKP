@@ -138,8 +138,8 @@ end
 -- @param name Character name.
 -- @return table|nil - Character object or nil if character not found.
 function sDKP:GetPlayer(name)
-    return self:GetCharacter(assert(name, "Player name required.")) -- check roster
-        or self:Unalias(name) and self:GetCharacter(self:Unalias(name)) -- check aliases
+    return self(assert(name, "Player name required.")) -- check roster
+        or self:Unalias(name) and self(self:Unalias(name)) -- check aliases
 end
 
 --- Returns player online character.
@@ -286,7 +286,7 @@ function sDKP:ForEach(list, func, ...)
     assert(func)
 
     for name, _ in pairs(list) do
-        local char = self:GetCharacter(name)
+        local char = self(name)
 
         if char then
             char[func](char, ...)
@@ -335,7 +335,7 @@ function sDKP:Update()
 
         if not name then return end -- prevent nil errors despite GuildRoster()
 
-        local char, new = self:GetCharacter(name)
+        local char, new = self(name)
         if not char then char, new = self:BindClass(nil, "Character") end
 
         char:OnUpdate(i, name, rank, rankId, level, _, zone,
