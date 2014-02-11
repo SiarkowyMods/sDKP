@@ -89,7 +89,10 @@ do
     --- Sends queued whispers using ChatThrottleLib and clears them from queue.
     function sDKP:SendQueuedWhispers()
         for char, message in pairs(whispers) do
-            ChatThrottleLib:SendChatMessage("BULK", nil, message, "WHISPER", nil, char)
+            if char ~= self.player then
+                ChatThrottleLib:SendChatMessage("BULK", nil, message, "WHISPER", nil, char)
+            end
+
             whispers[char] = nil
         end
     end
