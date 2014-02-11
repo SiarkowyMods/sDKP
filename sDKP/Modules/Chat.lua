@@ -31,12 +31,14 @@ StaticPopupDialogs["SDKP_CHAT_CHARGE_PLAYER"] = {
     end,
     OnAccept = function(data)
         local value = tonumber(getglobal(this:GetParent():GetName().."EditBox"):GetText()) or 0
-        sDKP:ModifyChatWrapper(data.player, -value, data.iLink)
+        local char = sDKP(data.player)
+        if char then char:Charge(value, data.iLink):Store() end
         getglobal(this:GetParent():GetName().."EditBox"):SetText("")
     end,
     EditBoxOnEnterPressed = function(data)
         local value = tonumber(getglobal(this:GetParent():GetName().."EditBox"):GetText()) or 0
-        sDKP:ModifyChatWrapper(data.player, -value, data.iLink)
+        local char = sDKP(data.player)
+        if char then char:Charge(value, data.iLink):Store() end
         getglobal(this:GetParent():GetName().."EditBox"):SetText("")
         this:GetParent():Hide()
     end,

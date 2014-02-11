@@ -5,8 +5,6 @@
 
 local sDKP = sDKP
 
-local ChatThrottleLib = ChatThrottleLib
-
 local format = format
 local gsub = gsub
 local pairs = pairs
@@ -50,13 +48,12 @@ do
             queue[name] = nil
 
             if char then
-                if char:Store(nil, true) then
+                if char:Store(true, true) then
                     counter = counter + 1
 
                     if whisper then
-                        self:QueueWhisper(char:GetOwnerOnline(),
-                            format(whisper, char.net + char.netD,
-                                char.tot + char.totD, char.netD))
+                        self:QueueWhisper(char:GetOwnerOnline(), format(whisper,
+                            char.net + char.netD, char.tot + char.totD, char.netD))
                     end
 
                     char:Discard()
@@ -86,13 +83,10 @@ do
         end
     end
 
-    --- Sends queued whispers using ChatThrottleLib and clears them from queue.
+    --- Sends queued whispers and clears them from queue.
     function sDKP:SendQueuedWhispers()
         for char, message in pairs(whispers) do
-            if char ~= self.player then
-                ChatThrottleLib:SendChatMessage("BULK", nil, message, "WHISPER", nil, char)
-            end
-
+            self:SendWhisper(char, message)
             whispers[char] = nil
         end
     end

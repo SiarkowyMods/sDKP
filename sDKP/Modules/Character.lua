@@ -26,7 +26,7 @@ local Character = { --[[
     class = string,     -- Character class.
     on    = boolean,    -- Online flag.
     altof = nil|string, -- Main character reference if any.
-    new   = boolean,    -- Data update flag for sDKP:Store().
+    new   = boolean,    -- Data update flag for Store().
 
     -- DKP values:
     net = number,       -- Netto DKP value.
@@ -221,13 +221,18 @@ function Character:Discard()
 end
 
 --- Stores pending modifications to officer note.
-function Character:Store(fmt, nodiscard)
-    if not fmt then fmt = sDKP:Get("core.format") end
+function Character:Store(nodiscard, quiet)
+    local fmt = sDKP:Get("core.format")
     local old = select(8, GetGuildRosterInfo(self.id))
     local new = ("%s%s")
         :format(self:GetNote(fmt), old:gsub("{.-}", ""))
         :trim()
         :sub(1, 31)
+
+    if not quiet and sDKP:Get("whisper.toggle") then
+        sDKP:SendWhisper(self:GetOwnerOnline(), format(sDKP:Get("whisper.modify"),
+            self.net + self.netD, self.tot + self.totD, self.netD))
+    end
 
     if not nodiscard then
         self:Discard()

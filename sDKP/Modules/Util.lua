@@ -5,6 +5,7 @@
 
 local sDKP = sDKP
 
+local ctl = ChatThrottleLib
 local date = date
 local format = format
 local gsub = gsub
@@ -136,6 +137,15 @@ function sDKP.ParseOfficerNote(o)
         tonumber(data:match("Ne?t?.(%-?%d+)")) or 0,
         tonumber(data:match("To?t?.(%-?%d+)")) or 0,
         tonumber(data:match("Hr?s?.(%-?%d+)")) or 0
+end
+
+--- Sends whisper using ChatThrottleLib.
+-- @param who (string) Recipent.
+-- @param message (string) Message to send.
+function sDKP:SendWhisper(who, message)
+    if who and who ~= self.player then
+        ctl:SendChatMessage("BULK", nil, tostring(message), "WHISPER", nil, who)
+    end
 end
 
 --- Returns boolean.
