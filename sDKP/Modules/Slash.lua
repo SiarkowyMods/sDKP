@@ -67,7 +67,7 @@ local function criteriaOtherZoneInRaid(d)
 end
 
 function sDKP:ModifySlashWrapper(param, method, announce)
-    local who, points, reason = param:match("(.+)%s+(%d+)%s*(.*)")
+    local who, points, reason = param:match("(.-)%s+(%d+)%s*(.*)")
     local reason, chan = self.ExtractChannel(reason)
 
     if not who then
