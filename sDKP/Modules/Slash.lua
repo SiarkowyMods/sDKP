@@ -166,6 +166,42 @@ function sDKP:ModifyChatWrapper(who, points, reason, announce)
     end
 end
 
+function sDKP:ModifySlashWrapper(param, method, announce)
+    local who, points, reason = param:match("(.+)%s+(%d+)%s*(.*)")
+    local reason, chan = self.ExtractChannel(reason)
+
+    if not who then
+        return self:Print("Both character filter and DKP amount required.")
+    end
+
+    local list, num = self:Select(who)
+    points = (tonumber(points) or 0) * (method == "Award" and 1 or -1)
+
+    if num > 0 and points ~= 0 then
+        if announce then
+            self:Announce(chan, "%s %s%+d DKP|r%s%s", who,
+                points >= 0 and "|cff33ff33" or "|cffff3333",
+                points, reason ~= "" and ": " or "", reason)
+        end
+
+        self:Discard()
+
+        -- todo: logging
+
+        self:ForEach(list, method, abs(points))
+        num = self:Store()
+
+        self:Printf("%s %s %d DKP (%d |4player:players;)%s%s.",
+            points >= 0 and "Awarding" or "Charging", who,
+            abs(points), num, reason ~= "" and ": " or "", reason)
+    else
+        self:Printf(num > 0 and "Nonzero DKP amount required."
+            or "No characters match %s.", who)
+    end
+
+    self.dispose(list)
+end
+
 -- slash command table
 sDKP.Slash = {
     name = format("Dragon Kill Points manager version %s.", sDKP.version),
@@ -177,13 +213,7 @@ sDKP.Slash = {
             type = "execute",
             usage = "<player>||<class>||raid <points>[ <reason>]",
             func = function(self, param)
-                local who, points, reason = param:match("(%S+)%s*(%d+)%s*(.*)")
-                points = tonumber(points)
-                if not who or not points then
-                    self:Print("You have to specify both who award points to and the point amount.")
-                    return
-                end
-                self:ModifyChatWrapper(who, points, reason)
+                self:ModifySlashWrapper(param, "Award", false)
             end
         },
         ["award!"] = {
@@ -192,13 +222,7 @@ sDKP.Slash = {
             type = "execute",
             usage = "<player>||<class>||raid <points>[ <reason>[ @<channel>]]",
             func = function(self, param)
-                local who, points, reason = param:match("(%S+)%s*(%d+)%s*(.*)")
-                points = tonumber(points)
-                if not who or not points then
-                    self:Print("You have to specify both who award points to and the point amount.")
-                    return
-                end
-                self:ModifyChatWrapper(who, points, reason, true)
+                self:ModifySlashWrapper(param, "Award", true)
             end
         },
         charge = {
@@ -207,13 +231,7 @@ sDKP.Slash = {
             type = "execute",
             usage = "<player>||<class>||raid <points>[ <reason>]",
             func = function(self, param)
-                local who, points, reason = param:match("(%S+)%s*(%d+)%s*(.*)")
-                points = tonumber(points)
-                if not who or not points then
-                    self:Print("You have to specify both who to charge points and the point amount.")
-                    return
-                end
-                self:ModifyChatWrapper(who, -points, reason)
+                self:ModifySlashWrapper(param, "Charge", false)
             end
         },
         ["charge!"] = {
@@ -222,23 +240,15 @@ sDKP.Slash = {
             type = "execute",
             usage = "<player>||<class>||raid <points>[ <reason>[ @<channel>]]",
             func = function(self, param)
-                local who, points, reason = param:match("(%S+)%s*(%d+)%s*(.*)")
-                points = tonumber(points)
-                if not who or not points then
-                    self:Print("You have to specify both who to charge points and the point amount.")
-                    return
-                end
-                self:ModifyChatWrapper(who, -points, reason, true)
+                self:ModifySlashWrapper(param, "Charge", true)
             end
         },
         discard = {
             name = "Discard",
-            desc = "Discard unsaved changes for all or only given player.",
+            desc = "Discard all pending roster changes.",
             type = "execute",
-            usage = "[<player>]",
             func = function(self, param)
-                local name = param:match("%S+")
-                self:Printf("%d changes discarded.", self:Discard(name ~= "" and name))
+                self:Printf("Total of %d |4change:changes; discarded.", self:Discard())
             end
         },
         info = {
@@ -247,14 +257,17 @@ sDKP.Slash = {
             type = "execute",
             usage = "<player>",
             func = function(self, param)
-                local name = param:match("%S+")
-                local main = self:GetMainName(name)
-                if not main then
-                    self:Print("No character specified or player not in your guild.")
-                    return
+                local char = self(param or "")
+
+                if not char then
+                    return self:Print("No character specified or player not in your guild.")
                 end
-                local net, tot, hrs = self:GetCharacter(main):GetPoints()
-                self:Printf("%s: %d net, %d tot, %d hrs.", format(name ~= main and "%s (%s)" or "%2$s", self.ClassColoredPlayerName(name), self.ClassColoredPlayerName(main)), net, tot, hrs)
+
+                local main = char:GetMain()
+                self:Printf("Info for %s: %d net, %d tot, %d hrs.",
+                    format(char.name ~= main.name and "%s <%s>" or "%2$s",
+                        char:GetColoredName(), main:GetColoredName()),
+                    main:GetPoints())
             end,
         },
         modify = {
@@ -264,12 +277,14 @@ sDKP.Slash = {
             usage = "<player> <netDelta> [<totDelta> [<hrsDelta>]]",
             func = function(self, param)
                 local name, netD, totD, hrsD = param:match("(%S+)%s*([-]?%d*)%s*([-]?%d*)%s*([-]?%d*)")
-                
-                netD = tonumber(netD) or 0
-                totD = tonumber(totD) or 0
-                hrsD = tonumber(hrsD) or 0
-                
-                self:Modify(name, netD, totD, hrsD)
+
+                local char = self(name or "")
+
+                if not char then
+                    return self:Print("No character specified or player not in your guild.")
+                end
+
+                char:Modify(netD, totD, hrsD)
             end
         },
         option = {
@@ -289,7 +304,7 @@ sDKP.Slash = {
                 },
                 ignoreginfo = {
                     name = "Ignore guild info note format",
-                    desc = "Controls whether to load DKP note format from guild info.",
+                    desc = "Toggles ignoring of guild info DKP note format.",
                     type = "execute",
                     usage = "off||on",
                     func = function(self, param)
@@ -309,7 +324,7 @@ sDKP.Slash = {
                 },
                 whispers = {
                     name = "Whisper announces",
-                    desc = "Controls whether to send whisper announces on DKP change.",
+                    desc = "Toggles whisper announces on DKP change.",
                     type = "execute",
                     usage = "off||on",
                     func = function(self, param)
@@ -326,23 +341,24 @@ sDKP.Slash = {
             usage = "<player> <net> [<tot> [<hrs>]]",
             func = function(self, param)
                 local name, net, tot, hrs = param:match("(%S+)%s*([-]?%d*)%s*([-]?%d*)%s*([-]?%d*)")
-                
-                net = tonumber(net)
-                tot = tonumber(tot)
-                hrs = tonumber(hrs)
-                
-                self:Set(name, net, tot, hrs)
+
+                local char = self(name or "")
+
+                if not char then
+                    return self:Print("No character specified or player not in your guild.")
+                end
+
+                char:Set(net, tot, hrs):Store()
             end
         },
         store = {
             name = "Store",
             desc = "Save all or given player's DKP changes to officer note(s).",
             type = "execute",
-            usage = "[<player>]",
             func = function(self, param)
-                local name = param:match("%S+")
-                self:Printf("Making changes to notes...")
-                self:Store(name ~= "" and name)
+                if self:Store() > 0 then
+                    self:Printf("Applying pending changes to notes...")
+                end
             end
         },
         usage = {
