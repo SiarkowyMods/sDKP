@@ -21,42 +21,6 @@ local UnitInRaid = UnitInRaid
 
 local Externals, Roster, Options
 
---- Addon settings getter.
--- @param opt (string) Option name.
--- @return mixed - Setting value.
-function sDKP:Get(opt) return Options[opt] end
-
---- Addon settings setter.
--- @param opt (string) Option name.
--- @param v (mixed) New value.
-function sDKP:Set(opt, v) Options[opt] = v end
-
---- Returns character object.
--- @param name Character name.
--- @return table|nil - Character object or nil if character not found.
-function sDKP:GetCharacter(name)
-    return Roster[assert(name, "Character name required.")]
-end
-
---- Roster table getter.
--- @param name (optional) Character name.
--- @return table - Roster table.
-function sDKP:GetRoster()
-    return Roster
-end
-
---- Shorthand for pairs(Roster).
-function sDKP:GetChars()
-    return pairs(Roster)
-end
-
---- Sets internal upvalues.
-function sDKP:Reconfigure()
-    Externals   = self.Externals
-    Roster      = self.Roster
-    Options     = self.Options
-end
-
 -- Event handlers --------------------------------------------------------------
 
 function sDKP:GUILD_ROSTER_UPDATE()
@@ -89,18 +53,6 @@ function sDKP:OnGuildRosterUpdate()
     self:QueueProcess()
 end
 
-function sDKP:GetGuildRoster(guild)
-    if not guild then
-        return new()
-    end
-
-    if not self.DB.Rosters[guild] then
-        self.DB.Rosters[guild] = new()
-    end
-
-    return self.DB.Rosters[guild]
-end
-
 function sDKP:PLAYER_GUILD_UPDATE(unit)
     if not unit or unit ~= "player" then return end
     local guild = GetGuildInfo("player")
@@ -116,10 +68,107 @@ end
 
 -- Utility functions -----------------------------------------------------------
 
+--- Addon settings getter.
+-- @param opt (string) Option name.
+-- @return mixed - Setting value.
+function sDKP:Get(opt) return Options[opt] end
+
+--- Addon settings setter.
+-- @param opt (string) Option name.
+-- @param v (mixed) New value.
+function sDKP:Set(opt, v) Options[opt] = v end
+
+--- Sets internal upvalues.
+function sDKP:Reconfigure()
+    Externals   = self.Externals
+    Roster      = self.Roster
+    Options     = self.Options
+end
+
+--- Prepares roster table for operation.
+function sDKP:CleanupRoster()
+    if GetNumGuildMembers() < 1 then return end
+
+    local roster = new()
+    local diff = self:Get("core.diff")
+
+    for i = 1, GetNumGuildMembers() do
+        roster[GetGuildRosterInfo(i)] = true
+    end
+
+    for name, char in self:GetChars() do
+        if roster[name] then
+            self:BindClass(char, "Character")
+        else -- not in roster
+            Roster[name] = nil
+            dispose(char)
+
+            if diff then
+                self:Printf("<%s> |cffff3333-%s|r", self.guild, name)
+            end
+        end
+    end
+
+    dispose(roster)
+    self.cleanup = nil
+end
+
+--- Calls function by name with supplied params for each character in list.
+-- @param list (table) Character list as returned from Select().
+-- @param func (string) Method name.
+-- @param ... (tuple) Argument vararg.
+function sDKP:ForEach(list, func, ...)
+    assert(func)
+
+    for _, name in pairs(list) do
+        local char = self(name)
+
+        if char then
+            char[func](char, ...)
+        end
+    end
+end
+
+--- Returns character object.
+-- @param name Character name.
+-- @return table|nil - Character object or nil if not found.
+function sDKP:GetCharacter(name)
+    assert(name, "Character name required.")
+    return Roster[name] or Externals[name] and Roster[Externals[name]]
+end
+
+--- Returns desired guild's roster table from database.
+-- Creates new roster when needed!
+-- @param guild (string) Guild name.
+-- @return table - Guild roster table.
+function sDKP:GetGuildRoster(guild)
+    if not guild then
+        return new()
+    end
+
+    if not self.DB.Rosters[guild] then
+        self.DB.Rosters[guild] = new()
+    end
+
+    return self.DB.Rosters[guild]
+end
+
+--- Returns roster table iterator. A shorthand for pairs(Roster).
+-- @return function - Roster table iterator.
+function sDKP:GetChars()
+    return pairs(Roster)
+end
+
+--- Externals table getter.
+-- @return table - Externals table.
+function sDKP:GetExternals()
+    return Externals
+end
+
 --- Returns main name.
 -- @param name Player name.
 -- @return mixed - Main name for alt or nil for main.
-function sDKP:GetMainName(n)
+function sDKP:GetMainName(n) -- OBSOLETE
     if self.Roster[n] then
         if self.Roster[n].main then
             if self.Roster[self.Roster[n].main] then
@@ -134,17 +183,15 @@ function sDKP:GetMainName(n)
     return
 end
 
---- Returns character object. Resolves aliases to their owner characters.
--- @param name Character name.
--- @return table|nil - Character object or nil if character not found.
-function sDKP:GetPlayer(name)
-    return self(assert(name, "Player name required.")) -- check roster
-        or self:Unalias(name) and self(self:Unalias(name)) -- check aliases
+--- Roster table getter.
+-- @return table - Roster table.
+function sDKP:GetRoster()
+    return Roster
 end
 
 --- Returns player online character.
 -- @param main (string) Main name.
--- @return mixed - Online alt name or nil if none.
+-- @return string|nil - Online alt name or nil if none.
 function sDKP:GetOwnerOnline(main)
     assert(main, "Main name required.")
 
@@ -158,7 +205,77 @@ function sDKP:GetOwnerOnline(main)
 end
 
 function sDKP:IsInGuild(name)
-    return not not self:GetPlayer(name)
+    return not not self(name)
+end
+
+--- Returns 1 if character is an officer,  i.e. can
+-- read and write to officer chat, or nil otherwise
+-- @param name Character name.
+-- @return boolean - True for officer, nil otherwise.
+function sDKP:IsOfficer(name) -- OBSOLETE
+    if self:GetMainName(name) then
+        local _, _, rank = GetGuildRosterInfo(self.Roster[name].id)
+        GuildControlSetRank(rank + 1)
+        local _, _, oListen, oSpeak = GuildControlGetRankFlags()
+        return (oListen and oSpeak) or nil
+    end
+    return
+end
+
+-- Core functionality ----------------------------------------------------------
+
+--- Discards all pending changes to player data.
+-- @return number - Count of discarded changes.
+function sDKP:Discard()
+    local count = 0
+
+    for name, char in self:GetChars() do
+        if char:Discard() then
+            count = count + 1
+        end
+    end
+
+    return count
+end
+
+--- Enqueues officer note data storage and activates the queue.
+-- @return number - Count of queued changes.
+function sDKP:Store()
+    local count = 0
+
+    for name, char in self:GetChars() do
+        if char.new then
+            self:QueueAdd(name)
+            count = count + 1
+        end
+    end
+
+    self:QueueActivate()
+
+    return count
+end
+
+--- Updates roster data. Called by GUILD_ROSTER_UPDATE handler.
+function sDKP:Update()
+    local diff = self:Get("core.diff")
+
+    for i = 1, GetNumGuildMembers() do
+        local name, rank, rankId, level, _, zone,
+            pnote, onote, online, status, class = GetGuildRosterInfo(i)
+
+        if not name then return end -- prevent nil errors despite GuildRoster()
+
+        local char, new = self(name)
+        if not char then char, new = self:BindClass(nil, "Character") end
+
+        char:OnUpdate(i, name, rank, rankId, level, _, zone,
+            pnote, onote, online, status, class, diff)
+
+        if new then
+            Roster[name] = char
+            if diff then self:Printf("<%s> |cff33ff33+%s|r", self.guild, name) end
+        end
+    end
 end
 
 local conds = {
@@ -214,136 +331,36 @@ conds.pt6 = conds.party6
 conds.pt7 = conds.party7
 conds.pt8 = conds.party8
 
+--- Returns filter character list.
+-- @param who (string) Filter string.
+-- @return table - Table of main<-->match pairs.
+-- @return number - Count of matched characters.
 function sDKP:Select(who)
     local list = new()
 
     for set in (who or ""):gmatch("[^,]+") do -- split who by commas into sets
-        for name, char in self:GetChars() do -- for every character
-            if not list[name] then -- check if already matches
-                local flag = true -- assume a match
+        local char = self(set:trim()) -- can be player name
 
-                for cond in set:gmatch("%S+") do -- split set by whitespace into conds
-                    if flag then
-                        flag = (conds[cond] or conds.name)(char, cond)
+        if char then
+            list[char:GetMain().name] = set:trim()
+        else
+            for name, char in self:GetChars() do -- for every character
+                if not list[name] then -- check if already matches
+                    local flag = true -- assume a match
+
+                    for cond in set:gmatch("%S+") do -- split set by whitespace into conds
+                        if flag then
+                            flag = (conds[cond] or conds.name)(char, cond)
+                        end
                     end
-                end
 
-                if flag then
-                    list[char:GetMain().name] = name
+                    if flag then
+                        list[char:GetMain().name] = name
+                    end
                 end
             end
         end
     end
 
     return list, count(list)
-end
-
---- Returns 1 if character is an officer,  i.e. can
--- read and write to officer chat, or nil otherwise
--- @param name Character name.
--- @return boolean - True for officer, nil otherwise.
-function sDKP:IsOfficer(name)
-    if self:GetMainName(name) then
-        local _, _, rank = GetGuildRosterInfo(self.Roster[name].id)
-        GuildControlSetRank(rank + 1)
-        local _, _, oListen, oSpeak = GuildControlGetRankFlags()
-        return (oListen and oSpeak) or nil
-    end
-    return
-end
-
--- Core functionality ----------------------------------------------------------
-
---- Deletes all roster entries that do not contain unsaved data.
-function sDKP:CleanupRoster()
-    if GetNumGuildMembers() < 1 then return end
-
-    local roster = new()
-    local diff = self:Get("core.diff")
-
-    for i = 1, GetNumGuildMembers() do
-        roster[GetGuildRosterInfo(i)] = true
-    end
-
-    for name, char in self:GetChars() do
-        if roster[name] then
-            self:BindClass(char, "Character")
-        else -- not in roster
-            Roster[name] = nil
-            dispose(char)
-
-            if diff then
-                self:Printf("<%s> |cffff3333-%s|r", self.guild, name)
-            end
-        end
-    end
-
-    dispose(roster)
-    self.cleanup = nil
-end
-
-function sDKP:ForEach(list, func, ...)
-    assert(func)
-
-    for _, name in pairs(list) do
-        local char = self(name)
-
-        if char then
-            char[func](char, ...)
-        end
-    end
-end
-
---- Discards all pending changes to player data.
--- @return number - Discarded count.
-function sDKP:Discard()
-    local count = 0
-
-    for name, char in self:GetChars() do
-        if char:Discard() then
-            count = count + 1
-        end
-    end
-
-    return count
-end
-
---- Enqueues officer note data storage and activates the queue.
--- @return number - Queued changes count.
-function sDKP:Store()
-    local count = 0
-
-    for name, char in self:GetChars() do
-        if char.new then
-            self:QueueAdd(name)
-            count = count + 1
-        end
-    end
-
-    self:QueueActivate()
-
-    return count
-end
-
---- Updates roster data.
-function sDKP:Update()
-    local diff = self:Get("core.diff")
-
-    for i = 1, GetNumGuildMembers() do
-        local name, rank, rankId, level, _, zone,
-            pnote, onote, online, status, class = GetGuildRosterInfo(i)
-
-        if not name then return end -- prevent nil errors despite GuildRoster()
-
-        local char, new = self(name)
-        if not char then char, new = self:BindClass(nil, "Character") end
-
-        char:OnUpdate(i, name, rank, rankId, level, _, zone,
-            pnote, onote, online, status, class, diff)
-
-        if new then
-            Roster[name] = char
-            if diff then self:Printf("<%s> |cff33ff33+%s|r", self.guild, name) end
-        end
-    end
 end

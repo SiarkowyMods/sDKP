@@ -57,16 +57,16 @@ function sDKP:ModifySlashWrapper(param, method, announce)
     self.dispose(list)
 end
 
--- slash command table
+-- Slash command table
 sDKP.Slash = {
     name = format("Dragon Kill Points manager version %s.", sDKP.version),
     type = "group",
     args = {
         award = {
             name = "Award",
-            desc = "Award player/class/raid specified DKP amount with optional reason.",
+            desc = "Award player(s) specified amount of DKP with optional reason.",
             type = "execute",
-            usage = "<player>||<class>||raid <points>[ <reason>]",
+            usage = "<filter> <points>[ <reason>]",
             func = function(self, param)
                 self:ModifySlashWrapper(param, "Award", false)
             end
@@ -75,16 +75,16 @@ sDKP.Slash = {
             name = "Award with announce",
             desc = "Award DKP amount and announce.",
             type = "execute",
-            usage = "<player>||<class>||raid <points>[ <reason>[ @<channel>]]",
+            usage = "<filter> <points>[ <reason>[ @<channel>]]",
             func = function(self, param)
                 self:ModifySlashWrapper(param, "Award", true)
             end
         },
         charge = {
             name = "Charge",
-            desc = "Charge player/class/raid specified DKP amount with optional reason.",
+            desc = "Charge player(s) specified amount of DKP with optional reason.",
             type = "execute",
-            usage = "<player>||<class>||raid <points>[ <reason>]",
+            usage = "<filter> <points>[ <reason>]",
             func = function(self, param)
                 self:ModifySlashWrapper(param, "Charge", false)
             end
@@ -93,7 +93,7 @@ sDKP.Slash = {
             name = "Charge with announce",
             desc = "Charge DKP amount and announce.",
             type = "execute",
-            usage = "<player>||<class>||raid <points>[ <reason>[ @<channel>]]",
+            usage = "<filter> <points>[ <reason>[ @<channel>]]",
             func = function(self, param)
                 self:ModifySlashWrapper(param, "Charge", true)
             end
@@ -127,7 +127,7 @@ sDKP.Slash = {
         },
         modify = {
             name = "Modify",
-            desc = "Change player DKP amounts as relative values.",
+            desc = "Change player's DKP amounts as relative values.",
             type = "execute",
             usage = "<player> <netDelta> [<totDelta> [<hrsDelta>]]",
             func = function(self, param)
@@ -191,7 +191,7 @@ sDKP.Slash = {
         },
         set = {
             name = "Set",
-            desc = "Immediately set fixed player DKP amounts.",
+            desc = "Sets fixed player DKP amounts and stores to officer note.",
             type = "execute",
             usage = "<player> <net> [<tot> [<hrs>]]",
             func = function(self, param)
@@ -208,7 +208,7 @@ sDKP.Slash = {
         },
         store = {
             name = "Store",
-            desc = "Save all or given player's DKP changes to officer note(s).",
+            desc = "Stores pending DKP changes to officer notes.",
             type = "execute",
             func = function(self, param)
                 if self:Store() > 0 then
@@ -230,12 +230,14 @@ sDKP.Slash = {
         },
         versions = {
             name = "Versions",
-            desc = "Print guild mates addon versions.",
+            desc = "Print guild mates' addon versions.",
             type = "execute",
             func = "VersionDump"
         },
     }
 }
+
+-- Slash command table structure -----------------------------------------------
 
 local Actions = { }
 

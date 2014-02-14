@@ -21,15 +21,8 @@ function sDKP:SetAlias(alias, owner)
     assert(alias, "Alias character name required.")
     assert(not owner or self(owner), "Guild member or no name required.")
 
-    self.Externals[alias] = owner
+    self:GetExternals()[alias] = owner
     return true
-end
-
---- Returns guild member name for specified alias.
--- @param alias Alias character name.
--- @return string - Guild member name.
-function sDKP:Unalias(alias)
-    return self.Externals[alias]
 end
 
 sDKP.Slash.args.alias = {
@@ -55,7 +48,7 @@ sDKP.Slash.args.alias = {
             func = function(self, name)
                 self:Print("Current aliases:")
 
-                for alias, main in self.PairsByKeys(self.Externals) do
+                for alias, main in self.PairsByKeys(self:GetExternals()) do
                     self:Echo("   %s -> %s", alias, main)
                 end
             end
