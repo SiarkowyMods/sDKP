@@ -23,49 +23,6 @@ local LOG_DKP_MODIFY    = 1
 local LOG_DKP_RAID      = 2
 local LOG_DKP_CLASS     = 3
 
-local t = { }
-function sDKP:RosterIterateAction(action, paramsA, criteria, paramsB)
-    assert(action)
-    assert(type(action) == "function")
-    
-    if criteria then
-        assert(type(criteria) == "function")
-    end
-    
-    paramsA = paramsA or t
-    paramsB = paramsB or t
-    assert(type(paramsA) == "table")
-    assert(type(paramsB) == "table")
-    
-    for n, d in pairs(self.Roster) do
-        if not criteria or criteria(d, unpack(paramsB)) then
-            action(d, unpack(paramsA))
-        end
-    end
-end
-
-local function actionModify(d, points)
-    sDKP:Modify(d.n, points, (points > 0) and points or 0, 0)
-end
-
-local function criteriaOnlineInRaid(d)
-    return UnitInRaid(d.name) and d.on
-end
-
-local function criteriaClassOnlineInRaid(d, class)
-    return UnitInRaid(d.name) and d.class == class and d.on
-end
-
-local GINFO_ZONE = 6
-
-local function criteriaSameZoneInRaid(d)
-    return UnitInRaid(d.name) and select(GINFO_ZONE, GetGuildRosterInfo(d.id)) == GetRealZoneText() and d.on
-end
-
-local function criteriaOtherZoneInRaid(d)
-    return UnitInRaid(d.name) and select(GINFO_ZONE, GetGuildRosterInfo(d.id)) ~= GetRealZoneText() and d.on
-end
-
 function sDKP:ModifySlashWrapper(param, method, announce)
     local who, points, reason = param:match("(.-)%s+(%d+)%s*(.*)")
     local reason, chan = self.ExtractChannel(reason)
@@ -85,10 +42,8 @@ function sDKP:ModifySlashWrapper(param, method, announce)
         end
 
         self:Discard()
+        self:ForEach(list, method, abs(points), reason)
 
-        -- todo: logging
-
-        self:ForEach(list, method, abs(points))
         num = self:Store()
 
         self:Printf("%s %s %d DKP (%d |4player:players;)%s%s.",

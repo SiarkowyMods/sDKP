@@ -20,6 +20,7 @@ local tinsert = tinsert
 local tonumber = tonumber
 local tostring = tostring
 local tremove = tremove
+local unpack = unpack
 local GetItemInfo = GetItemInfo
 local GetTime = GetTime
 
@@ -71,17 +72,26 @@ function sDKP.LogToString(data)
     return log[type](a, b, c, d, e, f, g, h, i)
 end
 
--- ------------------------------------------------------------------
--- :Log(...) ~ Logs data to current guild's log.
--- ------------------------------------------------------------------
--- ...
---     data list beginning with log entry type integer, which also
---     gets serialized along with the data
--- ------------------------------------------------------------------
-function sDKP:Log(...)
+--- Logs data to current guild's log.
+-- @param type (integer) Entry type integer, see LOG_* locals.
+-- @param ... (tuple) Data list to serialize. Nils are ignored.
+function sDKP:Log(type, ...)
     if not self.guild then return end
-    self.LogData[self.guild] = self.LogData[self.guild] or { }
-    self.LogData[self.guild][time() + mod(GetTime(), 1)] = serialize(...)
+
+    local log = self.LogData[self.guild]
+    local t = self.table()
+
+    for i = 1, select("#", ...) do
+        tinsert(t, (select(i, ...)))
+    end
+
+    local stamp = time() + mod(GetTime(), 1) -- calculate timestamp
+
+    while log[stamp] do -- if already used
+        stamp = stamp + 0.01
+    end
+
+    log[stamp] = serialize(type, unpack(t))
 end
 
 end -- do

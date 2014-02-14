@@ -285,7 +285,7 @@ end
 function sDKP:ForEach(list, func, ...)
     assert(func)
 
-    for name, _ in pairs(list) do
+    for _, name in pairs(list) do
         local char = self(name)
 
         if char then

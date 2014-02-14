@@ -18,6 +18,8 @@ local select = select
 local setmetatable = setmetatable
 local tonumber = tonumber
 
+local LOG_DKP_MODIFY = 1
+
 --- Character object prototype.
 local Character = { --[[
     -- General:
@@ -147,15 +149,19 @@ end
 
 --- Awards character DKP.
 -- @param pts (number) Amount to award.
+-- @param reason (string) Optional reason string.
 -- @return table - Main character object.
-function Character:Award(pts)
+function Character:Award(pts, reason)
+    sDKP:Log(LOG_DKP_MODIFY, self.name, pts, reason ~= "" and reason or nil)
     return self:Modify(pts, pts, 0)
 end
 
 --- Charges character DKP.
 -- @param pts (number) Amount to charge.
+-- @param reason (string) Optional reason string.
 -- @return table - Main character object.
-function Character:Charge(pts)
+function Character:Charge(pts, reason)
+    sDKP:Log(LOG_DKP_MODIFY, self.name, -pts, reason ~= "" and reason or nil)
     return self:Modify(-pts, 0, 0)
 end
 
@@ -231,7 +237,7 @@ function Character:Store(nodiscard, quiet)
 
     if not quiet and sDKP:Get("whisper.toggle") then
         sDKP:SendWhisper(self:GetOwnerOnline(), format(sDKP:Get("whisper.modify"),
-            self.net + self.netD, self.tot + self.totD, self.netD))
+            self.net + (self.netD or 0), self.tot + (self.totD or 0), self.netD or 0))
     end
 
     if not nodiscard then
