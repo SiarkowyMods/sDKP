@@ -127,7 +127,11 @@ function Character:IsOfficer()
 end
 
 function Character:IsStandBy()
-    return (self:GetRaidSubgroup() or 0) > 5 or self.stby
+    if self:IsInRaid() then
+        return (self:GetRaidSubgroup() or 0) > 5
+    else
+        return self.stby
+    end
 end
 
 function Character:SetIronMan(flag)

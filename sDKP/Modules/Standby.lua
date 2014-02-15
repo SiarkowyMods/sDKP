@@ -37,16 +37,16 @@ sDKP.Slash.args.stanby = {
             desc = "Clear standby data from guild roster.",
             type = "execute",
             func = function(self, param)
-                local list, num = self:Select("all")
+                local count = 0
 
-                if num > 0 then
-                    self:ForEach(list, "SetStandby", nil)
-                    self:Printf("Total of %d |4player:players; cleared.", num)
-                else
-                    self:Print("Standby list empty.")
+                for name, char in self:GetChars() do
+                    if char.stby then
+                        char:SetStandby(nil)
+                        count = count + 1
+                    end
                 end
 
-                self.dispose(list)
+                self:Printf("Total of %d |4player:players; cleared.", count)
             end,
             order = 10
         },
@@ -111,15 +111,11 @@ sDKP.Slash.args.stanby = {
             type = "execute",
             usage = "[<filter>]",
             func = function(self, param)
-                local list, num = self:Select("standby")
-
-                if num > 0 then
-                    self:ForEach(list, "SetStandby", nil)
+                for name, char in self:GetChars() do
+                    char:SetStandby(nil)
                 end
 
-                self.dispose(list)
-
-                list, num = self:Select(param ~= "" and param or "all")
+                local list, num = self:Select(param ~= "" and param or "all")
 
                 if num > 0 then
                     self:ForEach(list, "SetStandby", true)
