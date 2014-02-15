@@ -3,6 +3,7 @@
 ## Notes: Siarkowy's Dragon Kill Points manager.
 ## Author: Siarkowy <siarkowy@siarkowy.net>
 ## X-Website: https://github.com/SiarkowyMods/sDKP
+## X-License: GNU GPL v3
 ## SavedVariables: sDKP_DB
 ## Version: 1.4
 
@@ -28,3 +29,4 @@ Modules\Announce.lua
 Modules\Aliases.lua
 Modules\Alts.lua
 Modules\Ironman.lua
+Modules\Standby.lua

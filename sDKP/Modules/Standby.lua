@@ -8,21 +8,21 @@ local sDKP = sDKP
 local pairs = pairs
 local tConcat = table.concat
 
-sDKP.Slash.args.ironman = {
+sDKP.Slash.args.stanby = {
     type = "group",
-    name = "Ironman",
-    desc = "Ironman functions.",
+    name = "Standby",
+    desc = "Standby functions.",
     args = {
         add = {
             name = "Add",
-            desc = "Add players to ironman list.",
+            desc = "Add players to standby list.",
             type = "execute",
             usage = "<filter>",
             func = function(self, param)
                 local list, num = self:Select(param)
 
                 if num > 0 then
-                    self:ForEach(list, "SetIronMan", true)
+                    self:ForEach(list, "SetStandby", true)
                     self:Printf("Total of %d |4player:players; added to list.", num)
                 else
                     self:Print("No characters matched the filter.")
@@ -34,16 +34,16 @@ sDKP.Slash.args.ironman = {
         },
         clear = {
             name = "Clear",
-            desc = "Cancel ironman bonus awarning no DKP.",
+            desc = "Clear standby data from guild roster.",
             type = "execute",
             func = function(self, param)
-                local list, num = self:Select("ironman")
+                local list, num = self:Select("all")
 
                 if num > 0 then
-                    self:ForEach(list, "SetIronMan", nil)
+                    self:ForEach(list, "SetStandby", nil)
                     self:Printf("Total of %d |4player:players; cleared.", num)
                 else
-                    self:Print("No characters eligible for ironman bonus.")
+                    self:Print("Standby list empty.")
                 end
 
                 self.dispose(list)
@@ -52,14 +52,14 @@ sDKP.Slash.args.ironman = {
         },
         remove = {
             name = "Remove",
-            desc = "Remove players from ironman list.",
+            desc = "Remove players from standby list.",
             type = "execute",
             usage = "<filter>",
             func = function(self, param)
                 local list, num = self:Select(param)
 
                 if num > 0 then
-                    self:ForEach(list, "SetIronMan", nil)
+                    self:ForEach(list, "SetStandby", nil)
                     self:Printf("Total of %d |4player:players; removed from list.", num)
                 else
                     self:Print("No characters matched the filter.")
@@ -71,17 +71,17 @@ sDKP.Slash.args.ironman = {
         },
         list = {
             name = "List",
-            desc = "List players eligible for ironman bonus.",
+            desc = "Prints standby list.",
             type = "execute",
             func = function(self, param)
-                local list, num = self:Select("ironman")
+                local list, num = self:Select("standby")
                 local t = self.table()
 
                 if num > 0 then
-                    self:Print("List of ironman eligible players:")
+                    self:Print("Standby list:")
 
                     for name, char in self:GetChars() do
-                        if char:IsIronMan() then
+                        if char:IsStandby() then
                             tinsert(t, char.name)
 
                             if #t >= 5 then
@@ -97,7 +97,7 @@ sDKP.Slash.args.ironman = {
 
                     self:Printf("Total of %d |4player:players;.", num)
                 else
-                    self:Print("No players eligible for ironman bonus.")
+                    self:Print("Standby list empty.")
                 end
 
                 self.dispose(t)
@@ -107,14 +107,14 @@ sDKP.Slash.args.ironman = {
         },
         start = {
             name = "Start",
-            desc = "Save raid or filtered roster for ironman bonus.",
+            desc = "Add raid or filtered roster to standby list.",
             type = "execute",
             usage = "[<filter>]",
             func = function(self, param)
-                local list, num = self:Select("ironman")
+                local list, num = self:Select("standby")
 
                 if num > 0 then
-                    self:ForEach(list, "SetIronMan", nil)
+                    self:ForEach(list, "SetStandby", nil)
                 end
 
                 self.dispose(list)
@@ -122,8 +122,8 @@ sDKP.Slash.args.ironman = {
                 list, num = self:Select(param ~= "" and param or "all")
 
                 if num > 0 then
-                    self:ForEach(list, "SetIronMan", true)
-                    self:Printf("Total of %d |4player:players; added to list.", num)
+                    self:ForEach(list, "SetStandby", true)
+                    self:Printf("Total of %d |4player:players; added to standby list.", num)
                 else
                     self:Print("No characters matched the filter.")
                 end
@@ -134,10 +134,10 @@ sDKP.Slash.args.ironman = {
         },
         reinvite = {
             name = "Reinvite",
-            desc = "Reinvite ironman eligible players who remain out of raid.",
+            desc = "Reinvite standby players to raid.",
             type = "execute",
             func = function(self, param)
-                local list, num = self:Select("ironman")
+                local list, num = self:Select("standby")
 
                 if num > 0 then
                     for main, char in pairs(list) do
@@ -152,6 +152,27 @@ sDKP.Slash.args.ironman = {
                 self.dispose(list)
             end,
             order = 30
+        },
+        uninvite = {
+            name = "Uninvite",
+            desc = "Uninvite standby players (groups 6-8) from raid.",
+            type = "execute",
+            func = function(self, param)
+                local list, num = self:Select("standby")
+
+                if num > 0 then
+                    for main, char in pairs(list) do
+                        char = self(main):GetOwnerOnline()
+
+                        if char and UnitInRaid(char.name) then
+                            UninviteUnit(char.name)
+                        end
+                    end
+                end
+
+                self.dispose(list)
+            end,
+            order = 35
         },
     }
 }

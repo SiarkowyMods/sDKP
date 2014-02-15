@@ -29,6 +29,8 @@ local Character = { --[[
     on    = boolean,    -- Online flag.
     altof = nil|string, -- Main character reference if any.
     new   = boolean,    -- Data update flag for Store().
+    iron  = boolean,    -- Ironman flag.
+    stby  = boolean,    -- Standby flag.
 
     -- DKP values:
     net = number,       -- Netto DKP value.
@@ -111,6 +113,10 @@ function Character:IsInRaidSubgroup(group)
     return self:GetRaidSubgroup() == group
 end
 
+function Character:IsIronMan()
+    return self.iron
+end
+
 function Character:IsMain()
     return not self.altof
 end
@@ -121,7 +127,17 @@ function Character:IsOfficer()
 end
 
 function Character:IsStandBy()
-    return (self:GetRaidSubgroup() or 0) > 5 or self.standby
+    return (self:GetRaidSubgroup() or 0) > 5 or self.stby
+end
+
+function Character:SetIronMan(flag)
+    if self.altof then self = self:GetMain() end
+    self.iron = flag and true or nil
+end
+
+function Character:SetStandby(flag)
+    if self.altof then self = self:GetMain() end
+    self.stby = flag and true or nil
 end
 
 -- Event handlers --------------------------------------------------------------
@@ -141,7 +157,6 @@ function Character:OnUpdate(id, name, _, _, _, _, _, _, o, on, _, class, diff)
     local net, tot, hrs = self.net, self.tot, self.hrs
     self.id, self.name, self.on, self.class = id, name, on, class
     self.altof, self.net, self.tot, self.hrs = parse(o)
-    self.standby = strfind("$", 0) and true or nil
     if diff and net and tot and hrs then self:OnDiff(net, tot, hrs) end
 end
 

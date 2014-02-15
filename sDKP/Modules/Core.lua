@@ -284,6 +284,7 @@ local conds = {
     main    = function(self) return self:IsMain() end,
     all     = function(self) return self:IsInRaid() or self:IsStandBy() end,
     guild   = function(self) return true end,
+    ironman = function(self) return self:IsIronMan() end,
     name    = function(self, cond) return self.name == cond end,
     officer = function(self) return self:IsOfficer() end,
     online  = function(self) return self.on end,
