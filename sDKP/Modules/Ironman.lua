@@ -143,7 +143,7 @@ sDKP.Slash.args.ironman = {
                     for main, char in pairs(list) do
                         char = self(main):GetOwnerOnline()
 
-                        if char and not UnitInRaid(char.name) then
+                        if char and not UnitInRaid(char.name) and char.name ~= self.player then
                             InviteUnit(char.name)
                         end
                     end

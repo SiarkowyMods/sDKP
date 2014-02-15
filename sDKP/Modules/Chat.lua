@@ -6,6 +6,7 @@
 local sDKP = sDKP
 
 local format = format
+local tConcat = table.concat
 local tonumber = tonumber
 local GetItemInfo = GetItemInfo
 local GetRealZoneText = GetRealZoneText
@@ -59,6 +60,46 @@ function sDKP:CHAT_MSG_LOOT(msg)
 end
 
 sDKP:RegisterEvent("CHAT_MSG_LOOT")
+
+function sDKP:CHAT_MSG_WHISPER(msg, sender)
+    if msg:sub(1, 1) ~= "?" or not sender or not self(sender) then
+        return
+    end
+
+    if msg == "?dkp" then
+        self:SendWhisper(sender, format("<sDKP> Point info: %d net, %d tot, %d hrs.",
+            self(sender):GetMain():GetPoints()))
+    elseif msg == "?standby" then
+        local list, num = self:Select("standby")
+        local t = self.table()
+
+        if num > 0 then
+            self:SendWhisper(sender, "<sDKP> Standby list:")
+
+            for name, char in self:GetChars() do
+                if char:IsStandBy() then
+                    tinsert(t, char.name)
+
+                    if #t >= 5 then
+                        self:SendWhisper(sender, tConcat(t, ", "))
+                        self.wipe(t)
+                    end
+                end
+            end
+
+            if #t > 0 then
+                self:SendWhisper(sender, tConcat(t, ", "))
+            end
+        else
+            self:SendWhisper(sender, "<sDKP> Standby list empty.")
+        end
+
+        self.dispose(t)
+        self.dispose(list)
+    end
+end
+
+sDKP:RegisterEvent("CHAT_MSG_WHISPER")
 
 function sDKP:PLAYER_ENTERING_WORLD()
     self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")

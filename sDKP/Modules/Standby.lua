@@ -8,7 +8,7 @@ local sDKP = sDKP
 local pairs = pairs
 local tConcat = table.concat
 
-sDKP.Slash.args.stanby = {
+sDKP.Slash.args.standby = {
     type = "group",
     name = "Standby",
     desc = "Standby functions.",
@@ -22,7 +22,7 @@ sDKP.Slash.args.stanby = {
                 local list, num = self:Select(param)
 
                 if num > 0 then
-                    self:ForEach(list, "SetStandby", true)
+                    self:ForEach(list, "SetStandBy", true)
                     self:Printf("Total of %d |4player:players; added to list.", num)
                 else
                     self:Print("No characters matched the filter.")
@@ -41,7 +41,7 @@ sDKP.Slash.args.stanby = {
 
                 for name, char in self:GetChars() do
                     if char.stby then
-                        char:SetStandby(nil)
+                        char:SetStandBy(nil)
                         count = count + 1
                     end
                 end
@@ -59,7 +59,7 @@ sDKP.Slash.args.stanby = {
                 local list, num = self:Select(param)
 
                 if num > 0 then
-                    self:ForEach(list, "SetStandby", nil)
+                    self:ForEach(list, "SetStandBy", nil)
                     self:Printf("Total of %d |4player:players; removed from list.", num)
                 else
                     self:Print("No characters matched the filter.")
@@ -81,7 +81,7 @@ sDKP.Slash.args.stanby = {
                     self:Print("Standby list:")
 
                     for name, char in self:GetChars() do
-                        if char:IsStandby() then
+                        if char:IsStandBy() then
                             tinsert(t, char.name)
 
                             if #t >= 5 then
@@ -112,13 +112,13 @@ sDKP.Slash.args.stanby = {
             usage = "[<filter>]",
             func = function(self, param)
                 for name, char in self:GetChars() do
-                    char:SetStandby(nil)
+                    char:SetStandBy(nil)
                 end
 
                 local list, num = self:Select(param ~= "" and param or "all")
 
                 if num > 0 then
-                    self:ForEach(list, "SetStandby", true)
+                    self:ForEach(list, "SetStandBy", true)
                     self:Printf("Total of %d |4player:players; added to standby list.", num)
                 else
                     self:Print("No characters matched the filter.")
@@ -137,9 +137,13 @@ sDKP.Slash.args.stanby = {
 
                 if num > 0 then
                     for main, char in pairs(list) do
-                        char = self(main):GetOwnerOnline()
+                        char = self(char)
 
-                        if char and not UnitInRaid(char.name) then
+                        if not char.on then
+                            char = char:GetOwnerOnline()
+                        end
+
+                        if char and not UnitInRaid(char.name) and char.name ~= self.player then
                             InviteUnit(char.name)
                         end
                     end
@@ -154,14 +158,12 @@ sDKP.Slash.args.stanby = {
             desc = "Uninvite standby players (groups 6-8) from raid.",
             type = "execute",
             func = function(self, param)
-                local list, num = self:Select("standby")
+                local list, num = self:Select("party6, party7, party8")
 
                 if num > 0 then
                     for main, char in pairs(list) do
-                        char = self(main):GetOwnerOnline()
-
-                        if char and UnitInRaid(char.name) then
-                            UninviteUnit(char.name)
+                        if UnitInRaid(char) and char ~= self.player then
+                            UninviteUnit(char)
                         end
                     end
                 end

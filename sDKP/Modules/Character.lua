@@ -139,8 +139,7 @@ function Character:SetIronMan(flag)
     self.iron = flag and true or nil
 end
 
-function Character:SetStandby(flag)
-    if self.altof then self = self:GetMain() end
+function Character:SetStandBy(flag)
     self.stby = flag and true or nil
 end
 
