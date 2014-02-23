@@ -54,19 +54,16 @@ end
 
 --- Cuts out @channel part from string and returns it as second parameter.
 -- @param msg Message to extract channel from.
--- @param defchan Default channel if not found.
+-- @param chan Default channel if not found.
 -- @return string - Message without channel part.
 -- @return string - Extracted or default channel.
-function sDKP.ExtractChannel(msg, defchan)
-    local channel
-
-    local func = function(m)
-        channel = m
+function sDKP.ExtractChannel(msg, chan)
+    msg = msg:gsub("@(%S+)", function(m)
+        chan = m
         return ""
-    end
+    end):trim()
 
-    msg = msg:gsub("@(%S+)", func):trim()
-    return msg, (channel or defchan)
+    return msg, chan
 end
 
 --- Returns an iterator to traverse hash indexed table in alphabetical order.

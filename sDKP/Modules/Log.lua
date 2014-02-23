@@ -38,13 +38,8 @@ local LOG_IRONMAN_START = 5
 local LOG_IRONMAN_CANCEL = 6
 local LOG_IRONMAN_AWARD = 7
 
--- Log entry formatting handlers
-sDKP.LogToStringHandlers = { }
-local log = sDKP.LogToStringHandlers
+-- Helper functions ------------------------------------------------------------
 
-do
-
--- Helper functions
 local function tostringall(...)
     if select('#', ...) > 1 then
         return tostring(select(1, ...)), tostringall(select(2, ...));
@@ -66,10 +61,77 @@ sDKP.tostringall = tostringall
 sDKP.LogSerialize = serialize
 sDKP.LogUnserialize = unserialize
 
+-- Log -> String handling ------------------------------------------------------
+
+--- Log entry formatting handlers
+-- Contains type<->func pairs.
+-- @param type (number) Entry type.
+-- @param func (function) Formatting function which is passed unpacked data from log.
+sDKP.LogToStringHandlers = {
+    [LOG_PLAYER_LOOT] = function(player, item, count) -- 0
+        local _, link = GetItemInfo(item)
+        count = tonumber(count) or 1
+        return format("%s looted %s%s.", sDKP.ClassColoredPlayerName(player), link or "<unknown item>", count > 1 and format("x%d", count) or "")
+    end,
+
+    [LOG_DKP_MODIFY] = function(player, points, reason) -- 1
+        points = tonumber(points) or 0
+        if tonumber(reason) then
+            _, reason = GetItemInfo(reason)
+        end
+        return format("%s %+d DKP%s.", sDKP.ClassColoredPlayerName(player), points, reason and format(": %s", reason) or "")
+    end,
+
+    [LOG_DKP_RAID] = function(count, points, reason) -- 2
+        count = tonumber(count) or 0
+        points = tonumber(points) or 0
+        if tonumber(reason) then
+            _, reason = GetItemInfo(reason)
+        end
+        return format("Raid (%d |4player:players;) %+d DKP%s.", count, points, reason and format(": %s", reason) or "")
+    end,
+
+    [LOG_DKP_CLASS] = function(class, count, points, reason) -- 3
+        count = tonumber(count) or 0
+        points = tonumber(points) or 0
+        if tonumber(reason) then
+            _, reason = GetItemInfo(reason)
+        end
+        return format("%ss (%d |4player:players;) %+d DKP%s.", gsub(class, "^(.)", string.upper), count, points, reason and format(": %s", reason) or "")
+    end,
+
+    [LOG_PARTY_KILL] = function(mob) -- 4
+        return format("%s has been slain.", mob)
+    end,
+
+    [LOG_IRONMAN_START] = function(count) -- 5
+        count = tonumber(count) or 0
+        return format("Ironman started for %d |4player:players;.", count)
+    end,
+
+    [LOG_IRONMAN_CANCEL] = function() -- 6
+        return "Ironman canceled."
+    end,
+
+    [LOG_IRONMAN_AWARD] = function(count, points) -- 7
+        return format("Ironman awarded: %d |4player:players; %+d DKP.", count, points)
+    end
+}
+
+local handlers = sDKP.LogToStringHandlers
+
 function sDKP.LogToString(data)
     local type, a, b, c, d, e, f, g, h, i = unserialize(data)
     type = tonumber(type) or LOG_UNKNOWN
-    return log[type](a, b, c, d, e, f, g, h, i)
+    return handlers[type](a, b, c, d, e, f, g, h, i)
+end
+
+-- Logging methods -------------------------------------------------------------
+
+function sDKP:CheckLogPresence()
+    if self.guild and not self.LogData[self.guild] then
+        self.LogData[self.guild] = { }
+    end
 end
 
 --- Logs data to current guild's log.
@@ -94,79 +156,21 @@ function sDKP:Log(type, ...)
     log[stamp] = serialize(type, unpack(t))
 end
 
-end -- do
-
--- ------------------------------------------------------------------
--- .LogToStringHandlers[type](...) ~ Formats log data for display.
--- ------------------------------------------------------------------
--- type
---     integer representing entry type
--- ...
---     unpacked data from log entry
--- ------------------------------------------------------------------
-
--- 0, player, item[, count]
-log[LOG_PLAYER_LOOT] = function(player, item, count)
-    local _, link = GetItemInfo(item)
-    count = tonumber(count) or 1
-    return format("%s looted %s%s.", sDKP.ClassColoredPlayerName(player), link or "<unknown item>", count > 1 and format("x%d", count) or "")
-end
-    
--- 1, player, points[, reason]
-log[LOG_DKP_MODIFY] = function(player, points, reason)
-    points = tonumber(points) or 0
-    if tonumber(reason) then
-        _, reason = GetItemInfo(reason)
+local result = { }
+function sDKP:PrepareLog(startTime, endTime)
+    startTime = startTime or time() - 86400 -- 1 day
+    endTime = endTime or time()
+    while (tremove(result)) do end
+    for timestamp, data in pairs(self.LogData[self.guild]) do
+        if timestamp >= startTime and timestamp <= endTime then
+            tinsert(result, timestamp)
+        end
     end
-    return format("%s %+d DKP%s.", sDKP.ClassColoredPlayerName(player), points, reason and format(": %s", reason) or "")
+    sort(result)
+    return result
 end
 
--- 2, count, points[, reason]
-log[LOG_DKP_RAID] = function(count, points, reason)
-    count = tonumber(count) or 0
-    points = tonumber(points) or 0
-    if tonumber(reason) then
-        _, reason = GetItemInfo(reason)
-    end
-    return format("Raid (%d |4player:players;) %+d DKP%s.", count, points, reason and format(": %s", reason) or "")
-end
-
--- 3, class, count, points[, reason]
-log[LOG_DKP_CLASS] = function(class, count, points, reason)
-    count = tonumber(count) or 0
-    points = tonumber(points) or 0
-    if tonumber(reason) then
-        _, reason = GetItemInfo(reason)
-    end
-    return format("%ss (%d |4player:players;) %+d DKP%s.", gsub(class, "^(.)", string.upper), count, points, reason and format(": %s", reason) or "")
-end
-
--- 4, mob, count
-log[LOG_PARTY_KILL] = function(mob)
-    return format("%s has been slain.", mob)
-end
-
--- 5, count
-log[LOG_IRONMAN_START] = function(count)
-    count = tonumber(count) or 0
-    return format("Ironman started for %d |4player:players;.", count)
-end
-
--- 6
-log[LOG_IRONMAN_CANCEL] = function()
-    return format("Ironman canceled.")
-end
-
--- 7, count, points
-log[LOG_IRONMAN_AWARD] = function(count, points)
-    return format("Ironman awarded: %d |4player:players; %+d DKP.", count, points)
-end
-
-function sDKP:CheckLogPresence()
-    if self.guild and not self.LogData[self.guild] then
-        self.LogData[self.guild] = { }
-    end
-end
+-- Slash handlers --------------------------------------------------------------
 
 function sDKP:LogDump()
     self:Print("Full log entry list:")
@@ -179,7 +183,7 @@ function sDKP:LogDump()
     self:Echo("Total of %d |4entry:entries;.", count)
 end
 
-function sDKP:LogLast(param)
+function sDKP:LogRecent(param)
     local timestamp = self.ParamToTimestamp(param) or time() - 86400 -- 1 day
     self:Printf("Log entry list from %s:", date(LOG_DATEFORMAT, timestamp))
     local node = self.LogData[self.guild]
@@ -205,29 +209,19 @@ function sDKP:LogPurge(param)
 end
 
 function sDKP:LogSearch(param)
+    local param, chan = self.ExtractChannel(param, "SELF")
     local node = self.LogData[self.guild]
     local count = 0
     for timestamp, entry in self.PairsByKeys(node) do
-        if entry:match(param) then
-            self:Echo("|cff888888[%s]|r %s", date(LOG_DATEFORMAT, timestamp), self.LogToString(entry))
-            count = count + 1
+        for str in param:gmatch("[^|]+") do
+            if entry:match(str) then
+                self:Announce(chan, "|cff888888[%s]|r %s",
+                    date(LOG_DATEFORMAT, timestamp), self.LogToString(entry))
+                count = count + 1
+            end
         end
     end
     self:Echo("Total of %d |4entry:entries;.", count)
-end
-
-local result = { }
-function sDKP:PrepareLog(startTime, endTime)
-    startTime = startTime or time() - 86400 -- 1 day
-    endTime = endTime or time()
-    while (tremove(result)) do end
-    for timestamp, data in pairs(self.LogData[self.guild]) do
-        if timestamp >= startTime and timestamp <= endTime then
-            tinsert(result, timestamp)
-        end
-    end
-    sort(result)
-    return result
 end
 
 sDKP.Slash.args.log = {
@@ -237,30 +231,34 @@ sDKP.Slash.args.log = {
     args = {
         dump = {
             name = "Dump",
-            desc = "Print all entries from log into chat frame.",
+            desc = "Prints all entries from log into chat frame.",
             type = "execute",
-            func = "LogDump"
-        },
-        last = {
-            name = "Last",
-            desc = "Print log entries from last 1 day or newer than given timestamp.",
-            type = "execute",
-            usage = "[<timestamp>]",
-            func = "LogLast"
+            func = "LogDump",
+            order = 1
         },
         purge = {
             name = "Purge",
-            desc = "Delete log entries for current guild older than specified or at least 4 weeks old if no parameter given.",
+            desc = "Deletes log entries for current guild older than specified or at least 4 weeks old if no parameter given.",
             type = "execute",
             usage = "[<timestamp>]",
-            func = "LogPurge"
+            func = "LogPurge",
+            order = 2
+        },
+        recent = {
+            name = "Recent",
+            desc = "Prints log entries from last 1 day or newer than given timestamp.",
+            type = "execute",
+            usage = "[<timestamp>]",
+            func = "LogRecent",
+            order = 3
         },
         search = {
             name = "Search",
-            desc = "Shows all entries matching given player.",
+            desc = "Shows all entries matching given string(s).",
             type = "execute",
-            usage = "<player>",
-            func = "LogSearch"
+            usage = "<query>[||...] [@<channel>]",
+            func = "LogSearch",
+            order = 4
         },
     }
 }
