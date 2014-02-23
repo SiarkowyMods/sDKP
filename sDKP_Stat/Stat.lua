@@ -281,59 +281,41 @@ function sDKP:StatWho(param)
         local name, rankname, rnk, lvl, class, zone, note, onote, online = GetGuildRosterInfo(i)
         local alt, net, tot, hrs = parse(onote)
 
-        if not _name or name:lower():match(_name) then
-         if not _zone or zone:lower():match(_zone) then
-          if not _note or note:match(_note) then
-           if not _onote or onote:match(_onote) then
-            if not _rankname or rankname:lower():match(_rankname) then
-             if not _class or class:lower():match(_class) then
-              if not _online or online then
-               if not _raid or UnitInRaid(name) then
-                if not _main or not alt then
-                 if not _alt or alt then
-                  if not _minLvl or lvl >= _minLvl then
-                   if not _maxlvl or lvl <= _maxlvl then
-                    if not _minRnk or rnk >= _minRnk then
-                     if not _maxRnk or rnk <= _maxRnk then
-                      if not _minNet or net >= _minNet then
-                       if not _maxNet or net <= _maxNet then
-                        if not _minTot or tot >= _minTot then
-                         if not _maxTot or tot <= _maxTot then
-                          if not _minHrs or hrs >= _minHrs then
-                           if not _maxHrs or hrs <= _maxHrs then
-                            count = count + 1
-                            self:Announce(chan, "   %s%s - Lvl %d %s (%s) - %s",
-                                format(chan == "SELF" and "|Hplayer:%1$s|h[%1$s]|h" or "[%s]", name),
-                                UnitInRaid(name) and " |cFFFFA500<RAID>|r" or "", lvl, class, rankname,
-                                dkp and format("DKP %d/%d/%d", net, tot, hrs) or zone)
+        if (not _name or name:lower():match(_name))
+            and (not _zone or zone:lower():match(_zone))
+            and (not _note or note:match(_note))
+            and (not _onote or onote:match(_onote))
+            and (not _rankname or rankname:lower():match(_rankname))
+            and (not _class or class:lower():match(_class))
+            and (not _online or online)
+            and (not _raid or UnitInRaid(name))
+            and (not _main or not alt)
+            and (not _alt or alt)
+            and (not _minLvl or lvl >= _minLvl)
+            and (not _maxLvl or lvl <= _maxLvl)
+            and (not _minRnk or rnk >= _minRnk)
+            and (not _maxRnk or rnk <= _maxRnk)
+            and (not _minNet or net >= _minNet)
+            and (not _maxNet or net <= _maxNet)
+            and (not _minTot or tot >= _minTot)
+            and (not _maxTot or tot <= _maxTot)
+            and (not _minHrs or hrs >= _minHrs)
+            and (not _maxHrs or hrs <= _maxHrs)
+        then
+            count = count + 1
+            self:Announce(chan, "   %s%s - Lvl %d %s (%s) - %s",
+                format(chan == "SELF" and "|Hplayer:%1$s|h[%1$s]|h" or "[%s]", name),
+                UnitInRaid(name) and " |cFFFFA500<RAID>|r" or "", lvl, class, rankname,
+                dkp and format("DKP %d/%d/%d", net, tot, hrs) or zone)
 
-                            if _note and note then
-                                self:Announce(chan, "   Player note: |cff00ff00%q|r", note)
-                            end
+            if _note and note then
+                self:Announce(chan, "   Player note: |cff00ff00%q|r", note)
+            end
 
-                            if _onote and onote then
-                                self:Announce(chan, "   Officer note: |cff00ffff%q|r", onote)
-                            end
-                           end -- maxHrs
-                          end -- minHrs
-                         end -- maxTot
-                        end -- minTot
-                       end -- maxNet
-                      end -- minNet
-                     end -- maxRnk
-                    end -- minRnk
-                   end -- maxLvl
-                  end -- minLvl
-                 end -- alt
-                end -- main
-               end -- raid
-              end -- online
-             end -- class
-            end -- rankname
-           end -- onote
-          end -- note
-         end -- zone
-        end -- name
+            if _onote and onote then
+                self:Announce(chan, "   Officer note: |cff00ffff%q|r", onote)
+            end
+        end
     end
 
     self:Announce(chan, "Total characters: %d", count)
