@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
---  sDKP (c) 2011-2013 by Siarkowy
---  Released under the terms of GNU GPL v3 license.
+-- sDKP (c) 2011 by Siarkowy
+-- Released under the terms of GNU GPL v3 license.
 --------------------------------------------------------------------------------
 
 local sDKP = sDKP
@@ -13,15 +13,15 @@ local sub = string.sub
 local trim = string.trim
 local GetGuildRosterInfo = GetGuildRosterInfo
 
---- Sets external alt status for given player.
--- @param external External alt character name.
--- @param main Main character name.
+--- Sets alias status for given character.
+-- @param alias Alias character.
+-- @param owner Owner of alias character.
 -- @return boolean - success flag.
-function sDKP:SetAlias(external, main)
-    assert(external, "External character name required.")
-    assert(self.Roster[main] or not main, "Guild member or no name required.")
+function sDKP:SetAlias(alias, owner)
+    assert(alias, "Alias character name required.")
+    assert(not owner or self(owner), "Guild member or no name required.")
 
-    self.Externals[external] = main
+    self:GetExternals()[alias] = owner
     return true
 end
 
@@ -48,8 +48,8 @@ sDKP.Slash.args.alias = {
             func = function(self, name)
                 self:Print("Current aliases:")
 
-                for external, main in pairs(self.Externals) do
-                    self:Echo("   %s --> %s", external, main)
+                for alias, main in self.PairsByKeys(self:GetExternals()) do
+                    self:Echo("   %s -> %s", alias, main)
                 end
             end
         },
@@ -57,7 +57,7 @@ sDKP.Slash.args.alias = {
             name = "Set",
             desc = "Set alias status.",
             type = "execute",
-            usage = "<external> <main>",
+            usage = "<alias> <main>",
             func = function(self, param)
                 local alias, main = match(param, "(%S+)%s*(%S+)")
                 self:SetAlias(alias, main)
@@ -65,5 +65,3 @@ sDKP.Slash.args.alias = {
         }
     }
 }
-
-sDKP.Modules.Aliases = GetTime()

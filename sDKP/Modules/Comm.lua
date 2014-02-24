@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
---  sDKP (c) 2011-2013 by Siarkowy
---  Released under the terms of GNU GPL v3 license.
+-- sDKP (c) 2011 by Siarkowy
+-- Released under the terms of GNU GPL v3 license.
 --------------------------------------------------------------------------------
 
 assert(ChatThrottleLib, "sDKP: ChatThrottleLib instance not found.")
@@ -72,15 +72,12 @@ end
 --- Prints guild mates' addon versions to chat frame.
 function sDKP:VersionDump()
     local version = self.version
-    local Util = self.Util
-    compare = Util.VersionCompare
+    compare = self.VersionCompare
     self:Print("Guild mates' versions detected:")
     local count = 0
-    for n, v in Util.PairsByKeys(self.Versions) do
+    for n, v in self.PairsByKeys(self.Versions) do
         self:Echo("   %s |cff%s%s|r", n, compare(v, version) and "33ff33" or (v == version) and "ffffff" or "ff3333", v)
         count = count + 1
     end
     self:Echo("Total of %d |4player:players;.", count)
 end
-
-sDKP.Modules.Comm = GetTime()

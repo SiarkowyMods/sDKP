@@ -1,8 +1,9 @@
 ## Interface: 20400
 ## Title: sDKP [|cffeda55fStat|r]
 ## Notes: Statistics module for sDKP.
-## Author: Siarkowy
-## Version: 1.5
+## Author: Siarkowy <siarkowy@siarkowy.net>
+## X-Website: https://github.com/SiarkowyMods/sDKP
 ## Dependencies: sDKP
+## Version: 1.6
 
-sDKP_Stat.lua
+Stat.lua

@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
---  sDKP (c) 2011-2013 by Siarkowy
---  Released under the terms of GNU GPL v3 license.
+-- sDKP (c) 2011 by Siarkowy
+-- Released under the terms of GNU GPL v3 license.
 --------------------------------------------------------------------------------
 
 local sDKP = sDKP
@@ -114,5 +114,3 @@ sDKP.Slash.args.alt = {
         },
     }
 }
-
-sDKP.Modules.Alts = GetTime()

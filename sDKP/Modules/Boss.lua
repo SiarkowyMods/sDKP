@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
---  sDKP (c) 2011-2013 by Siarkowy
---  Released under the terms of GNU GPL v3 license.
+-- sDKP (c) 2011 by Siarkowy
+-- Released under the terms of GNU GPL v3 license.
 --------------------------------------------------------------------------------
 
 local sDKP = sDKP
@@ -93,5 +93,3 @@ function sDKP:COMBAT_LOG_EVENT_UNFILTERED(_, event, _, _, _, _, victim)
         self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
     end
 end
-
-sDKP.Modules.Boss = GetTime()

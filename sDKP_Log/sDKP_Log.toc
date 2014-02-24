@@ -1,9 +1,10 @@
 ## Interface: 20400
 ## Title: sDKP [|cffeda55fLog|r]
 ## Notes: Stores operation and loot log between sessions.
-## Author: Siarkowy
-## Version: 1.0
-## Dependencies: sDKP
+## Author: Siarkowy <siarkowy@siarkowy.net>
+## X-Website: https://github.com/SiarkowyMods/sDKP
 ## SavedVariables: sDKP_LOG
+## Dependencies: sDKP
+## Version: 1.0
 
-sDKP_Log.lua
+Log.lua

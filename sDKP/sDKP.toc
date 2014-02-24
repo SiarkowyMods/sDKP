@@ -1,9 +1,11 @@
 ## Interface: 20400
 ## Title: sDKP
 ## Notes: Siarkowy's Dragon Kill Points manager.
-## Author: Siarkowy
-## Version: 1.3
+## Author: Siarkowy <siarkowy@siarkowy.net>
+## X-Website: https://github.com/SiarkowyMods/sDKP
+## X-License: GNU GPL v3
 ## SavedVariables: sDKP_DB
+## Version: 1.4
 
 # Libs
 Libs\ChatThrottleLib\ChatThrottleLib.lua
@@ -12,9 +14,11 @@ Libs\ChatThrottleLib\ChatThrottleLib.lua
 sDKP.lua
 
 # Modules
+Modules\Table.lua
 Modules\Util.lua
 Modules\Slash.lua
 Modules\Hyperlinks.lua
+Modules\Character.lua
 Modules\Queue.lua
 Modules\Core.lua
 Modules\Comm.lua
@@ -25,3 +29,4 @@ Modules\Announce.lua
 Modules\Aliases.lua
 Modules\Alts.lua
 Modules\Ironman.lua
+Modules\Standby.lua

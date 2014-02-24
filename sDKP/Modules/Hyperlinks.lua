@@ -1,6 +1,6 @@
 --------------------------------------------------------------------------------
---  sDKP (c) 2011-2013 by Siarkowy
---  Released under the terms of GNU GPL v3 license.
+-- sDKP (c) 2011 by Siarkowy
+-- Released under the terms of GNU GPL v3 license.
 --------------------------------------------------------------------------------
 
 local sDKP = sDKP
@@ -17,5 +17,3 @@ function ChatFrame_OnHyperlinkShow(frame, link, btn)
         OrigHyperlinkFunc(frame, link, btn)
     end
 end
-
-sDKP.Modules.Hyperlinks = GetTime()

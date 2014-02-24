@@ -1,14 +1,11 @@
 --------------------------------------------------------------------------------
---  sDKP (c) 2011-2013 by Siarkowy
---  Released under the terms of GNU GPL v3 license.
+-- sDKP (c) 2011 by Siarkowy
+-- Released under the terms of GNU GPL v3 license.
 --------------------------------------------------------------------------------
 
 local sDKP = sDKP
-local self = sDKP
 
-local Util = { }
-sDKP.Util = Util
-
+local ctl = ChatThrottleLib
 local date = date
 local format = format
 local gsub = gsub
@@ -19,17 +16,17 @@ local strjoin = strjoin
 local tinsert = tinsert
 local tonumber = tonumber
 
-function Util.CreateHyperlink(kind, visual, ...)
+function sDKP.CreateHyperlink(kind, visual, ...)
     return format("|Hsdkp:%s:%s|h|cff88ff88(%s)|h", kind, strjoin(':', ...), visual)
 end
 
-function Util.ClassColoredPlayerName(player)
-    if not self.Roster[player] then
+function sDKP.ClassColoredPlayerName(player)
+    if not sDKP.Roster[player] then
         return player
     end
     
-    local c = RAID_CLASS_COLORS[self.Roster[player].class]
-    return format("%s%s|r", Util.DecimalToHexColor(c.r, c.g, c.b), player)
+    local c = RAID_CLASS_COLORS[sDKP.Roster[player].class]
+    return format("%s%s|r", sDKP.DecimalToHexColor(c.r, c.g, c.b), player)
 end
 
 --- Returns hex encoded color string from float red, green and blue values.
@@ -37,54 +34,43 @@ end
 -- @param g Green value [0; 1].
 -- @param b Blue value [0; 1].
 -- @return string - Hex color string.
-function Util.DecimalToHexColor(r, g, b) -- from http://wowprogramming.com/snippets/Convert_decimal_classcolor_into_hex_27
+function sDKP.DecimalToHexColor(r, g, b) -- from http://wowprogramming.com/snippets/Convert_decimal_classcolor_into_hex_27
     return format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
+end
+
+local RED   = "|cffff3333"
+local GREEN = "|cff33ff33"
+local GRAY  = "|cff888888"
+
+function sDKP.DiffColorize(a, b)
+    a = tonumber(a) or 0
+    b = tonumber(b) or 0
+
+    if b > a then return GREEN end
+    if b < a then return RED end
+
+    return GRAY
 end
 
 --- Cuts out @channel part from string and returns it as second parameter.
 -- @param msg Message to extract channel from.
--- @param defchan Default channel if not found.
+-- @param chan Default channel if not found.
 -- @return string - Message without channel part.
 -- @return string - Extracted or default channel.
-function Util.ExtractChannel(msg, defchan)
-    local channel
-
-    local func = function(m)
-        channel = m
+function sDKP.ExtractChannel(msg, chan)
+    msg = msg:gsub("@(%S+)", function(m)
+        chan = m
         return ""
-    end
+    end):trim()
 
-    msg = msg:gsub("@(%S+)", func):trim()
-    return msg, (channel or defchan)
-end
-
-do
-    local data = { }
-    --- Returns formatted note data string from given player data
-    -- to be enclosed in curly brackets and stored to officer note.
-    -- @param d Player data table (form Roster table).
-    -- @param netD Net amount delta. This will be added to current value (optional, defaults to 0).
-    -- @param totD Total amount delta. This will be added to current value (optional, defaults to 0).
-    -- @param hrsD Hours count delta. This will be added to current value (optional, defaults to 0).
-    -- @return string - Formatted note data.
-    function Util.FormatNoteData(d, netD, totD, hrsD)
-        data.d = date("%d")
-        data.m = date("%m")
-        data.Y = date("%Y")
-
-        data.n = d.net + (netD or 0)
-        data.t = d.tot + (totD or 0)
-        data.h = d.hrs + (hrsD or 0)
-
-        return gsub(self.Options.Core_NoteFormat, "%%(.)", data)
-    end
+    return msg, chan
 end
 
 --- Returns an iterator to traverse hash indexed table in alphabetical order.
 -- @param t Table.
 -- @param f Sort function for table's keys.
 -- @return function - Hash table alphabetical iterator.
-function Util.PairsByKeys(t, f) -- from http://www.lua.org/pil/19.3.html
+function sDKP.PairsByKeys(t, f) -- from http://www.lua.org/pil/19.3.html
     local a = {}
     for n in pairs(t) do tinsert(a, n) end
     sort(a, f)
@@ -97,20 +83,43 @@ function Util.PairsByKeys(t, f) -- from http://www.lua.org/pil/19.3.html
     return iter
 end
 
---- Returns decimal timestamp from given date string.
--- @param param String timestamp.
--- @return number - Integer timestamp.
-function Util.ParamToTimestamp(param)
-    local timestamp
-    local year, month, day, hour, min, sec = param:match("(%d+).(%d+).(%d+)%s*(%d+).(%d+).(%d+)")
+local multipliers = {
+    y = 31536000,   -- year (365d)
+    m = 2678400,    -- month (31d)
+    w = 604800,     -- week (7d)
+    d = 86400,      -- day (24h)
+    h = 3600,       -- hour (60M)
+    M = 60,         -- minute (60s)
+    s = 1           -- second (1)
+}
 
-    if sec then
-        timestamp = time{year = year, month = month, day = day, hour = hour, min = min, sec = sec}
-    else
-        timestamp = tonumber(param:match("%d+"))
+--- Converts interval string to numeric interval.
+-- @param string (string) Interval string.
+-- @return (number) Numeric interval value.
+function sDKP.ParamToInterval(string)
+    local interval = 0
+
+    for num, mul in string:lower():gmatch("(%d+)(%a)") do
+        interval = interval + num * (multipliers[mul] or 1)
     end
 
-    return timestamp
+    return interval
+end
+
+--- Returns decimal timestamp from given date string.
+-- @param p String timestamp.
+-- @return number - Integer timestamp.
+function sDKP.ParamToTimestamp(p)
+    p = tostring(p)
+
+    return tonumber(p) and (time{
+        year  = tonumber(p:sub( 1, 4)) or 1970,
+        month = tonumber(p:sub( 5, 6)) or 1,
+        day   = tonumber(p:sub( 7, 8)) or 1,
+        hour  = tonumber(p:sub( 9,10)) or 0,
+        min   = tonumber(p:sub(11,12)) or 0,
+        sec   = tonumber(p:sub(13,14)) or 0
+    } or 0) or time() - sDKP.ParamToInterval(p)
 end
 
 --- Parses loot message for item looter, ID and count.
@@ -118,7 +127,7 @@ end
 -- @return string - Item looter.
 -- @return mixed - Item ID or nil.
 -- @return mixed - Count or false.
-function Util.ParseLootMessage(msg)
+function sDKP.ParseLootMessage(msg)
     local player, id, count
     player, id = msg:match("(%S+) receives? loot:.*item:(%d+)")
     if not player or not id then
@@ -126,7 +135,7 @@ function Util.ParseLootMessage(msg)
     end
     
     count = msg:match("x(%d+)") or id and 1
-    if player then player = gsub(player, "^You$", self.player) end
+    if player then player = gsub(player, "^You$", sDKP.player) end
     
     return player, id, count
 end
@@ -137,26 +146,33 @@ end
 -- @return number - Net amount.
 -- @return number - Total amount.
 -- @return number - Hours count.
-function Util.ParseOfficerNote(o)
-    local param = o or ""
-    local between = param:match("{(.-)}") or ""
-    
-    if between:match("%D+") == between then -- alt
-        return between, 0, 0, 0
+function sDKP.ParseOfficerNote(o)
+    local data = (o or ""):match("{(.-)}") or ""
+
+    if data:match("%D+") == data then -- alt
+        return data, 0, 0, 0
     end
-    
-    local net = tonumber(between:match("Ne?t?.([-]?%d+)")) or 0
-    local tot = tonumber(between:match("To?t?.([-]?%d+)")) or 0
-    local hrs = tonumber(between:match("Hr?s?.([-]?%d+)")) or 0
-    
-    return nil, net, tot, hrs
+
+    return nil,
+        tonumber(data:match("Ne?t?.(%-?%d+)")) or 0,
+        tonumber(data:match("To?t?.(%-?%d+)")) or 0,
+        tonumber(data:match("Hr?s?.(%-?%d+)")) or 0
+end
+
+--- Sends whisper using ChatThrottleLib.
+-- @param who (string) Recipent.
+-- @param message (string) Message to send.
+function sDKP:SendWhisper(who, message)
+    if who and who ~= self.player then
+        ctl:SendChatMessage("BULK", nil, tostring(message), "WHISPER", nil, who)
+    end
 end
 
 --- Returns boolean.
 -- @param ver1 Version string.
 -- @param ver2 Version string.
 -- @return boolean - True if first version is newer than second, false otherwise.
-function Util.VersionCompare(ver1, ver2)
+function sDKP.VersionCompare(ver1, ver2)
     local a, b, c = ver1:match("(%d+).(%d+).(%d+)")
     local d, e, f = ver2:match("(%d+).(%d+).(%d+)")
 
@@ -166,5 +182,3 @@ function Util.VersionCompare(ver1, ver2)
     elseif b < e then return false
     else return c > f end
 end
-
-sDKP.Modules.Util = GetTime()

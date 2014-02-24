@@ -1,11 +1,9 @@
 --------------------------------------------------------------------------------
---  sDKP (c) 2011-2013 by Siarkowy
---  Released under the terms of GNU GPL v3 license.
+-- sDKP (c) 2011 by Siarkowy
+-- Released under the terms of GNU GPL v3 license.
 --------------------------------------------------------------------------------
 
-local ctl = ChatThrottleLib
-
-assert(ctl, "sDKP: Required ChatThrottleLib instance not found.")
+local ctl = assert(ChatThrottleLib, "sDKP: Required ChatThrottleLib instance not found.")
 
 local GetChannelName = GetChannelName
 local IsRaidLeader = IsRaidLeader
@@ -32,10 +30,11 @@ sDKP.VALID_CHANNELS = CHANNELS
 
 --- Sends given message to preferred channel using ChatThrottleLib.
 -- @param channel Destination channel (optional, defaults to :GetProperAnnounceChannel()).
--- @param message Message to send.
-function sDKP:Announce(channel, ...)
+-- @param fmt Format string.
+-- @param ... Message args tuple for format() to send.
+function sDKP:Announce(channel, fmt, ...)
     channel = channel or self.Options.Core_AnnounceChannel or self:GetProperAnnounceChannel()
-    local message = format(...)
+    local message = format(fmt, ...)
 
     if channel:upper() == "SELF" then DEFAULT_CHAT_FRAME:AddMessage(message)
     elseif CHANNELS[upper(channel)] then ctl:SendChatMessage(CTL_PRIO, CTL_PREFIX, message, channel)
@@ -47,5 +46,3 @@ end
 function sDKP:GetProperAnnounceChannel()
     return UnitInRaid("player") and ((IsRaidLeader() or IsRaidOfficer()) and "RAID_WARNING" or "RAID") or "GUILD"
 end
-
-sDKP.Modules.Announce = GetTime()

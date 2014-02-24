@@ -1,11 +1,9 @@
 --------------------------------------------------------------------------------
---  sDKP (c) 2011-2013 by Siarkowy
---  Released under the terms of GNU GPL v3 license.
+-- sDKP (c) 2011 by Siarkowy
+-- Released under the terms of GNU GPL v3 license.
 --------------------------------------------------------------------------------
 
 local sDKP = sDKP
-
-local Util = sDKP.Util
 
 local COLORS = RAID_CLASS_COLORS
 local assert = assert
@@ -25,222 +23,87 @@ local LOG_DKP_MODIFY    = 1
 local LOG_DKP_RAID      = 2
 local LOG_DKP_CLASS     = 3
 
-local t = { }
-function sDKP:RosterIterateAction(action, paramsA, criteria, paramsB)
-    assert(action)
-    assert(type(action) == "function")
-    
-    if criteria then
-        assert(type(criteria) == "function")
-    end
-    
-    paramsA = paramsA or t
-    paramsB = paramsB or t
-    assert(type(paramsA) == "table")
-    assert(type(paramsB) == "table")
-    
-    for n, d in pairs(self.Roster) do
-        if not criteria or criteria(d, unpack(paramsB)) then
-            action(d, unpack(paramsA))
-        end
-    end
-end
+function sDKP:ModifySlashWrapper(param, method, announce)
+    local who, points, reason = param:match("(.-)%s+(%d+)%s*(.*)")
+    local reason, chan = self.ExtractChannel(reason)
 
-local function actionModify(d, points)
-    sDKP:Modify(d.n, points, (points > 0) and points or 0, 0)
-end
-
-local function criteriaOnlineInRaid(d)
-    return d.raid and d.on
-end
-
-local function criteriaClassOnlineInRaid(d, class)
-    return d.raid and d.class == class and d.on
-end
-
-local GINFO_ZONE = 6
-
-local function criteriaSameZoneInRaid(d)
-    return d.raid and select(GINFO_ZONE, GetGuildRosterInfo(d.id)) == GetRealZoneText() and d.on
-end
-
-local function criteriaOtherZoneInRaid(d)
-    return d.raid and select(GINFO_ZONE, GetGuildRosterInfo(d.id)) ~= GetRealZoneText() and d.on
-end
-
-function sDKP:ModifyChatWrapper(who, points, reason, announce)
-    local output
-
-    points = tonumber(points) or 0
-
-    if announce then
-        output = reason:match("@(%S+)")
-        if output then
-            reason = trim(gsub(reason, "@(%S+)", ""))
-        end
+    if not who then
+        return self:Print("Both character filter and DKP amount required.")
     end
 
-    if lower(who) == "raid" then
-        self:Discard()
-        self:RosterIterateAction(actionModify, {points}, criteriaOnlineInRaid)
+    local list, num = self:Select(who)
+    points = (tonumber(points) or 0) * (method == "Award" and 1 or -1)
 
+    if num > 0 and points ~= 0 then
         if announce then
-            self:Announce(output, "raid %+d DKP%s", points, reason ~= "" and ": " .. reason or "")
+            self:Announce(chan, "%s %s%+d DKP|r%s%s", who,
+                points >= 0 and "|cff33ff33" or "|cffff3333",
+                points, reason ~= "" and ": " or "", reason)
         end
-
-        local count = self:Store()
-        self:Printf("%d |4player was:players were; %s %d DKP%s.", count, points >= 0 and "awarded" or "charged", abs(points), reason ~= "" and ": " .. reason or "")
-
-        if reason ~= "" then
-            self:Log(LOG_DKP_RAID, count, points, match(reason, "item:(%d+)") or reason)
-        else
-            self:Log(LOG_DKP_RAID, count, points)
-        end
-
-    elseif lower(who) == "zone" then
-        self:Discard()
-        self:RosterIterateAction(actionModify, {points}, criteriaSameZoneInRaid)
-
-        if announce then
-            self:Announce(output, "zone %+d DKP%s", points, reason ~= "" and ": " .. reason or "")
-        end
-
-        local count = self:Store()
-        self:Printf("%d |4player was:players were; %s %d DKP%s.", count, points >= 0 and "awarded" or "charged", abs(points), reason ~= "" and ": " .. reason or "")
-
-        -- TODO: zone DKP logging
-
-    elseif lower(who) == "otherzone" then
-        self:Discard()
-        self:RosterIterateAction(actionModify, {points}, criteriaOtherZoneInRaid)
-
-        if announce then
-            self:Announce(output, "out of zone %+d DKP%s", points, reason ~= "" and ": " .. reason or "")
-        end
-
-        local count = self:Store()
-        self:Printf("%d |4player was:players were; %s %d DKP%s.", count, points >= 0 and "awarded" or "charged", abs(points), reason ~= "" and ": " .. reason or "")
-
-        -- TODO: zone DKP logging
-
-    elseif COLORS[upper(who)] then
-        local classUpper = upper(who)
-        local classLower = lower(who)
 
         self:Discard()
-        self:RosterIterateAction(actionModify, {points}, criteriaClassOnlineInRaid, {classUpper})
+        self:ForEach(list, method, abs(points), reason)
 
-        if announce then
-            local r, g, b = COLORS[classUpper].r, COLORS[classUpper].g, COLORS[classUpper].b
-            self:Announce(output, "%s%ss|r %+d DKP%s", Util.DecimalToHexColor(r, g, b), classLower, points, reason ~= "" and ": " .. reason or "")
-        end
+        num = self:Store()
 
-        local count = self:Store()
-        self:Printf("%d |4player was:players were; %s %d DKP%s.", count, points >= 0 and "awarded" or "charged", abs(points), reason ~= "" and ": " .. reason or "")
-
-        if reason ~= "" then
-            self:Log(LOG_DKP_CLASS, classLower, count, points, match(reason, "item:(%d+)") or reason)
-        else
-            self:Log(LOG_DKP_CLASS, classLower, count, points)
-        end
-
-    elseif self:GetMainName(who) then
-        self:Discard(who)
-        self:Modify(who, points, (points > 0) and points or 0, 0)
-
-        local player = Util.ClassColoredPlayerName(who)
-        if announce then
-            self:Announce(output, "%s %+d DKP%s", player, points, reason ~= "" and ": " .. reason or "")
-        end
-
-        self:Store(self:GetMainName(who))
-        self:Printf("%s was %s %d DKP%s.", player, points >= 0 and "awarded" or "charged", abs(points), reason ~= "" and ": " .. reason or "")
-
-        if reason ~= "" then
-            self:Log(LOG_DKP_MODIFY, who, points, match(reason, "item:(%d+)") or reason)
-        else
-            self:Log(LOG_DKP_MODIFY, who, points)
-        end
-
+        self:Printf("%s %s %d DKP (%d |4player:players;)%s%s.",
+            points >= 0 and "Awarding" or "Charging", who,
+            abs(points), num, reason ~= "" and ": " or "", reason)
     else
-        self:Print("Character has to be in your guild. No notes changed.")
-        return
+        self:Printf(num > 0 and "Nonzero DKP amount required."
+            or "No characters match %s.", who)
     end
+
+    self.dispose(list)
 end
 
--- slash command table
+-- Slash command table
 sDKP.Slash = {
     name = format("Dragon Kill Points manager version %s.", sDKP.version),
     type = "group",
     args = {
         award = {
             name = "Award",
-            desc = "Award player/class/raid specified DKP amount with optional reason.",
+            desc = "Award player(s) specified amount of DKP with optional reason.",
             type = "execute",
-            usage = "<player>||<class>||raid <points>[ <reason>]",
+            usage = "<filter> <points>[ <reason>]",
             func = function(self, param)
-                local who, points, reason = param:match("(%S+)%s*(%d+)%s*(.*)")
-                points = tonumber(points)
-                if not who or not points then
-                    self:Print("You have to specify both who award points to and the point amount.")
-                    return
-                end
-                self:ModifyChatWrapper(who, points, reason)
+                self:ModifySlashWrapper(param, "Award", false)
             end
         },
         ["award!"] = {
             name = "Award with announce",
             desc = "Award DKP amount and announce.",
             type = "execute",
-            usage = "<player>||<class>||raid <points>[ <reason>[ @<channel>]]",
+            usage = "<filter> <points>[ <reason>[ @<channel>]]",
             func = function(self, param)
-                local who, points, reason = param:match("(%S+)%s*(%d+)%s*(.*)")
-                points = tonumber(points)
-                if not who or not points then
-                    self:Print("You have to specify both who award points to and the point amount.")
-                    return
-                end
-                self:ModifyChatWrapper(who, points, reason, true)
+                self:ModifySlashWrapper(param, "Award", true)
             end
         },
         charge = {
             name = "Charge",
-            desc = "Charge player/class/raid specified DKP amount with optional reason.",
+            desc = "Charge player(s) specified amount of DKP with optional reason.",
             type = "execute",
-            usage = "<player>||<class>||raid <points>[ <reason>]",
+            usage = "<filter> <points>[ <reason>]",
             func = function(self, param)
-                local who, points, reason = param:match("(%S+)%s*(%d+)%s*(.*)")
-                points = tonumber(points)
-                if not who or not points then
-                    self:Print("You have to specify both who to charge points and the point amount.")
-                    return
-                end
-                self:ModifyChatWrapper(who, -points, reason)
+                self:ModifySlashWrapper(param, "Charge", false)
             end
         },
         ["charge!"] = {
             name = "Charge with announce",
             desc = "Charge DKP amount and announce.",
             type = "execute",
-            usage = "<player>||<class>||raid <points>[ <reason>[ @<channel>]]",
+            usage = "<filter> <points>[ <reason>[ @<channel>]]",
             func = function(self, param)
-                local who, points, reason = param:match("(%S+)%s*(%d+)%s*(.*)")
-                points = tonumber(points)
-                if not who or not points then
-                    self:Print("You have to specify both who to charge points and the point amount.")
-                    return
-                end
-                self:ModifyChatWrapper(who, -points, reason, true)
+                self:ModifySlashWrapper(param, "Charge", true)
             end
         },
         discard = {
             name = "Discard",
-            desc = "Discard unsaved changes for all or only given player.",
+            desc = "Discard all pending roster changes.",
             type = "execute",
-            usage = "[<player>]",
             func = function(self, param)
-                local name = param:match("%S+")
-                self:Printf("%d changes discarded.", self:Discard(name ~= "" and name))
+                self:Printf("Total of %d |4change:changes; discarded.", self:Discard())
             end
         },
         info = {
@@ -249,29 +112,34 @@ sDKP.Slash = {
             type = "execute",
             usage = "<player>",
             func = function(self, param)
-                local name = param:match("%S+")
-                local main = self:GetMainName(name)
-                if not main then
-                    self:Print("No character specified or player not in your guild.")
-                    return
+                local char = self(param or "")
+
+                if not char then
+                    return self:Print("No character specified or player not in your guild.")
                 end
-                local net, tot, hrs = self:GetPlayerPointValues(main)
-                self:Printf("%s: %d net, %d tot, %d hrs.", format(name ~= main and "%s (%s)" or "%2$s", Util.ClassColoredPlayerName(name), Util.ClassColoredPlayerName(main)), net, tot, hrs)
+
+                local main = char:GetMain()
+                self:Printf("Info for %s: %d net, %d tot, %d hrs.",
+                    format(char.name ~= main.name and "%s <%s>" or "%2$s",
+                        char:GetColoredName(), main:GetColoredName()),
+                    main:GetPoints())
             end,
         },
         modify = {
             name = "Modify",
-            desc = "Change player DKP amounts as relative values.",
+            desc = "Change player's DKP amounts as relative values.",
             type = "execute",
             usage = "<player> <netDelta> [<totDelta> [<hrsDelta>]]",
             func = function(self, param)
                 local name, netD, totD, hrsD = param:match("(%S+)%s*([-]?%d*)%s*([-]?%d*)%s*([-]?%d*)")
-                
-                netD = tonumber(netD) or 0
-                totD = tonumber(totD) or 0
-                hrsD = tonumber(hrsD) or 0
-                
-                self:Modify(name, netD, totD, hrsD)
+
+                local char = self(name or "")
+
+                if not char then
+                    return self:Print("No character specified or player not in your guild.")
+                end
+
+                char:Modify(netD, totD, hrsD)
             end
         },
         option = {
@@ -285,20 +153,18 @@ sDKP.Slash = {
                     type = "execute",
                     usage = "<format>",
                     func = function(self, param)
-                        local O = self.Options
-                        O.Core_NoteFormat = param ~= "" and param or "Net:%n Tot:%t Hrs:%h"
-                        self:Printf("DKP note format set to %q.", O.Core_NoteFormat)
+                        self:Set("core.format", param ~= "" and param or "Net:%n Tot:%t Hrs:%h")
+                        self:Printf("DKP note format set to %q.", self:Get("core.format"))
                     end
                 },
                 ignoreginfo = {
                     name = "Ignore guild info note format",
-                    desc = "Controls whether to load DKP note format from guild info.",
+                    desc = "Toggles ignoring of guild info DKP note format.",
                     type = "execute",
                     usage = "off||on",
                     func = function(self, param)
-                        local O = self.Options
-                        O.Core_IgnoreGuildInfoFormat = param:match("^on$") and true or nil
-                        self:Printf("Guild info DKP note format ignore %s.", O.Core_IgnoreGuildInfoFormat and "enabled" or "disabled")
+                        self:Set("core.noginfo", param:match("^on$") and true or nil)
+                        self:Printf("Guild info DKP note format ignore %s.", self:Get("core.noginfo") and "enabled" or "disabled")
                     end
                 },
                 verbosediff = {
@@ -307,48 +173,47 @@ sDKP.Slash = {
                     type = "execute",
                     usage = "off||on",
                     func = function(self, param)
-                        local O = self.Options
-                        O.Core_VerboseDiff = param:match("^on$") and true or nil
-                        self:Printf("Verbose diff to chat frame %s.", O.Core_VerboseDiff and "enabled" or "disabled")
+                        self:Set("core.diff", param:match("^on$") and true or nil)
+                        self:Printf("Verbose diff to chat frame %s.", self:Get("core.diff") and "enabled" or "disabled")
                     end
                 },
                 whispers = {
                     name = "Whisper announces",
-                    desc = "Controls whether to send whisper announces on DKP change.",
+                    desc = "Toggles whisper announces on DKP change.",
                     type = "execute",
                     usage = "off||on",
                     func = function(self, param)
-                        local O = self.Options
-                        O.Core_WhisperAnnounce = param:match("^on$") and true or nil
-                        self:Printf("Whisper announces %s.", O.Core_WhisperAnnounce and "enabled" or "disabled")
+                        self:Set("whisper.toggle", param:match("^on$") and true or nil)
+                        self:Printf("Whisper announces %s.", self:Get("whisper.toggle") and "enabled" or "disabled")
                     end
                 },
             }
         },
         set = {
             name = "Set",
-            desc = "Immediately set fixed player DKP amounts.",
+            desc = "Sets fixed player DKP amounts and stores to officer note.",
             type = "execute",
             usage = "<player> <net> [<tot> [<hrs>]]",
             func = function(self, param)
                 local name, net, tot, hrs = param:match("(%S+)%s*([-]?%d*)%s*([-]?%d*)%s*([-]?%d*)")
-                
-                net = tonumber(net)
-                tot = tonumber(tot)
-                hrs = tonumber(hrs)
-                
-                self:Set(name, net, tot, hrs)
+
+                local char = self(name or "")
+
+                if not char then
+                    return self:Print("No character specified or player not in your guild.")
+                end
+
+                char:Set(net, tot, hrs):Store()
             end
         },
         store = {
             name = "Store",
-            desc = "Save all or given player's DKP changes to officer note(s).",
+            desc = "Stores pending DKP changes to officer notes.",
             type = "execute",
-            usage = "[<player>]",
             func = function(self, param)
-                local name = param:match("%S+")
-                self:Printf("Making changes to notes...")
-                self:Store(name ~= "" and name)
+                if self:Store() > 0 then
+                    self:Printf("Applying pending changes to notes...")
+                end
             end
         },
         usage = {
@@ -365,12 +230,14 @@ sDKP.Slash = {
         },
         versions = {
             name = "Versions",
-            desc = "Print guild mates addon versions.",
+            desc = "Print guild mates' addon versions.",
             type = "execute",
             func = "VersionDump"
         },
     }
 }
+
+-- Slash command table structure -----------------------------------------------
 
 local Actions = { }
 
@@ -384,7 +251,7 @@ end
 
 function Actions.group(self, node, param)
     self:Printf(node.desc and "%s - %s" or "%s", node.name, node.desc)
-    for command, data in Util.PairsByKeys(node.args) do
+    for command, data in self.PairsByKeys(node.args) do
         self:Echo("   |cff56a3ff%s|r%s - %s", command, data.usage and format(" |cff88ffff%s|r", data.usage) or "", data.desc)
     end
 end
@@ -409,5 +276,3 @@ end
 SlashCmdList.SDKP = sDKP.SlashCommandHandler
 SLASH_SDKP1 = "/sdkp"
 SLASH_SDKP2 = "/dkp"
-
-sDKP.Modules.Slash = GetTime()
