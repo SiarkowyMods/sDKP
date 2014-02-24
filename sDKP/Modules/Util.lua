@@ -83,20 +83,43 @@ function sDKP.PairsByKeys(t, f) -- from http://www.lua.org/pil/19.3.html
     return iter
 end
 
---- Returns decimal timestamp from given date string.
--- @param param String timestamp.
--- @return number - Integer timestamp.
-function sDKP.ParamToTimestamp(param)
-    local timestamp
-    local year, month, day, hour, min, sec = param:match("(%d+).(%d+).(%d+)%s*(%d+).(%d+).(%d+)")
+local multipliers = {
+    y = 31536000,   -- year (365d)
+    m = 2678400,    -- month (31d)
+    w = 604800,     -- week (7d)
+    d = 86400,      -- day (24h)
+    h = 3600,       -- hour (60M)
+    M = 60,         -- minute (60s)
+    s = 1           -- second (1)
+}
 
-    if sec then
-        timestamp = time{year = year, month = month, day = day, hour = hour, min = min, sec = sec}
-    else
-        timestamp = tonumber(param:match("%d+"))
+--- Converts interval string to numeric interval.
+-- @param string (string) Interval string.
+-- @return (number) Numeric interval value.
+function sDKP.ParamToInterval(string)
+    local interval = 0
+
+    for num, mul in string:lower():gmatch("(%d+)(%a)") do
+        interval = interval + num * (multipliers[mul] or 1)
     end
 
-    return timestamp
+    return interval
+end
+
+--- Returns decimal timestamp from given date string.
+-- @param p String timestamp.
+-- @return number - Integer timestamp.
+function sDKP.ParamToTimestamp(p)
+    p = tostring(p)
+
+    return tonumber(p) and (time{
+        year  = tonumber(p:sub( 1, 4)) or 1970,
+        month = tonumber(p:sub( 5, 6)) or 1,
+        day   = tonumber(p:sub( 7, 8)) or 1,
+        hour  = tonumber(p:sub( 9,10)) or 0,
+        min   = tonumber(p:sub(11,12)) or 0,
+        sec   = tonumber(p:sub(13,14)) or 0
+    } or 0) or time() - sDKP.ParamToInterval(p)
 end
 
 --- Parses loot message for item looter, ID and count.

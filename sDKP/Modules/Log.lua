@@ -48,13 +48,8 @@ local function tostringall(...)
     end
 end
 
-local function serialize(...)
-    return strjoin(LOG_DELIMETER, tostringall(...))
-end
-
-local function unserialize(data)
-    return strsplit(LOG_DELIMETER, data)
-end
+local function serialize(...) return strjoin(LOG_DELIMETER, tostringall(...)) end
+local function unserialize(data) return strsplit(LOG_DELIMETER, data) end
 
 -- Save to Util
 sDKP.tostringall = tostringall
@@ -210,18 +205,39 @@ end
 
 function sDKP:LogSearch(param)
     local param, chan = self.ExtractChannel(param, "SELF")
-    local node = self.LogData[self.guild]
+
+    local max_time = param:match('time<(%w+)')
+    local min_time = param:match('time>(%w+)') or param:match('(%w+)<time')
+
+    if max_time then max_time = self.ParamToTimestamp(max_time) end
+    if min_time then min_time = self.ParamToTimestamp(min_time) end
+
+    if max_time and min_time and min_time > max_time then
+        min_time, max_time = max_time, min_time
+    end
+
+    self:Announce(chan, "Log search: %s", param)
+
+    local param = param:gsub("[%w<>]*time[%w<>]*", ""):trim()
+
     local count = 0
-    for timestamp, entry in self.PairsByKeys(node) do
-        for str in param:gmatch("[^|]+") do
-            if entry:match(str) then
+    for time, entry in self.PairsByKeys(self.LogData[self.guild]) do
+        if (not min_time or time >= min_time) and (not max_time or time <= max_time) then
+            local flag = param == ""
+
+            for str in param:gmatch("[^|]+") do
+                flag = flag or entry:match(str)
+            end
+
+            if flag then
                 self:Announce(chan, "|cff888888[%s]|r %s",
-                    date(LOG_DATEFORMAT, timestamp), self.LogToString(entry))
+                    date(LOG_DATEFORMAT, time), self.LogToString(entry))
+
                 count = count + 1
             end
         end
     end
-    self:Echo("Total of %d |4entry:entries;.", count)
+    self:Announce(chan, "Total entries: %d", count)
 end
 
 sDKP.Slash.args.log = {
@@ -256,7 +272,7 @@ sDKP.Slash.args.log = {
             name = "Search",
             desc = "Shows all entries matching given string(s).",
             type = "execute",
-            usage = "<query>[||...] [@<channel>]",
+            usage = "<query>[||...] [[from<]time[<to]] [@<channel>]",
             func = "LogSearch",
             order = 4
         },

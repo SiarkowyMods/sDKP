@@ -51,7 +51,7 @@ do
                 if char:Store(true, true) then
                     counter = counter + 1
 
-                    if whisper then
+                    if whisper and char.netD and char.totD then
                         self:QueueWhisper(char:GetOwnerOnline(), format(whisper,
                             char.net + char.netD, char.tot + char.totD, char.netD))
                     end
