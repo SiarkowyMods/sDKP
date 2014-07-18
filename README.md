@@ -6,20 +6,27 @@ and is an entirely slash command driven DKP manager compatible with QDKPv2
 on the level of officer note data storage. Despite sDKP being only usable by
 means of slash commands, the syntax is quite easy, yet potent.
 
-Let's begin with `/sdkp` command. You may also use the abbreviation `/dkp` — the choice is up to you!
+Let's begin with `/sdkp` command. You may also use the abbreviation `/dkp` â€” the choice is up to you!
 
 Quintessential syntax
 ---------------------
 
 You will be using these commands quite often. This is the basic awarding/charging syntax.
 
-* `/sdkp aawrd Steven 50` — awards Steven 50 DKP and stores data to officer note.
-* `/sdkp charge Helen 25` — charges Helen 25 DKP (same as above).
-* `/sdkp award raid 30 Kael'thas` — awards the raid (groups 1-5 only!) 30 DKP with reason (stored in the operation log).
-* `/sdkp charge! Jeff 10 buffs` — charges Jeff 10 DKP with reason and public announce to proper channel.
-* `/sdkp award! all 15 iron man` — awards the raid (group 1-8) 15 DKP with reason and announce.
+<dl>
+<dt>/sdkp award Steven 50</dt>
+<dd>Awards Steven 50 DKP and stores data to officer note.</dd>
+<dt>/sdkp charge Helen 25</dt>
+<dd>Charges Helen 25 DKP (same as above).</dd>
+<dt>/sdkp award raid 30 Kael'thas</dt>
+<dd>Awards the raid (groups 1-5 only!) 30 DKP with reason (stored in the operation log).</dd>
+<dt>/sdkp charge! Jeff 10 buffs</dt>
+<dd>Charges Jeff 10 DKP with reason and public announce to proper channel.</dd>
+<dt>/sdkp award! all 15 iron man</dt>
+<dd>Awards the raid (groups 1-8) 15 DKP with reason and announce.</dd>
+</dl>
 
-Let's proceed to [Usage](USAGE.md) to see the complete list of slash commands.
+Proceed to [Usage](USAGE.md) to see the complete list of slash commands.
 
 Installation
 ------------
