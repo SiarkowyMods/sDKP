@@ -71,7 +71,7 @@ This can be done by separating filters in such ways:
 
 You can even mix both. Look at the examples:
 
-* `Steven, Helen, Jack` → `named Steven OR Helen OR Jack` → specified characters 
+* `Steven, Helen, Jack` → `named Steven OR Helen OR Jack` → specified characters
 * `party5 warlocks` → `being in party no 5 AND a warlock` →
   warlocks in subgroup no 5
 * `raid main druids` → `being in raid AND a main AND a druid` →
@@ -146,7 +146,7 @@ Aliasing functions are grouped uncer `/sdkp alias`.
 
 * `/sdkp alias set <alias> <main>` — Sets alias as a main's character.
   This will affect only out of guild characters.
-* `/sdkp alias list` — Lists saved aliases to char frame.
+* `/sdkp alias list` — Lists saved aliases to chat frame.
 * `/sdkp alias clear <alias>` — Clears alias status from character.
 
 ### Backups `/sdkp backup ...`
@@ -210,17 +210,11 @@ commands under `/sdkp log`.
     like this:
     ```
     /sdkp log search time>20140707
-    ```
 
-    ```
     /sdkp log search Jeff time>201406
-    ```
 
-    ```
     /sdkp log search Helen|Jack time<2010
-    ```
 
-    ```
     /sdkp log search Badge of Justice 201206<time<201207
     ```
 * `/sdkp log purge [<timestamp>]` — Deletes log entries for current guild older
@@ -245,7 +239,7 @@ actively.
 * `/sdkp stnadby reinvite` — Reinvites online standby players to raid.
   This sends invites to player's online character.
 
-### Statictics `/sdkp stat ...`
+### Statistics `/sdkp stat ...`
 
 Statictics commands require `sDKP_Stat` addon enabled. All ranges are evaluated
 as weak inequalities (`parameter >= value` and `parameter <= value`).
@@ -265,11 +259,11 @@ as weak inequalities (`parameter >= value` and `parameter <= value`).
   * `online` — online players only
   * `raid` — raid members only
   * `main` or `alt` — character status filter
-  
+
   > You may combine multiple search conditions
   > by listing them separated with spaces. Examples:
   >
-  > Online players with more than netto 200 DKP
+  > Online players with more than 200 netto DKP
   > and total DKP between 800 and 1200:
   >
   > ```
@@ -293,7 +287,7 @@ as weak inequalities (`parameter >= value` and `parameter <= value`).
 * `/sdkp stat level` — Displays level breakdown.
 * `/sdkp stat rank` — Displays rank breakdown.
 * `/sdkp stat spec` — Displays specialization breakdown. Specialization data is
-  loaded from player note data and has to be stored between square braces `[]`.
+  loaded from player note data and has to be stored between square braces `[spec]`.
   Recognized specialization symbols include:
   * `D` — melee DPS
   * `H` — healer
@@ -301,13 +295,13 @@ as weak inequalities (`parameter >= value` and `parameter <= value`).
   * `RD` — ranged dps
   * `T` — tank
 * `/sdkp stat spent` — Displays spent DKP ranking.
-* `/sdkp stat top <count> [tot] [<class>]` — Displays netto or total DKP ranking
-  for all players or only of specified class.
+* `/sdkp stat top [<count>] [<filter>]` — Displays netto DKP ranking
+  for selected players or all guild mains if not specified.
 * `/sdkp stat zone` — Displays zone breakdown.
 
 ### Options `/sdkp option ...`
 
-Some settings of sDKP can be adjusted with option management commands.
+A few settings of sDKP can be adjusted with option management commands.
 
 * `/sdkp option dkpformat <format>` — Sets DKP format for officer notes.
   This decides what goes between curly braces in officer notes. By default,
@@ -326,6 +320,7 @@ Some settings of sDKP can be adjusted with option management commands.
   > You may specify the DKP note format for sDKP in guild info message so that
   > all officers share the same format. Just use the following string:
   > `{dkp:FORMAT}` where `FORMAT` is the same as in `/sdkp option dkpformat`.
+  >
   > This option comes handy if you want not to synchronize note format from
   > guild info.
 
