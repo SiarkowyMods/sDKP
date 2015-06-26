@@ -4,6 +4,6 @@
 ## Author: Siarkowy <siarkowy@siarkowy.net>
 ## X-Website: https://github.com/SiarkowyMods/sDKP
 ## Dependencies: sDKP
-## Version: 1.6
+## Version: 1.7
 
 Stat.lua

@@ -22,36 +22,26 @@ local data = { }
 local function clear() for k, _ in pairs(data) do data[k] = nil end end
 
 function sDKP:StatTopQuery(param)
-    local param, chan = extract(param, "SELF")
-    param, gsubcount = gsub(param, "tot", "")
-    local mode = gsubcount >= 1
-    local count = tonumber(match(param, "%d+")) or 5
-    param = gsub(param, "%d+", "")
-    local class = trim(param)
-    local classU = upper(class)
+    local chan
+    param = param ~= "" and param or "main"
+    param, chan = extract(param, "SELF")
+    local count = tonumber(param:match("^%d+") or "") or 5
+    param = gsub(param, "^%d+", ""):trim()
 
-    local maxD = 0
-    local minD = 0
-    local val
-
-    for n, d in pairs(self.Roster) do
-        if not d.main and (classU == "" or d.class == classU) then
-            val = mode and d.tot or d.net
-            maxD = max(maxD, val)
-            minD = min(minD, val)
-            data[val] = n
-        end
+    for _, unit in pairs(self:Select(param == "" and "main" or param)) do
+        tinsert(data, unit)
     end
 
-    local c = 0
-    local m = mode and "tot" or "net"
-    self:Announce(chan, "Top %d %s ranking%s:", count, m, class ~= "" and format(" for class %s", class) or "")
-    for i = maxD, minD, -1 do
-        if data[i] then
-            c = c + 1
-            self:Announce(chan, " %d. %s %d DKP", c, self.ClassColoredPlayerName(data[i]), i)
-            if c >= count then clear() return end
+    sort(data, function(a, b)
+        return self:GetCharacter(a).net > self:GetCharacter(b).net
+    end)
+
+    self:Announce(chan, "Top %d %s DKP ranking:", count, param)
+    for i, name in ipairs(data) do
+        if i > count then
+            break
         end
+        self:Announce(chan, " %d. %s %d DKP", i, self.ClassColoredPlayerName(name), self:GetCharacter(name).net)
     end
 
     clear()
@@ -364,9 +354,9 @@ sDKP.Slash.args.stat = {
         },
         top = {
             name = "Top",
-            desc = "Prints total or netto DKP ranking for all or only given class.",
+            desc = "Prints netto DKP ranking for selected players or guild mains by default.",
             type = "execute",
-            usage = "<count> [tot] [<class>]",
+            usage = "[<count>] [<query>]",
             func = "StatTopQuery"
         },
         zone = {
