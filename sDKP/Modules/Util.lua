@@ -16,10 +16,20 @@ local strjoin = strjoin
 local tinsert = tinsert
 local tonumber = tonumber
 
+--- Returns a clickable hyperlink.
+-- @param kind (string) Link type.
+-- @param visual (string) Link title to display.
+-- @param ... (tuple) Data to be stored into the link.
+-- @return string - Hyperlink string.
 function sDKP.CreateHyperlink(kind, visual, ...)
     return format("|Hsdkp:%s:%s|h|cff88ff88(%s)|h", kind, strjoin(':', ...), visual)
 end
 
+--- Returns the player's name, colored by class.
+-- The class is determined using guild roster or class parameter.
+-- @param player (string) Player name.
+-- @param class (string) Upper-case class name.
+-- @return string - Colored player name.
 function sDKP.ClassColoredPlayerName(player, class)
     if not sDKP.Roster[player] and not class then
         return player
