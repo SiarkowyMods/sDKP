@@ -19,6 +19,9 @@ local GetTime = GetTime
 local GuildRosterSetOfficerNote = GuildRosterSetOfficerNote
 local UnitInRaid = UnitInRaid
 
+local LOG_GUILD_JOIN = 9
+local LOG_GUILD_QUIT = 10
+
 local Externals, Roster, Options
 
 -- Event handlers --------------------------------------------------------------
@@ -100,6 +103,8 @@ function sDKP:CleanupRoster()
         if roster[name] then
             self:BindClass(char, "Character")
         else -- not in roster
+            self:Log(LOG_GUILD_QUIT, name, char.class, char.net, char.tot, char.hrs)
+
             Roster[name] = nil
             dispose(char)
 
@@ -273,7 +278,11 @@ function sDKP:Update()
 
         if new then
             Roster[name] = char
-            if diff then self:Printf("<%s> |cff33ff33+%s|r", self.guild, name) end
+            self:Log(LOG_GUILD_JOIN, name, char.class)
+
+            if diff then
+                self:Printf("<%s> |cff33ff33+%s|r", self.guild, name)
+            end
         end
     end
 end

@@ -20,12 +20,12 @@ function sDKP.CreateHyperlink(kind, visual, ...)
     return format("|Hsdkp:%s:%s|h|cff88ff88(%s)|h", kind, strjoin(':', ...), visual)
 end
 
-function sDKP.ClassColoredPlayerName(player)
-    if not sDKP.Roster[player] then
+function sDKP.ClassColoredPlayerName(player, class)
+    if not sDKP.Roster[player] and not class then
         return player
     end
 
-    local c = RAID_CLASS_COLORS[sDKP.Roster[player].class]
+    local c = RAID_CLASS_COLORS[sDKP.Roster[player] and sDKP.Roster[player].class or class]
     return format("%s%s|r", sDKP.DecimalToHexColor(c.r, c.g, c.b), player)
 end
 

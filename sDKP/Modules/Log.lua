@@ -28,7 +28,7 @@ local LOG_DATEFORMAT    = "%y-%m-%d %X"
 local LOG_DELIMETER     = "\a"
 
 -- Log entry types
-local LOG_UNKNOWN           = -1 --- Unknown entry
+local LOG_UNKNOWN           = -1 -- Unknown entry
 local LOG_PLAYER_LOOT       = 0 --- Loot entry
 local LOG_DKP_MODIFY        = 1 --- DKP modification (award, charge) entry
 local LOG_DKP_RAID          = 2 --- (Unused)
@@ -38,6 +38,8 @@ local LOG_IRONMAN_START     = 5 --- Ironman start entry
 local LOG_IRONMAN_CANCEL    = 6 --- Ironman cancel entry
 local LOG_IRONMAN_AWARD     = 7 --- Ironman award entry
 local LOG_DKP_DIFF          = 8 --- DKP difference entry (with external changes)
+local LOG_GUILD_JOIN        = 9 --- Guild join entry
+local LOG_GUILD_QUIT        = 10 -- Guild quit entry
 
 -- Helper functions ------------------------------------------------------------
 
@@ -118,11 +120,20 @@ sDKP.LogToStringHandlers = {
     end,
 
     [LOG_DKP_DIFF] = function(player, netD, totD, hrsD, curNet, curTot, curHrs) -- 8
-        return format("Change: %s %s%+d net|r, %s%+d tot|r, %s%+d hrs|r",
+        return format("Change: %s %s%+d net|r, %s%+d tot|r, %s%+d hrs|r.",
             sDKP.ClassColoredPlayerName(player),
             sDKP.DiffColorize(netD), netD,
             sDKP.DiffColorize(totD), totD,
             sDKP.DiffColorize(hrsD), hrsD)
+    end,
+
+    [LOG_GUILD_JOIN] = function(player, class)
+        return format("%s joined the guild.", sDKP.ClassColoredPlayerName(player, class))
+    end,
+
+    [LOG_GUILD_QUIT] = function(player, class, net, tot, hrs)
+        return format("%s left the guild with %+d net, %+d tot, %+d hrs DKP.",
+            sDKP.ClassColoredPlayerName(player, class), net, tot, hrs)
     end,
 }
 
