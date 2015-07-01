@@ -158,8 +158,10 @@ function Character:OnDiff(oldNet, oldTot, oldHrs, show)
         local hrsDiff = self.hrs - oldHrs
 
         -- log the difference
-        sDKP:Log(LOG_DKP_DIFF, self.name, netDiff, totDiff, hrsDiff,
-            self.net, self.tot, self.hrs)
+        if not sDKP:IsQueueWorking() then
+            sDKP:Log(LOG_DKP_DIFF, self.name, netDiff, totDiff, hrsDiff,
+                self.net, self.tot, self.hrs)
+        end
 
         -- show to chat frame if the option is set
         if show then
