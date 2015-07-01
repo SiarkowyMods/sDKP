@@ -28,15 +28,16 @@ local LOG_DATEFORMAT    = "%y-%m-%d %X"
 local LOG_DELIMETER     = "\a"
 
 -- Log entry types
-local LOG_UNKNOWN       = -1
-local LOG_PLAYER_LOOT   = 0
-local LOG_DKP_MODIFY    = 1
-local LOG_DKP_RAID      = 2
-local LOG_DKP_CLASS     = 3
-local LOG_PARTY_KILL    = 4
-local LOG_IRONMAN_START = 5
-local LOG_IRONMAN_CANCEL = 6
-local LOG_IRONMAN_AWARD = 7
+local LOG_UNKNOWN           = -1 --- Unknown entry
+local LOG_PLAYER_LOOT       = 0 --- Loot entry
+local LOG_DKP_MODIFY        = 1 --- DKP modification (award, charge) entry
+local LOG_DKP_RAID          = 2 --- (Unused)
+local LOG_DKP_CLASS         = 3 --- (Unused)
+local LOG_PARTY_KILL        = 4 --- Boss slain entry
+local LOG_IRONMAN_START     = 5 --- Ironman start entry
+local LOG_IRONMAN_CANCEL    = 6 --- Ironman cancel entry
+local LOG_IRONMAN_AWARD     = 7 --- Ironman award entry
+local LOG_DKP_DIFF          = 8 --- DKP difference entry (with external changes)
 
 -- Helper functions ------------------------------------------------------------
 
@@ -63,6 +64,10 @@ sDKP.LogUnserialize = unserialize
 -- @param type (number) Entry type.
 -- @param func (function) Formatting function which is passed unpacked data from log.
 sDKP.LogToStringHandlers = {
+    [LOG_UNKNOWN] = function() -- -1
+        return "Unknown entry."
+    end,
+
     [LOG_PLAYER_LOOT] = function(player, item, count) -- 0
         local _, link = GetItemInfo(item)
         count = tonumber(count) or 1
@@ -110,7 +115,15 @@ sDKP.LogToStringHandlers = {
 
     [LOG_IRONMAN_AWARD] = function(count, points) -- 7
         return format("Ironman awarded: %d |4player:players; %+d DKP.", count, points)
-    end
+    end,
+
+    [LOG_DKP_DIFF] = function(player, netD, totD, hrsD, curNet, curTot, curHrs) -- 8
+        return format("Change: %s %s%+d net|r, %s%+d tot|r, %s%+d hrs|r",
+            sDKP.ClassColoredPlayerName(player),
+            sDKP.DiffColorize(netD), netD,
+            sDKP.DiffColorize(totD), totD,
+            sDKP.DiffColorize(hrsD), hrsD)
+    end,
 }
 
 local handlers = sDKP.LogToStringHandlers

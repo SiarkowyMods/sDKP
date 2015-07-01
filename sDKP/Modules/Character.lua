@@ -19,6 +19,7 @@ local setmetatable = setmetatable
 local tonumber = tonumber
 
 local LOG_DKP_MODIFY = 1
+local LOG_DKP_DIFF = 8
 
 --- Character object prototype.
 local Character = { --[[
@@ -145,14 +146,29 @@ end
 
 -- Event handlers --------------------------------------------------------------
 
---- Prints a message with amount deltas on DKP change.
-function Character:OnDiff(oldNet, oldTot, oldHrs)
+--- Handles logging and displaying of DKP differences.
+-- @param oldNet (number) Old netto DKP.
+-- @param oldTot (number) Old total DKP.
+-- @param oldHrs (number) Old hour count.
+-- @param show (boolean) If true, displays the difference to chat frame.
+function Character:OnDiff(oldNet, oldTot, oldHrs, show)
     if self.net ~= oldNet or self.tot ~= oldTot or self.hrs ~= oldHrs then
-        self:Printf("Change: %s %s%+d net|r, %s%+d tot|r, %s%+d hrs|r",
-            self:GetColoredName(),
-            colorize_diff(oldNet, self.net), self.net - oldNet,
-            colorize_diff(oldTot, self.tot), self.tot - oldTot,
-            colorize_diff(oldHrs, self.hrs), self.hrs - oldHrs)
+        local netDiff = self.net - oldNet
+        local totDiff = self.tot - oldTot
+        local hrsDiff = self.hrs - oldHrs
+
+        -- log the difference
+        sDKP:Log(LOG_DKP_DIFF, self.name, netDiff, totDiff, hrsDiff,
+            self.net, self.tot, self.hrs)
+
+        -- show to chat frame if the option is set
+        if show then
+            self:Printf("Change: %s %s%+d net|r, %s%+d tot|r, %s%+d hrs|r",
+                self:GetColoredName(),
+                colorize_diff(netDiff), netDiff,
+                colorize_diff(totDiff), totDiff,
+                colorize_diff(hrsDiff), hrsDiff)
+        end
     end
 end
 
@@ -160,7 +176,9 @@ function Character:OnUpdate(id, name, _, _, _, _, _, _, o, on, _, class, diff)
     local net, tot, hrs = self.net, self.tot, self.hrs
     self.id, self.name, self.on, self.class = id, name, on, class
     self.altof, self.net, self.tot, self.hrs = parse(o)
-    if diff and net and tot and hrs then self:OnDiff(net, tot, hrs) end
+    if net and tot and hrs then
+        self:OnDiff(net, tot, hrs, diff)
+    end
 end
 
 -- Methods ---------------------------------------------------------------------
