@@ -5,6 +5,7 @@
 
 local sDKP = sDKP
 
+local dectohex = sDKP.DecimalToHexColor
 local dispose = sDKP.dispose
 local extract = sDKP.ExtractChannel
 local gsub = gsub
@@ -86,7 +87,9 @@ function sDKP:StatByClass(param)
 
     self:Announce(chan, "Guild class breakdown:")
     for class, count in self.PairsByKeys(data) do
-        self:Announce(chan, "   %s: %d (%.1f%%)", class, count, count / num * 100)
+        local c = RAID_CLASS_COLORS[class:upper()]
+        self:Announce(chan, "   %s%s|r: %d (%.1f%%)",
+            dectohex(c.r, c.g, c.b), class, count, count / num * 100)
     end
 
     clear()
