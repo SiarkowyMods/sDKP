@@ -23,17 +23,17 @@ local function clear() for k, _ in pairs(data) do data[k] = nil end end
 
 function sDKP:StatTopQuery(param)
     local chan
-    param = param ~= "" and param or "main"
     param, chan = extract(param, "SELF")
     local count = tonumber(param:match("^%d+") or "") or 5
     param = gsub(param, "^%d+", ""):trim()
+    param = param ~= "" and param or "main"
 
-    for _, unit in pairs(self:Select(param == "" and "main" or param)) do
+    for _, unit in pairs(self:Select(param)) do
         tinsert(data, unit)
     end
 
     sort(data, function(a, b)
-        return self:GetCharacter(a).net > self:GetCharacter(b).net
+        return self:GetCharacter(a):GetMain().net > self:GetCharacter(b):GetMain().net
     end)
 
     self:Announce(chan, "Top %d %s DKP ranking:", count, param)
@@ -41,7 +41,7 @@ function sDKP:StatTopQuery(param)
         if i > count then
             break
         end
-        self:Announce(chan, " %d. %s %d DKP", i, self.ClassColoredPlayerName(name), self:GetCharacter(name).net)
+        self:Announce(chan, " %d. %s %d DKP", i, self.ClassColoredPlayerName(name), self:GetCharacter(name):GetMain().net)
     end
 
     clear()
