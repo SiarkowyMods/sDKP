@@ -19,10 +19,16 @@ local GetTime = GetTime
 local GuildRosterSetOfficerNote = GuildRosterSetOfficerNote
 local UnitInRaid = UnitInRaid
 
+local LOG_GUILD_JOIN = 9
+local LOG_GUILD_QUIT = 10
+
 local Externals, Roster, Options
 
 -- Event handlers --------------------------------------------------------------
 
+--- The initial GUILD_ROSTER_UPDATE event handler.
+-- Enables guild roster offline player visibility if not set.
+-- Subsequent GUILD_ROSTER_UPDATE events are handled in OnGuildRosterUpdate().
 function sDKP:GUILD_ROSTER_UPDATE()
     if not GetGuildRosterShowOffline() then
         GuildFrameLFGButton:Click()
@@ -35,6 +41,9 @@ function sDKP:GUILD_ROSTER_UPDATE()
     self.GUILD_ROSTER_UPDATE = self.OnGuildRosterUpdate
 end
 
+--- Normal GUILD_ROSTER_UPDATE event handler.
+-- Called on guild roster updates. Does roster cleanup, updates and pending
+-- operation queue processing. Checks for DKP data format changes.
 function sDKP:OnGuildRosterUpdate()
     if not self.guild then return end
     if not self:Get("core.noginfo") then
@@ -53,6 +62,8 @@ function sDKP:OnGuildRosterUpdate()
     self:QueueProcess()
 end
 
+--- PLAYER_GUILD_UPDATE event handler.
+-- Prepares roster and log tables. Reconfigures local variables.
 function sDKP:PLAYER_GUILD_UPDATE(unit)
     if not unit or unit ~= "player" then return end
     local guild = GetGuildInfo("player")
@@ -100,6 +111,8 @@ function sDKP:CleanupRoster()
         if roster[name] then
             self:BindClass(char, "Character")
         else -- not in roster
+            self:Log(LOG_GUILD_QUIT, name, char.class, char.net, char.tot, char.hrs)
+
             Roster[name] = nil
             dispose(char)
 
@@ -204,6 +217,9 @@ function sDKP:GetOwnerOnline(main)
     return nil
 end
 
+--- Returns true if player is in guild.
+-- @param name (string) Player name.
+-- @return boolean
 function sDKP:IsInGuild(name)
     return not not self(name)
 end
@@ -273,7 +289,11 @@ function sDKP:Update()
 
         if new then
             Roster[name] = char
-            if diff then self:Printf("<%s> |cff33ff33+%s|r", self.guild, name) end
+            self:Log(LOG_GUILD_JOIN, name, char.class)
+
+            if diff then
+                self:Printf("<%s> |cff33ff33+%s|r", self.guild, name)
+            end
         end
     end
 end

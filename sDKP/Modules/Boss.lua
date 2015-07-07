@@ -9,6 +9,15 @@ local sDKP = sDKP
 local LOG_PARTY_KILL    = 4
 
 local mobs = { -- logged mobs list
+    -- T6 /  Sunwell Plateau
+    ["Sathrovarr the Corruptor"] = true,
+    ["Brutallus"] = true,
+    ["Felmyst"] = true,
+    ["Lady Sacrolash"] = true,
+    ["Grand Warlock Alythess"] = true,
+    ["Entropius"] = true,
+    ["Kil'jaeden"] = true,
+
     -- T6 / Black Temple
     ["High Warlord Naj'entus"] = true,
     ["Supremus"] = true,

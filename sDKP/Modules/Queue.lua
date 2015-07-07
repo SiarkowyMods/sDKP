@@ -68,6 +68,11 @@ do
 
         working = nil
     end
+
+    -- Returns true if queue is working.
+    function sDKP:IsQueueWorking()
+        return working
+    end
 end
 
 do

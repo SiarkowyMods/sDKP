@@ -16,16 +16,26 @@ local strjoin = strjoin
 local tinsert = tinsert
 local tonumber = tonumber
 
+--- Returns a clickable hyperlink.
+-- @param kind (string) Link type.
+-- @param visual (string) Link title to display.
+-- @param ... (tuple) Data to be stored into the link.
+-- @return string - Hyperlink string.
 function sDKP.CreateHyperlink(kind, visual, ...)
     return format("|Hsdkp:%s:%s|h|cff88ff88(%s)|h", kind, strjoin(':', ...), visual)
 end
 
-function sDKP.ClassColoredPlayerName(player)
-    if not sDKP.Roster[player] then
+--- Returns the player's name, colored by class.
+-- The class is determined using guild roster or class parameter.
+-- @param player (string) Player name.
+-- @param class (string) Upper-case class name.
+-- @return string - Colored player name.
+function sDKP.ClassColoredPlayerName(player, class)
+    if not sDKP.Roster[player] and not class then
         return player
     end
-    
-    local c = RAID_CLASS_COLORS[sDKP.Roster[player].class]
+
+    local c = RAID_CLASS_COLORS[sDKP.Roster[player] and sDKP.Roster[player].class or class]
     return format("%s%s|r", sDKP.DecimalToHexColor(c.r, c.g, c.b), player)
 end
 
@@ -42,12 +52,14 @@ local RED   = "|cffff3333"
 local GREEN = "|cff33ff33"
 local GRAY  = "|cff888888"
 
-function sDKP.DiffColorize(a, b)
-    a = tonumber(a) or 0
-    b = tonumber(b) or 0
+--- Returns the color sequence (red, green or gray) for specified difference.
+-- @param diff (number|string) Quantity difference, diff = new - old.
+-- @return string - Color sequence.
+function sDKP.DiffColorize(diff)
+    diff = tonumber(diff) or 0
 
-    if b > a then return GREEN end
-    if b < a then return RED end
+    if diff > 0 then return GREEN end
+    if diff < 0 then return RED end
 
     return GRAY
 end
@@ -133,10 +145,10 @@ function sDKP.ParseLootMessage(msg)
     if not player or not id then
         player, id = msg:match("(%S+) won:.*item:(%d+)")
     end
-    
+
     count = msg:match("x(%d+)") or id and 1
     if player then player = gsub(player, "^You$", sDKP.player) end
-    
+
     return player, id, count
 end
 
