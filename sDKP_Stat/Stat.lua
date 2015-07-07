@@ -57,13 +57,13 @@ function sDKP:StatGeneralInfo(param)
     local alts          = 0
     local altsonline    = 0
 
-    for name, d in pairs(self.Roster) do
-        if not d.main then
+    for _, char in pairs(self.Roster) do
+        if char:IsMain() then
             mains = mains + 1
-            mainsonline = mainsonline + (d.on and 1 or 0)
+            mainsonline = mainsonline + (char.on and 1 or 0)
         else
             alts = alts + 1
-            altsonline = altsonline + (d.on and 1 or 0)
+            altsonline = altsonline + (char.on and 1 or 0)
         end
     end
 
