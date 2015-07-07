@@ -160,6 +160,10 @@ local specs = {
     L   = "Leveling",
     RD  = "Ranged",
     T   = "Tank",
+
+    EXP = "Leveling",
+    MDPS = "Melee",
+    RDPS = "Ranged",
 }
 
 function sDKP:StatBySpec(param)
