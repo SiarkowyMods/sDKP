@@ -22,6 +22,8 @@ local upper = string.upper
 local data = { }
 local function clear() for k, _ in pairs(data) do data[k] = nil end end
 
+--- Displays netto DKP ranking.
+-- @param param (string) Optional player query or channel redirection string.
 function sDKP:StatTopQuery(param)
     local chan
     param, chan = extract(param, "SELF")
@@ -48,6 +50,8 @@ function sDKP:StatTopQuery(param)
     clear()
 end
 
+--- Displays total DKP ranking.
+-- @param param (string) Optional channel redirection string.
 function sDKP:StatByTotal(param)
     local chan
     param, chan = extract(param, "SELF")
@@ -73,7 +77,8 @@ function sDKP:StatByTotal(param)
     clear()
 end
 
---- Prints: Guild <%s>: %d members, %d mains, %d alts.
+--- Displays general information about guild's members, mains and alts.
+-- @param param (string) Optional channel redirection string.
 function sDKP:StatGeneralInfo(param)
     local param, chan = extract(param, "SELF")
 
@@ -100,7 +105,8 @@ function sDKP:StatGeneralInfo(param)
     self:Announce(chan, "   Alts: %d (%.1f%%), online: %d", alts, 100 - mainsP, altsonline)
 end
 
---- Prints: Druids: %d, Hunters: %d, ...
+--- Displays member class breakdown.
+-- @param param (string) Optional channel redirection string.
 function sDKP:StatByClass(param)
     local _, chan = extract(param, "SELF")
     local num = GetNumGuildMembers()
@@ -120,7 +126,8 @@ function sDKP:StatByClass(param)
     clear()
 end
 
---- Prints: Guild level range: 70: %d, 68: %d, ...
+--- Displays member level breakdown.
+-- @param param (string) Optional channel redirection string.
 function sDKP:StatByLevel(param)
     local param, chan = extract(param, "SELF")
     local num = GetNumGuildMembers()
@@ -140,7 +147,8 @@ function sDKP:StatByLevel(param)
     clear()
 end
 
---- Prints: GM: %d, Vice GM: %d, ...
+--- Displays member rank breakdown.
+-- @param param (string) Optional channel redirection string.
 function sDKP:StatByRank(param)
     local param, chan = extract(param, "SELF")
     local num = GetNumGuildMembers()
@@ -161,7 +169,8 @@ function sDKP:StatByRank(param)
     clear()
 end
 
---- Prints: Shattrath City: %d, Black Temple: %d, ...
+--- Displays member zone breakdown.
+-- @param param (string) Optional channel redirection string.
 function sDKP:StatByZone(param)
     local param, chan = extract(param, "SELF")
     local num = GetNumGuildMembers()
@@ -191,6 +200,8 @@ local specs = {
     RDPS = "Ranged",
 }
 
+--- Displays member specialization breakdown.
+-- @param param (string) Optional channel redirection string.
 function sDKP:StatBySpec(param)
     local _, chan = extract(param, "SELF")
     local num = GetNumGuildMembers()
@@ -211,6 +222,8 @@ function sDKP:StatBySpec(param)
     clear()
 end
 
+--- Displays spent DKP breakdown.
+-- @param param (string) Optional player query or channel redirection string.
 function sDKP:StatBySpent(param)
     local chan
     param, chan = extract(param, "SELF")
@@ -241,8 +254,8 @@ function sDKP:StatBySpent(param)
     clear()
 end
 
---- Guild Who-Like utility.
--- Similar to /who command with some slight differences.
+--- Guild Who-Like utility. Similar in principle to /who command.
+-- @param param (string) Who query string. Described in usage string.
 function sDKP:StatWho(param)
     if param == "" or param:lower() == "help" then
         self:Print("Guild Who List: Usage")
