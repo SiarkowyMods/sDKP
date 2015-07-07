@@ -187,24 +187,30 @@ function sDKP:StatBySpec(param)
 end
 
 function sDKP:StatBySpent(param)
-    local param, chan = extract(param, "SELF")
-    local count = tonumber(param:match("%d+") or 5)
+    local chan
+    param, chan = extract(param, "SELF")
+    local count = tonumber(param:match("^%d+") or "") or 5
+    param = gsub(param, "^%d+", ""):trim()
+    param = param ~= "" and param or "main"
 
-    self:Announce(chan, "Top %d spent DKP ranking", count)
-
-    local spent
-    for name, info in pairs(self.Roster) do
-        spent = info.tot - info.net
-        if spent > 0 then
-            tinsert(data, format("%s %d", self.ClassColoredPlayerName(name), spent))
-        end
+    for _, unit in pairs(self:Select(param)) do
+        tinsert(data, unit)
     end
 
-    sort(data, function(a, b) return a:match("%d+$") < b:match("%d+$") end)
+    sort(data, function(a, b)
+        a = self:GetCharacter(a):GetMain()
+        b = self:GetCharacter(b):GetMain()
+        return a.tot - a.net > b.tot - b.net
+    end)
 
-    for i, info in ipairs(data) do
-        self:Announce(chan, "   %d. %s", i, info)
-        if i >= count then return clear() end
+    self:Announce(chan, "Top %d %s spent DKP ranking:", count, param)
+    for i, name in ipairs(data) do
+        if i > count then
+            break
+        end
+        local char = self:GetCharacter(name):GetMain()
+        local spent = char.tot - char.net
+        self:Announce(chan, " %d. %s %d DKP", i, self.ClassColoredPlayerName(name), spent)
     end
 
     clear()
