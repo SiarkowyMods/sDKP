@@ -297,6 +297,7 @@ as weak inequalities (`parameter >= value` and `parameter <= value`).
 * `/sdkp stat spent` — Displays spent DKP ranking.
 * `/sdkp stat top [<count>] [<filter>]` — Displays netto DKP ranking
   for selected players or all guild mains if not specified.
+* `/sdkp stat total [<count>]` — Displays total DKP ranking.
 * `/sdkp stat zone` — Displays zone breakdown.
 
 ### Options `/sdkp option ...`
