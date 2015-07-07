@@ -244,9 +244,17 @@ end
 --- Guild Who-Like utility.
 -- Similar to /who command with some slight differences.
 function sDKP:StatWho(param)
-    if param:lower() == "help" then
+    if param == "" or param:lower() == "help" then
         self:Print("Guild Who List: Usage")
-        self:Echo("/sdkp who [n-Name] [c-Class] [z-Zone] [N-PlayerNote] [O-OfficerNote] [R-RankName] [lvl-L || m<lvl<M] [rank-R || m<rank<M] [m<net<M] [m<tot<M] [m<hrs<M] [online] [raid] [main || alt]")
+        self:Echo("   /sdkp who [n-|cFFFFA500Name|r] [c-|cFFFFA500Class|r] " ..
+        "[z-|cFFFFA500Zone|r] [N-|cFFFFA500PlayerNote|r] " ..
+        "[O-|cFFFFA500OfficerNote|r] [R-|cFFFFA500RankName|r] " ..
+        "[lvl-|cFFFFA500Level|r || |cFFFFA500min|r<lvl<|cFFFFA500max|r] " ..
+        "[rank-|cFFFFA500RankId|r || |cFFFFA500min|r<rank<|cFFFFA500max|r] " ..
+        "[|cFFFFA500min|r<net<|cFFFFA500max|r] " ..
+        "[|cFFFFA500min|r<tot<|cFFFFA500max|r] " ..
+        "[|cFFFFA500min|r<hrs<|cFFFFA500max|r] " ..
+        "[online] [raid] [main || alt]")
         self:Echo("   All string lookups are treated as string parts. They also use Lua pattern matching mechanisms so characters ^$()%%.[]*+-? need to be escaped: %%., %%%%, %%* etc.")
         return
     end
@@ -254,22 +262,22 @@ function sDKP:StatWho(param)
     local param, chan = extract(param, "SELF")
 
     -- strings
-    local _name     = param:match('n%-"([^"]+)"') or param:match('n%-(%w+)')
-    local _zone     = param:match('z%-"([^"]+)"') or param:match("z%-(%w+)")
+    local _name     = param:match('n%-"([^"]+)"') or param:match('n%-(%S+)')
+    local _zone     = param:match('z%-"([^"]+)"') or param:match("z%-(%S+)")
     local _note     = param:match('N%-"([^"]+)"') or param:match("N%-(%S+)")
     local _onote    = param:match('O%-"([^"]+)"') or param:match("O%-(%S+)")
     local _rankname = param:match('R%-"([^"]+)"') or param:match('R%-(%S+)')
-    local _class    = param:match('c%-(%w+)')
+    local _class    = param:match('c%-(%S+)')
 
-    -- Booleans
+    -- booleans
     local _online = not not param:match('online')
     local _raid   = not not param:match('raid')
     local _main   = not not param:match('main')
     local _alt    = not not param:match('alt')
 
     -- decimals
-    local _lvl, _minLvl, _maxLvl = tonumber(param:match('lvl-(%d+)'))
-    local _rnk, _maxRnk, _minRnk = tonumber(param:match('rank-(%d+)'))
+    local _lvl    = tonumber(param:match('lvl%-(%d+)'))
+    local _rnk    = tonumber(param:match('rank%-(%d+)'))
 
     -- possible relative
     local _maxLvl = _lvl or tonumber(param:match('lvl<(%d+)'))
@@ -302,12 +310,12 @@ function sDKP:StatWho(param)
         local name, rankname, rnk, lvl, class, zone, note, onote, online = GetGuildRosterInfo(i)
         local alt, net, tot, hrs = parse(onote)
 
-        if (not _name or name:lower():match(_name))
-            and (not _zone or zone:lower():match(_zone))
+        if (not _name or name:lower():match(_name:lower()))
+            and (not _zone or zone:lower():match(_zone:lower()))
             and (not _note or note:match(_note))
             and (not _onote or onote:match(_onote))
-            and (not _rankname or rankname:lower():match(_rankname))
-            and (not _class or class:lower():match(_class))
+            and (not _rankname or rankname:lower():match(_rankname:lower()))
+            and (not _class or class:lower():match(_class:lower()))
             and (not _online or online)
             and (not _raid or UnitInRaid(name))
             and (not _main or not alt)
@@ -325,7 +333,7 @@ function sDKP:StatWho(param)
         then
             count = count + 1
             self:Announce(chan, "   %s%s - Lvl %d %s (%s) - %s",
-                format(chan == "SELF" and "|Hplayer:%1$s|h[%1$s]|h" or "[%s]", name),
+                chan == "SELF" and format("|Hplayer:%1$s|h[%1$s]|h", name) or self.ClassColoredPlayerName(name),
                 UnitInRaid(name) and " |cFFFFA500<RAID>|r" or "", lvl, class, rankname,
                 dkp and format("DKP %d/%d/%d", net, tot, hrs) or zone)
 
@@ -408,7 +416,7 @@ sDKP.Slash.args.stat = {
 
 sDKP.Slash.args.who = {
     name = "Who",
-    desc = "Who-like utility for current guild.",
+    desc = "Who-like utility for the guild.",
     usage = "help || <query>",
     type = "execute",
     func = "StatWho"
