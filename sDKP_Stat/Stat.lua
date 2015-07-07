@@ -48,6 +48,31 @@ function sDKP:StatTopQuery(param)
     clear()
 end
 
+function sDKP:StatByTotal(param)
+    local chan
+    param, chan = extract(param, "SELF")
+    local count = tonumber(param:match("^%d+") or "") or 5
+    param = gsub(param, "^%d+", ""):trim()
+
+    for _, unit in pairs(self:Select("mains")) do
+        tinsert(data, unit)
+    end
+
+    sort(data, function(a, b)
+        return self:GetCharacter(a):GetMain().tot > self:GetCharacter(b):GetMain().tot
+    end)
+
+    self:Announce(chan, "Top %d total DKP ranking:", count)
+    for i, name in ipairs(data) do
+        if i > count then
+            break
+        end
+        self:Announce(chan, " %d. %s %d DKP", i, self.ClassColoredPlayerName(name), self:GetCharacter(name):GetMain().tot)
+    end
+
+    clear()
+end
+
 --- Prints: Guild <%s>: %d members, %d mains, %d alts.
 function sDKP:StatGeneralInfo(param)
     local param, chan = extract(param, "SELF")
@@ -216,13 +241,6 @@ function sDKP:StatBySpent(param)
     clear()
 end
 
---[[
-function sDKP:StatByNetto()     -- net DKP ranking
-function sDKP:StatByProf()      -- Blacksmiths: %d, Jewelcrafters: %d, ...
-function sDKP:StatBySpec()      -- Tanks: %d (%d online), Healers: %d (%d online), Ranged: %d (%d online), Melee: %d (%d online)
-function sDKP:StatByTotal()     -- total DKP ranking
---]]
-
 --- Guild Who-Like utility.
 -- Similar to /who command with some slight differences.
 function sDKP:StatWho(param)
@@ -367,10 +385,17 @@ sDKP.Slash.args.stat = {
         },
         top = {
             name = "Top",
-            desc = "Prints netto DKP ranking for selected players or guild mains by default.",
+            desc = "Displays netto DKP ranking. Accepts optional player query.",
             type = "execute",
             usage = "[<count>] [<query>]",
             func = "StatTopQuery"
+        },
+        total = {
+            name = "Total",
+            desc = "Displays total DKP ranking.",
+            type = "execute",
+            usage = "[<count>]",
+            func = "StatByTotal"
         },
         zone = {
             name = "By zone",
