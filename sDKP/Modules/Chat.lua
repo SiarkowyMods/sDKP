@@ -53,7 +53,7 @@ function sDKP:CHAT_MSG_LOOT(msg)
     player, id, count = self.ParseLootMessage(msg)
     if player and id then
         local _, link, rarity = GetItemInfo(id)
-        if rarity >= self:Get("log.rarity") then
+        if rarity >= self:Get("log.rarity") or self:Get("log.includeitems")[tonumber(id)] then
             self:Log(LOG_LOOT, player, link, count)
         end
     end
@@ -106,9 +106,9 @@ function sDKP:PLAYER_ENTERING_WORLD()
     self.inInstance, self.instanceType = IsInInstance()
     self.inRaid = (self.instanceType == "raid")
     self.zone = GetRealZoneText()
-    
+
     GuildRoster()
-    
+
     if self.inRaid then
         self:RegisterEvent("UNIT_TARGET")
     else
@@ -144,7 +144,7 @@ sDKP.HyperlinkHandlers.ch = function(btn, data)
     if not player or not itemId then
         return
     end
-    
+
     local iName, iLink, iRarity = GetItemInfo(itemId)
     local dialog = StaticPopup_Show("SDKP_CHAT_CHARGE_PLAYER", sDKP.ClassColoredPlayerName(player), iLink)
     if (dialog) then

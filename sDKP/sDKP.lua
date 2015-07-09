@@ -29,7 +29,7 @@ local tostring = tostring
 
 -- Event handlers --------------------------------------------------------------
 
-local DB_VERSION = 20140211
+local DB_VERSION = 20150710
 
 function sDKP:VARIABLES_LOADED()
     self:UnregisterEvent("VARIABLES_LOADED")
@@ -43,7 +43,7 @@ function sDKP:VARIABLES_LOADED()
         Rosters = { --[[ guild = { char = data, ... }, ... ]] },
         Options = {
             -- Chat
-            ["chat.ignoredids"] = {                     -- ignored item IDs
+            ["chat.ignoredids"] = {                     -- ignored item IDs for charge links
                 [29434] = true, -- Badge of Justice
             },
             ["chat.nolootlinks"] = false,               -- toggle loot charge links
@@ -56,6 +56,9 @@ function sDKP:VARIABLES_LOADED()
 
             -- Log
             ["log.rarity"] = 4, -- epic                 -- min. item quality
+            ["log.includeitems"] = {                    -- additional item IDs to be logged
+                [34664] = true, -- Sunmote
+            },
 
             -- Whispers
                                                         -- DKP modify whisper
