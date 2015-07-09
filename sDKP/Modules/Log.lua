@@ -120,7 +120,7 @@ sDKP.LogToStringHandlers = {
     end,
 
     [LOG_DKP_DIFF] = function(player, netD, totD, hrsD, curNet, curTot, curHrs) -- 8
-        return format("Change: %s %s%+d net|r, %s%+d tot|r, %s%+d hrs|r.",
+        return format("%s's DKP changed: %s%+d net|r, %s%+d tot|r, %s%+d hrs|r.",
             sDKP.ClassColoredPlayerName(player),
             sDKP.DiffColorize(netD), netD,
             sDKP.DiffColorize(totD), totD,
