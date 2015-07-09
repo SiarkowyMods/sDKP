@@ -97,11 +97,11 @@ end
 
 local multipliers = {
     y = 31536000,   -- year (365d)
-    m = 2678400,    -- month (31d)
+    M = 2678400,    -- month (31d)
     w = 604800,     -- week (7d)
     d = 86400,      -- day (24h)
     h = 3600,       -- hour (60M)
-    M = 60,         -- minute (60s)
+    m = 60,         -- minute (60s)
     s = 1           -- second (1)
 }
 
@@ -111,7 +111,7 @@ local multipliers = {
 function sDKP.ParamToInterval(string)
     local interval = 0
 
-    for num, mul in string:lower():gmatch("(%d+)(%a)") do
+    for num, mul in string:gmatch("(%d+)(%a)") do
         interval = interval + num * (multipliers[mul] or 1)
     end
 
