@@ -19,7 +19,7 @@ sDKP.commPrefix = "sDKP"
 local comms = sDKP.Comms
 
 function sDKP:CHAT_MSG_ADDON(prefix, msg, distr, sender)
-    if not self:GetMainName(sender) then return end
+    if not self:GetCharacter(sender) then return end
     if prefix ~= self.commPrefix or sender == self.player then return end
     local type, data = strsplit(DELIMETER, msg, 2)
     if not comms[type] then return end

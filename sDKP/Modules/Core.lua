@@ -178,24 +178,6 @@ function sDKP:GetExternals()
     return Externals
 end
 
---- Returns main name.
--- @param name Player name.
--- @return mixed - Main name for alt or nil for main.
-function sDKP:GetMainName(n) -- OBSOLETE
-    if self.Roster[n] then
-        if self.Roster[n].main then
-            if self.Roster[self.Roster[n].main] then
-                return self.Roster[n].main
-            end
-            return
-        end
-        return n
-    elseif self.Externals[n] and self.Roster[self.Externals[n]] then
-        return self.Externals[n]
-    end
-    return
-end
-
 --- Roster table getter.
 -- @return table - Roster table.
 function sDKP:GetRoster()
@@ -222,20 +204,6 @@ end
 -- @return boolean
 function sDKP:IsInGuild(name)
     return not not self(name)
-end
-
---- Returns 1 if character is an officer,  i.e. can
--- read and write to officer chat, or nil otherwise
--- @param name Character name.
--- @return boolean - True for officer, nil otherwise.
-function sDKP:IsOfficer(name) -- OBSOLETE
-    if self:GetMainName(name) then
-        local _, _, rank = GetGuildRosterInfo(self.Roster[name].id)
-        GuildControlSetRank(rank + 1)
-        local _, _, oListen, oSpeak = GuildControlGetRankFlags()
-        return (oListen and oSpeak) or nil
-    end
-    return
 end
 
 -- Core functionality ----------------------------------------------------------
