@@ -203,7 +203,8 @@ function sDKP:LogDump()
 end
 
 function sDKP:LogPurge(param)
-    local timestamp = self.ParamToTimestamp(param) or time() - 345600 -- 4 weeks
+    param = param ~= "" and param or "4w"
+    local timestamp = self.ParamToTimestamp(param)
     local node = self.LogData[self.guild]
     local count = 0
     for t, d in pairs(node) do
@@ -216,6 +217,7 @@ function sDKP:LogPurge(param)
 end
 
 function sDKP:LogSearch(param)
+    param = param ~= "" and param or "time>8h"
     local param, chan = self.ExtractChannel(param, "SELF")
 
     local max_time = param:match('time<(%w+)')
