@@ -202,18 +202,6 @@ function sDKP:LogDump()
     self:Echo("Total of %d |4entry:entries;.", count)
 end
 
-function sDKP:LogRecent(param)
-    local timestamp = self.ParamToTimestamp(param) or time() - 86400 -- 1 day
-    self:Printf("Log entry list from %s:", date(LOG_DATEFORMAT, timestamp))
-    local node = self.LogData[self.guild]
-    local count = 0
-    for _, timestamp in pairs(self:PrepareLog(timestamp)) do
-        self:Echo("|cff888888[%s]|r %s", date(LOG_DATEFORMAT, timestamp), self.LogToString(node[timestamp]))
-        count = count + 1
-    end
-    self:Echo("Total of %d |4entry:entries;.", count)
-end
-
 function sDKP:LogPurge(param)
     local timestamp = self.ParamToTimestamp(param) or time() - 345600 -- 4 weeks
     local node = self.LogData[self.guild]
@@ -284,21 +272,13 @@ sDKP.Slash.args.log = {
             func = "LogPurge",
             order = 2
         },
-        recent = {
-            name = "Recent",
-            desc = "Prints log entries from last 1 day or newer than given timestamp.",
-            type = "execute",
-            usage = "[<timestamp>]",
-            func = "LogRecent",
-            order = 3
-        },
         search = {
             name = "Search",
             desc = "Shows all entries matching given string(s).",
             type = "execute",
             usage = "<query>[||...] [[from<]time[<to]] [@<channel>]",
             func = "LogSearch",
-            order = 4
+            order = 3
         },
     }
 }

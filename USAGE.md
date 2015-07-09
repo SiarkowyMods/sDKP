@@ -193,11 +193,6 @@ All DKP operations are stored in the account-wide per-guild log. Same applies
 to loot above specified threshold (epic by default). To manage the log, use
 commands under `/sdkp log`.
 
-* `/sdkp log recent [<timestamp>]` — Prints log entries from last 1 day or newer
-    than specified timestamp.
-    * The time stamp parameter has the form of `YYYYMMDD`.
-      Examples of valid timestamps: `20140211`, `201302`, `2010`.
-
 * `/sdkp log search <query>[|...] [[from<]time[<to]] [@<channel>]`
   — Shows all entries matching given string(s).
     * Search query in `/sdkp log search` can be a character name, part of reason
@@ -205,11 +200,13 @@ commands under `/sdkp log`.
     shown if positive. You can also provide multiple patterns by separating them
     with `|` character. The entry will be shown if any of the patterns matches.
     Example: `/sdkp log search Jeff|Helen|Jack`.
-    * The `time` parameter allows specifying the searching period. It uses
-    similar syntax as the `timestamp` parameter in `/sdkp log recent`. Use it
-    like this:
+    * The `time` parameter allows specifying the searching period. Its
+    argument has the form of `YYYYMMDD` (absolute) or `3d20h` (relative,
+    3d20h ago). Examples of valid timestamps:
+    `20140211`, `201302`, `2010`, `3M` (months), `7d`, `8h30m`.
+    * Example usage of `/sdkp log search`:
     ```
-    /sdkp log search time>20140707
+    /sdkp log search time>8h (changes newer than 8 hours ago)
 
     /sdkp log search Jeff time>201406
 
