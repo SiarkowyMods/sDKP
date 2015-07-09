@@ -24,7 +24,7 @@ local unpack = unpack
 local GetItemInfo = GetItemInfo
 local GetTime = GetTime
 
-local LOG_DATEFORMAT    = "%y-%m-%d %X"
+local LOG_DATEFORMAT    = "%Y-%m-%d %X"
 local LOG_DELIMETER     = "\a"
 
 -- Log entry types
