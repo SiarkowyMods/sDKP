@@ -30,15 +30,15 @@ sDKP.HyperlinkHandlers.bkp = function(btn, data)
     action = tonumber(action) or 0
     id = tonumber(id) or 0
 
-    if not self.Backups[id] then
-        self:Print("Backup matching given ID does not exist.")
+    if not self:GetBackup(id) then
+        self:Print("Specified backup does not exist.")
         return
     end
 
     if action == 1 then -- restore
         Popup.text = format("You are about to restore guild <%s> officer notes' " ..
             "backup from %s. This cannot be undone. Proceed?",
-            self.Backups[id][1], date(self:Get("log.dateformat"), id))
+            self:GetBackup(id)[1], date(self:Get("log.dateformat"), id))
 
         Popup.OnAccept = function()
             self:Printf("%d notes restored.", self:RestoreNotes(id) or 0)
@@ -49,7 +49,7 @@ sDKP.HyperlinkHandlers.bkp = function(btn, data)
     elseif action == 2 then -- delete
         Popup.text = format("You are about to delete guild <%s> officer notes' " ..
             "backup from %s. Data will be entirely lost. Proceed?",
-            self.Backups[id][1], date(self:Get("log.dateformat"), id))
+            self:GetBackup(id)[1], date(self:Get("log.dateformat"), id))
 
         Popup.OnAccept = function()
             if self:DeleteBackup(id) then

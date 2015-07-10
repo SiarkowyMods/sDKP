@@ -21,6 +21,10 @@ hooksecurefunc(sDKP, "VARIABLES_LOADED", function(self)
     self.Backups = sDKP_BACKUPS
 end)
 
+function sDKP:GetBackup(timestamp)
+    return self.Backups[timestamp]
+end
+
 function sDKP:BackupsList(guild)
     local count = 0
     self:Printf("Saved backups%s:", (guild ~= "") and format(" for guild <%s>", guild or "?") or "")
@@ -55,27 +59,33 @@ function sDKP:BackupNotes()
 end
 
 function sDKP:RestoreNotes(timestamp)
-    if not (IsInGuild() and CanViewOfficerNote() and CanEditOfficerNote() and self.Backups[timestamp]) then return end
+    local backup = self:GetBackup(timestamp)
+    if not (backup and IsInGuild() and CanViewOfficerNote() and CanEditOfficerNote()) then return end
 
     local num = 0
     for i = 1, GetNumGuildMembers() do
         local name, _, _, _, _, _, _, note = GetGuildRosterInfo(i)
-        if self.Backups[timestamp][name] and self.Backups[timestamp][name] ~= note then
-            GuildRosterSetOfficerNote(i, self.Backups[timestamp][name])
+        if backup[name] and backup[name] ~= note then
+            GuildRosterSetOfficerNote(i, backup[name])
             num = num + 1
         end
     end
+
     return num
 end
 
 function sDKP:DeleteBackup(timestamp)
-    if self.Backups[timestamp] then
-        for k, _ in pairs(self.Backups[timestamp]) do
-            self.Backups[timestamp][k] = nil
+    local backup = self:GetBackup(timestamp)
+
+    if backup then
+        for k in pairs(backup) do
+            backup[k] = nil
         end
         self.Backups[timestamp] = nil
         return true
     end
+
+    return false
 end
 
 function sDKP:DeleteAllBackups()
@@ -98,15 +108,21 @@ do
     end
 
     function sDKP:VisualDiff(timestamp)
-        if self.Backups[timestamp] then
-            self:Printf("Current to %s note differences:", date(self:Get("log.dateformat"), timestamp))
-            local count = 0
-            for n, o in pairs(self.Backups[timestamp]) do
-                local _, net, tot, hrs = self.ParseOfficerNote(o)
-                local d = self:GetCharacter(n)
+        local backup = self:GetBackup(timestamp)
 
-                if d and (net ~= d.net or tot ~= d.tot or hrs ~= d.hrs) then
-                    self:Echo("   %s: %s%+d net|r, %s%+d tot|r, %s%+d hrs|r", n, col(net, d.net), d.net - net, col(tot, d.tot), d.tot - tot, col(hrs, d.hrs), d.hrs - hrs)
+        if backup then
+            self:Printf("Current to %s note differences:", date(self:Get("log.dateformat"), timestamp))
+
+            local count = 0
+            for name, note in pairs(backup) do
+                local _, net, tot, hrs = self.ParseOfficerNote(note)
+                local char = self:GetCharacter(name)
+
+                if char and (net ~= char.net or tot ~= char.tot or hrs ~= char.hrs) then
+                    self:Echo("   %s: %s%+d net|r, %s%+d tot|r, %s%+d hrs|r", name,
+                        col(net, char.net), char.net - net,
+                        col(tot, char.tot), char.tot - tot,
+                        col(hrs, char.hrs), char.hrs - hrs)
                     count = count + 1
                 end
             end
