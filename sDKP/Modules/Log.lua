@@ -80,7 +80,7 @@ sDKP.LogToStringHandlers = {
         if tonumber(reason) then
             _, reason = GetItemInfo(reason)
         end
-        return format("%s %+d DKP%s.", sDKP.ClassColoredPlayerName(player), points, reason and format(": %s", reason) or "")
+        return format("%s got %+d DKP%s.", sDKP.ClassColoredPlayerName(player), points, reason and format(": %s", reason) or "")
     end,
 
     [LOG_DKP_RAID] = function(count, points, reason) -- 2
@@ -119,7 +119,7 @@ sDKP.LogToStringHandlers = {
     end,
 
     [LOG_DKP_DIFF] = function(player, netD, totD, hrsD, curNet, curTot, curHrs) -- 8
-        return format("%s's DKP changed: %s%+d net|r, %s%+d tot|r, %s%+d hrs|r.",
+        return format("%s's points changed: %s%+d net|r, %s%+d tot|r, %s%+d hrs|r.",
             sDKP.ClassColoredPlayerName(player),
             sDKP.DiffColorize(netD), netD,
             sDKP.DiffColorize(totD), totD,
