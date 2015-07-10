@@ -24,7 +24,7 @@ local LOG_DKP_DIFF = 8
 --- Character object prototype.
 local Character = { --[[
     -- General:
-    id    = number,     -- Guild roster ID number.
+    id    = number,     -- Guild roster ID number or 0 for external character.
     name  = string,     -- Character name.
     class = string,     -- Character class.
     on    = boolean,    -- Online flag.
@@ -100,6 +100,10 @@ end
 
 function Character:IsAlt()
     return self.altof
+end
+
+function Character:IsExternal()
+    return self.id == 0
 end
 
 function Character:IsInParty()

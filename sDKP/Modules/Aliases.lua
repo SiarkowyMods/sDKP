@@ -21,8 +21,32 @@ function sDKP:SetAlias(alias, owner)
     assert(alias, "Alias character name required.")
     assert(not owner or self(owner), "Guild member or no name required.")
 
-    self:GetExternals()[alias] = owner
-    return true
+    if owner then -- create
+        if self(alias) then -- check if already exists
+            return false
+        end
+
+        self:GetRoster()[alias] = self:BindClass({
+            id      = 0,
+            name    = alias,
+            class   = select(2, UnitClass(alias)) or UNKNOWN,
+            altof   = self(owner):GetMain().name,
+            net     = 0,
+            tot     = 0,
+            hrs     = 0,
+        }, "Character")
+
+        return true
+
+    elseif self(alias) and self(alias):IsExternal() then -- delete
+        local char = self(alias)
+        self:GetRoster()[alias] = nil
+        self.dispose(char)
+
+        return true
+    end
+
+    return false
 end
 
 sDKP.Slash.args.alias = {
@@ -36,9 +60,8 @@ sDKP.Slash.args.alias = {
             type = "execute",
             usage = "<player>",
             func = function(self, name)
-                if name ~= "" then
-                    self:SetAlias(name ~= "" and name, nil)
-                end
+                self:Print(self:SetAlias(name, nil) and "Alias status cleared successfully."
+                    or "Could not clear alias status from specified character.")
             end
         },
         list = {
@@ -48,9 +71,16 @@ sDKP.Slash.args.alias = {
             func = function(self, name)
                 self:Print("Current aliases:")
 
-                for alias, main in self.PairsByKeys(self:GetExternals()) do
-                    self:Echo("   %s -> %s", alias, main)
+                local count = 0
+                for name, char in self:GetChars() do
+                    if char:IsExternal() then
+                        self:Echo("   %s -> %s", self.ClassColoredPlayerName(name),
+                            self.ClassColoredPlayerName(char:GetMain().name))
+                        count = count + 1
+                    end
                 end
+
+                self:Echo("Total of %d |4external:externals;.", count)
             end
         },
         set = {
@@ -60,7 +90,8 @@ sDKP.Slash.args.alias = {
             usage = "<alias> <main>",
             func = function(self, param)
                 local alias, main = match(param, "(%S+)%s*(%S+)")
-                self:SetAlias(alias, main)
+                self:Print(self:SetAlias(alias, main) and "Alias status set successfully."
+                    or "Could not set alias status for specified character.")
             end
         }
     }

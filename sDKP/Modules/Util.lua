@@ -27,6 +27,7 @@ end
 
 --- Returns the player's name, colored by class.
 -- The class is determined using guild roster or class parameter.
+-- Defaults to uncoloured name if player's class could not be recognized.
 -- @param player (string) Player name.
 -- @param class (string) Upper-case class name.
 -- @return string - Colored player name.
@@ -36,7 +37,7 @@ function sDKP.ClassColoredPlayerName(player, class)
     end
 
     local c = RAID_CLASS_COLORS[sDKP.Roster[player] and sDKP.Roster[player].class or class]
-    return format("%s%s|r", sDKP.DecimalToHexColor(c.r, c.g, c.b), player)
+    return c and format("%s%s|r", sDKP.DecimalToHexColor(c.r, c.g, c.b), player) or player
 end
 
 --- Returns hex encoded color string from float red, green and blue values.

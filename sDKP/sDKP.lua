@@ -29,7 +29,7 @@ local tostring = tostring
 
 -- Event handlers --------------------------------------------------------------
 
-local DB_VERSION = 20150710
+local DB_VERSION = 20150711
 
 function sDKP:VARIABLES_LOADED()
     self:UnregisterEvent("VARIABLES_LOADED")
@@ -39,7 +39,6 @@ function sDKP:VARIABLES_LOADED()
     -- database management
     sDKP_DB = sDKP_DB and sDKP_DB.Version == DB_VERSION and sDKP_DB or
     self:Print("Database initialised.") or {
-        Externals = { --[[ char = main, ... ]] },       -- out of guild aliases
         Rosters = { --[[ guild = { char = data, ... }, ... ]] },
         Options = {
             -- Chat
@@ -71,7 +70,6 @@ function sDKP:VARIABLES_LOADED()
     }
 
     self.DB         = sDKP_DB
-    self.Externals  = sDKP_DB.Externals
     self.Options    = sDKP_DB.Options
 
     self:PLAYER_GUILD_UPDATE("player")
