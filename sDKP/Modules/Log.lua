@@ -24,8 +24,7 @@ local unpack = unpack
 local GetItemInfo = GetItemInfo
 local GetTime = GetTime
 
-local LOG_DATEFORMAT    = "%Y-%m-%d %X"
-local LOG_DELIMETER     = "\a"
+local LOG_DELIMETER         = "\a"
 
 -- Log entry types
 local LOG_UNKNOWN           = -1 -- Unknown entry
@@ -193,12 +192,16 @@ end
 
 function sDKP:LogDump()
     self:Print("Full log entry list:")
+
     local node = self.LogData[self.guild]
     local count = 0
+    local LOG_DATEFORMAT = self:Get("log.dateformat")
+
     for _, timestamp in pairs(self:PrepareLog(0)) do
         self:Echo("|cff888888[%s]|r %s", date(LOG_DATEFORMAT, timestamp), self.LogToString(node[timestamp]))
         count = count + 1
     end
+
     self:Echo("Total of %d |4entry:entries;.", count)
 end
 
@@ -217,6 +220,8 @@ function sDKP:LogPurge(param)
 end
 
 function sDKP:LogSearch(param)
+    local LOG_DATEFORMAT = self:Get("log.dateformat")
+
     param = param ~= "" and param or "time>8h"
     local param, chan = self.ExtractChannel(param, "SELF")
 

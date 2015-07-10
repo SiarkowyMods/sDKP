@@ -29,7 +29,7 @@ local tostring = tostring
 
 -- Event handlers --------------------------------------------------------------
 
-local DB_VERSION = 20150711
+local DB_VERSION = 20150712
 
 function sDKP:VARIABLES_LOADED()
     self:UnregisterEvent("VARIABLES_LOADED")
@@ -54,6 +54,7 @@ function sDKP:VARIABLES_LOADED()
             ["core.noginfo"] = false,                   -- ignore ginfo note format
 
             -- Log
+            ["log.dateformat"] = "%Y-%m-%d %X",         -- log entry date format
             ["log.rarity"] = 4, -- epic                 -- min. item quality
             ["log.includeitems"] = {                    -- additional item IDs to be logged
                 [34664] = true, -- Sunmote

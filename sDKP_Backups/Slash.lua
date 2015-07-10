@@ -17,7 +17,7 @@ sDKP.Slash.args.backup = {
             func = function(self, param)
                 local id = self:BackupNotes()
                 self:Print(
-                    id  and format("Guild <%s> notes' backup complete (%s).", self.guild, date("%d.%m.%Y %X", id))
+                    id  and format("Guild <%s> notes' backup complete (%s).", self.guild, date(self:Get("log.dateformat"), id))
                         or  "Could not backup officer notes. You have to be in a guild and have the permission to view officer notes for this to work."
                 )
             end

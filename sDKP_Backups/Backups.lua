@@ -27,7 +27,12 @@ function sDKP:BackupsList(guild)
     for timestamp, data in self.PairsByKeys(self.Backups) do
         if not guild or guild == "" or guild == data[1] then
             count = count + 1
-            self:Echo("   %s <%s> |Hsdkp:bkp:1:%3$d|h|cff88ffff(restore)|r|h |Hsdkp:bkp:2:%3$d|h|cff88ffff(delete)|r|h |Hsdkp:bkp:3:%3$d|h|cff88ffff(diff)|r|h", date("%Y.%m.%d %X", timestamp), data[1], timestamp)
+            self:Echo("   %s <%s> " ..
+                "|Hsdkp:bkp:1:%3$d|h|cff88ffff(restore)|r|h " ..
+                "|Hsdkp:bkp:2:%3$d|h|cff88ffff(delete)|r|h " ..
+                "|Hsdkp:bkp:3:%3$d|h|cff88ffff(diff)|r|h",
+                date(self:Get("log.dateformat"), timestamp),
+                data[1], timestamp)
         end
     end
     self:Echo("Total of %d |4backup:backups;.", count)
@@ -35,7 +40,7 @@ end
 
 function sDKP:BackupNotes()
     if not (IsInGuild() and CanViewOfficerNote()) then return end
-    
+
     local timestamp = time()
     self.Backups[timestamp] = self.Backups[timestamp] or { }
     self.Backups[timestamp][1] = (GetGuildInfo("player"))
@@ -45,7 +50,7 @@ function sDKP:BackupNotes()
             self.Backups[timestamp][name] = note
         end
     end
-    
+
     return timestamp
 end
 
@@ -83,7 +88,7 @@ do
     local RED   = "|cffff3333"
     local GREEN = "|cff33ff33"
     local GRAY  = "|cff888888"
-    
+
     local function col(a, b)
         a = tonumber(a) or 0
         b = tonumber(b) or 0
@@ -91,15 +96,15 @@ do
         if b < a then return RED end
         return GRAY
     end
-    
+
     function sDKP:VisualDiff(timestamp)
         if self.Backups[timestamp] then
-            self:Printf("Visual diff between current and backed up data from %s:", date("%Y.%m.%d %X", timestamp))
+            self:Printf("Current to %s note differences:", date(self:Get("log.dateformat"), timestamp))
             local count = 0
             for n, o in pairs(self.Backups[timestamp]) do
                 local _, net, tot, hrs = self.ParseOfficerNote(o)
-                local d = self.Roster[n]
-                
+                local d = self:GetCharacter(n)
+
                 if d and (net ~= d.net or tot ~= d.tot or hrs ~= d.hrs) then
                     self:Echo("   %s: %s%+d net|r, %s%+d tot|r, %s%+d hrs|r", n, col(net, d.net), d.net - net, col(tot, d.tot), d.tot - tot, col(hrs, d.hrs), d.hrs - hrs)
                     count = count + 1
