@@ -80,7 +80,7 @@ sDKP.Slash.args.alias = {
                     end
                 end
 
-                self:Echo("Total of %d |4external:externals;.", count)
+                self:Echo("Total of %d |4alias:aliases;.", count)
             end
         },
         set = {
