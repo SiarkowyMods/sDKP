@@ -5,7 +5,7 @@
 ## X-Website: https://github.com/SiarkowyMods/sDKP
 ## X-License: GNU GPL v3
 ## SavedVariables: sDKP_DB
-## Version: 1.5
+## Version: 1.6
 
 # Libs
 Libs\ChatThrottleLib\ChatThrottleLib.lua

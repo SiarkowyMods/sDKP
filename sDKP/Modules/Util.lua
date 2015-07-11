@@ -27,6 +27,7 @@ end
 
 --- Returns the player's name, colored by class.
 -- The class is determined using guild roster or class parameter.
+-- Defaults to uncoloured name if player's class could not be recognized.
 -- @param player (string) Player name.
 -- @param class (string) Upper-case class name.
 -- @return string - Colored player name.
@@ -36,7 +37,7 @@ function sDKP.ClassColoredPlayerName(player, class)
     end
 
     local c = RAID_CLASS_COLORS[sDKP.Roster[player] and sDKP.Roster[player].class or class]
-    return format("%s%s|r", sDKP.DecimalToHexColor(c.r, c.g, c.b), player)
+    return c and format("%s%s|r", sDKP.DecimalToHexColor(c.r, c.g, c.b), player) or player
 end
 
 --- Returns hex encoded color string from float red, green and blue values.
@@ -97,11 +98,11 @@ end
 
 local multipliers = {
     y = 31536000,   -- year (365d)
-    m = 2678400,    -- month (31d)
+    M = 2678400,    -- month (31d)
     w = 604800,     -- week (7d)
     d = 86400,      -- day (24h)
     h = 3600,       -- hour (60M)
-    M = 60,         -- minute (60s)
+    m = 60,         -- minute (60s)
     s = 1           -- second (1)
 }
 
@@ -111,7 +112,7 @@ local multipliers = {
 function sDKP.ParamToInterval(string)
     local interval = 0
 
-    for num, mul in string:lower():gmatch("(%d+)(%a)") do
+    for num, mul in string:gmatch("(%d+)(%a)") do
         interval = interval + num * (multipliers[mul] or 1)
     end
 

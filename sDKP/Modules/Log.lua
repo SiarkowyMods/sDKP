@@ -24,8 +24,7 @@ local unpack = unpack
 local GetItemInfo = GetItemInfo
 local GetTime = GetTime
 
-local LOG_DATEFORMAT    = "%y-%m-%d %X"
-local LOG_DELIMETER     = "\a"
+local LOG_DELIMETER         = "\a"
 
 -- Log entry types
 local LOG_UNKNOWN           = -1 -- Unknown entry
@@ -81,7 +80,7 @@ sDKP.LogToStringHandlers = {
         if tonumber(reason) then
             _, reason = GetItemInfo(reason)
         end
-        return format("%s %+d DKP%s.", sDKP.ClassColoredPlayerName(player), points, reason and format(": %s", reason) or "")
+        return format("%s got %+d DKP%s.", sDKP.ClassColoredPlayerName(player), points, reason and format(": %s", reason) or "")
     end,
 
     [LOG_DKP_RAID] = function(count, points, reason) -- 2
@@ -120,7 +119,7 @@ sDKP.LogToStringHandlers = {
     end,
 
     [LOG_DKP_DIFF] = function(player, netD, totD, hrsD, curNet, curTot, curHrs) -- 8
-        return format("Change: %s %s%+d net|r, %s%+d tot|r, %s%+d hrs|r.",
+        return format("%s's points changed: %s%+d net|r, %s%+d tot|r, %s%+d hrs|r.",
             sDKP.ClassColoredPlayerName(player),
             sDKP.DiffColorize(netD), netD,
             sDKP.DiffColorize(totD), totD,
@@ -193,29 +192,22 @@ end
 
 function sDKP:LogDump()
     self:Print("Full log entry list:")
+
     local node = self.LogData[self.guild]
     local count = 0
+    local LOG_DATEFORMAT = self:Get("log.dateformat")
+
     for _, timestamp in pairs(self:PrepareLog(0)) do
         self:Echo("|cff888888[%s]|r %s", date(LOG_DATEFORMAT, timestamp), self.LogToString(node[timestamp]))
         count = count + 1
     end
-    self:Echo("Total of %d |4entry:entries;.", count)
-end
 
-function sDKP:LogRecent(param)
-    local timestamp = self.ParamToTimestamp(param) or time() - 86400 -- 1 day
-    self:Printf("Log entry list from %s:", date(LOG_DATEFORMAT, timestamp))
-    local node = self.LogData[self.guild]
-    local count = 0
-    for _, timestamp in pairs(self:PrepareLog(timestamp)) do
-        self:Echo("|cff888888[%s]|r %s", date(LOG_DATEFORMAT, timestamp), self.LogToString(node[timestamp]))
-        count = count + 1
-    end
     self:Echo("Total of %d |4entry:entries;.", count)
 end
 
 function sDKP:LogPurge(param)
-    local timestamp = self.ParamToTimestamp(param) or time() - 345600 -- 4 weeks
+    param = param ~= "" and param or "4w"
+    local timestamp = self.ParamToTimestamp(param)
     local node = self.LogData[self.guild]
     local count = 0
     for t, d in pairs(node) do
@@ -228,6 +220,9 @@ function sDKP:LogPurge(param)
 end
 
 function sDKP:LogSearch(param)
+    local LOG_DATEFORMAT = self:Get("log.dateformat")
+
+    param = param ~= "" and param or "time>8h"
     local param, chan = self.ExtractChannel(param, "SELF")
 
     local max_time = param:match('time<(%w+)')
@@ -284,21 +279,13 @@ sDKP.Slash.args.log = {
             func = "LogPurge",
             order = 2
         },
-        recent = {
-            name = "Recent",
-            desc = "Prints log entries from last 1 day or newer than given timestamp.",
-            type = "execute",
-            usage = "[<timestamp>]",
-            func = "LogRecent",
-            order = 3
-        },
         search = {
             name = "Search",
             desc = "Shows all entries matching given string(s).",
             type = "execute",
             usage = "<query>[||...] [[from<]time[<to]] [@<channel>]",
             func = "LogSearch",
-            order = 4
+            order = 3
         },
     }
 }

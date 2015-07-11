@@ -22,7 +22,7 @@ local UnitInRaid = UnitInRaid
 local LOG_GUILD_JOIN = 9
 local LOG_GUILD_QUIT = 10
 
-local Externals, Roster, Options
+local Roster, Options
 
 -- Event handlers --------------------------------------------------------------
 
@@ -91,7 +91,6 @@ function sDKP:Set(opt, v) Options[opt] = v end
 
 --- Sets internal upvalues.
 function sDKP:Reconfigure()
-    Externals   = self.Externals
     Roster      = self.Roster
     Options     = self.Options
 end
@@ -108,9 +107,9 @@ function sDKP:CleanupRoster()
     end
 
     for name, char in self:GetChars() do
-        if roster[name] then
+        if roster[name] or char.id == 0 then
             self:BindClass(char, "Character")
-        else -- not in roster
+        elseif char.id ~= 0 then -- neither in roster nor external character
             self:Log(LOG_GUILD_QUIT, name, char.class, char.net, char.tot, char.hrs)
 
             Roster[name] = nil
@@ -147,7 +146,7 @@ end
 -- @return table|nil - Character object or nil if not found.
 function sDKP:GetCharacter(name)
     assert(name, "Character name required.")
-    return Roster[name] or Externals[name] and Roster[Externals[name]]
+    return Roster[name]
 end
 
 --- Returns desired guild's roster table from database.
@@ -170,30 +169,6 @@ end
 -- @return function - Roster table iterator.
 function sDKP:GetChars()
     return pairs(Roster)
-end
-
---- Externals table getter.
--- @return table - Externals table.
-function sDKP:GetExternals()
-    return Externals
-end
-
---- Returns main name.
--- @param name Player name.
--- @return mixed - Main name for alt or nil for main.
-function sDKP:GetMainName(n) -- OBSOLETE
-    if self.Roster[n] then
-        if self.Roster[n].main then
-            if self.Roster[self.Roster[n].main] then
-                return self.Roster[n].main
-            end
-            return
-        end
-        return n
-    elseif self.Externals[n] and self.Roster[self.Externals[n]] then
-        return self.Externals[n]
-    end
-    return
 end
 
 --- Roster table getter.
@@ -222,20 +197,6 @@ end
 -- @return boolean
 function sDKP:IsInGuild(name)
     return not not self(name)
-end
-
---- Returns 1 if character is an officer,  i.e. can
--- read and write to officer chat, or nil otherwise
--- @param name Character name.
--- @return boolean - True for officer, nil otherwise.
-function sDKP:IsOfficer(name) -- OBSOLETE
-    if self:GetMainName(name) then
-        local _, _, rank = GetGuildRosterInfo(self.Roster[name].id)
-        GuildControlSetRank(rank + 1)
-        local _, _, oListen, oSpeak = GuildControlGetRankFlags()
-        return (oListen and oSpeak) or nil
-    end
-    return
 end
 
 -- Core functionality ----------------------------------------------------------

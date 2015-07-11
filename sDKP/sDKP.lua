@@ -29,7 +29,7 @@ local tostring = tostring
 
 -- Event handlers --------------------------------------------------------------
 
-local DB_VERSION = 20140211
+local DB_VERSION = 20150712
 
 function sDKP:VARIABLES_LOADED()
     self:UnregisterEvent("VARIABLES_LOADED")
@@ -39,11 +39,10 @@ function sDKP:VARIABLES_LOADED()
     -- database management
     sDKP_DB = sDKP_DB and sDKP_DB.Version == DB_VERSION and sDKP_DB or
     self:Print("Database initialised.") or {
-        Externals = { --[[ char = main, ... ]] },       -- out of guild aliases
         Rosters = { --[[ guild = { char = data, ... }, ... ]] },
         Options = {
             -- Chat
-            ["chat.ignoredids"] = {                     -- ignored item IDs
+            ["chat.ignoredids"] = {                     -- ignored item IDs for charge links
                 [29434] = true, -- Badge of Justice
             },
             ["chat.nolootlinks"] = false,               -- toggle loot charge links
@@ -55,7 +54,11 @@ function sDKP:VARIABLES_LOADED()
             ["core.noginfo"] = false,                   -- ignore ginfo note format
 
             -- Log
+            ["log.dateformat"] = "%Y-%m-%d %X",         -- log entry date format
             ["log.rarity"] = 4, -- epic                 -- min. item quality
+            ["log.includeitems"] = {                    -- additional item IDs to be logged
+                [34664] = true, -- Sunmote
+            },
 
             -- Whispers
                                                         -- DKP modify whisper
@@ -68,7 +71,6 @@ function sDKP:VARIABLES_LOADED()
     }
 
     self.DB         = sDKP_DB
-    self.Externals  = sDKP_DB.Externals
     self.Options    = sDKP_DB.Options
 
     self:PLAYER_GUILD_UPDATE("player")

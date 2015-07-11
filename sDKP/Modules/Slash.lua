@@ -269,8 +269,22 @@ function sDKP:SlashTraverseTree(node, arg)
     end
 end
 
+local day = 86400
 function sDKP.SlashCommandHandler(msg)
-    sDKP:SlashTraverseTree(sDKP.Slash, msg)
+    local data = sDKP.table()
+
+    data.target     = UnitName("target") or "<no target>"
+    data.focus      = UnitName("focus") or "<no focus>"
+    data.year       = date("%Y")
+    data.yearago    = date("%Y", time() - 366 * day)
+    data.month      = date("%Y%m")
+    data.monthago   = date("%Y%m", time() - 31 * day)
+    data.today      = date("%Y%m%d")
+    data.tomorrow   = date("%Y%m%d", time() + day)
+    data.yesterday  = date("%Y%m%d", time() - day)
+
+    sDKP:SlashTraverseTree(sDKP.Slash, msg:gsub("%%(%w+)", data))
+    sDKP.dispose(data)
 end
 
 SlashCmdList.SDKP = sDKP.SlashCommandHandler
