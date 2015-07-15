@@ -155,6 +155,7 @@ end
 --- Logs data to current guild's log.
 -- @param type (integer) Entry type integer, see LOG_* locals.
 -- @param ... (tuple) Data list to serialize. Nils are ignored.
+-- @return mixed - Entry timestamp or nil if not logged.
 function sDKP:Log(type, ...)
     if not self.guild then return end
 
@@ -172,6 +173,9 @@ function sDKP:Log(type, ...)
     end
 
     log[stamp] = serialize(type, unpack(t))
+    self.dispose(t)
+
+    return stamp
 end
 
 local result = { }
