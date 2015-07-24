@@ -34,10 +34,10 @@ local Character = { --[[
     stby  = boolean,    -- Standby flag.
 
     -- DKP values:
-    net = number,       -- Netto DKP value.
+    net = number,       -- Net DKP value.
     tot = number,       -- Total DKP value.
     hrs = number,       -- Hour counter.
-    netD = number|nil,  -- Netto delta value.
+    netD = number|nil,  -- Net delta value.
     totD = number|nil,  -- Total delta value.
     hrsD = number|nil,  -- Hour counter delta.
 ]] }
@@ -151,7 +151,7 @@ end
 -- Event handlers --------------------------------------------------------------
 
 --- Handles logging and displaying of DKP differences.
--- @param oldNet (number) Old netto DKP.
+-- @param oldNet (number) Old net DKP.
 -- @param oldTot (number) Old total DKP.
 -- @param oldHrs (number) Old hour count.
 -- @param show (boolean) If true, displays the difference to chat frame.
@@ -230,7 +230,7 @@ end
 
 --- Sets character absolute DKP amounts for immediate storage.
 -- This values will be overwritten on next GUILD_ROSTER_UPDATE!
--- @param net (number) Net amount, defaults to current netto DKP.
+-- @param net (number) Net amount, defaults to current net DKP.
 -- @param tot (number) Total amount, defaults to current total DKP.
 -- @param hrs (number) Hours count, defaults to current hour count.
 -- @return table - Main character object.

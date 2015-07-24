@@ -248,7 +248,7 @@ as weak inequalities (`parameter >= value` and `parameter <= value`).
   > * `R-RankName` — rank name match
   > * `lvl-L`, `lvl<M`, `lvl>m`, `m<lvl<M` — specified level or level range
   > * `rank-R`, `rank<M`, `rank>m`, `m<rank<M` — specified rank ID or rank range
-  > * `net<M`, `net>m`, `m<net<M` — netto DKP range
+  > * `net<M`, `net>m`, `m<net<M` — net DKP range
   > * `tot<M`, `tot>m`, `m<tot<M` — total DKP range
   > * `hrs<M`, `hrs>m`, `m<hrs<M` — hour counter range
   > * `online` — online players only
@@ -258,7 +258,7 @@ as weak inequalities (`parameter >= value` and `parameter <= value`).
   > You may combine multiple search conditions
   > by listing them separated with spaces. Examples:
   >
-  > Online players with more than 200 netto DKP
+  > Online players with more than 200 net DKP
   > and total DKP between 800 and 1200:
   >
   > ```
@@ -271,7 +271,7 @@ as weak inequalities (`parameter >= value` and `parameter <= value`).
   > /sdkp who raid N-H
   > ```
   >
-  > Warlocks with negative netto DKP values (greetings to Nevendar):
+  > Warlocks with negative net DKP values (greetings to Nevendar):
   >
   > ```
   > /sdkp who O-Net:%- c-warlock
@@ -292,7 +292,7 @@ as weak inequalities (`parameter >= value` and `parameter <= value`).
   > * `T` — tank
 
 * `/sdkp stat spent` — Displays spent DKP ranking.
-* `/sdkp stat top [<count>] [<filter>]` — Displays netto DKP ranking
+* `/sdkp stat top [<count>] [<filter>]` — Displays net DKP ranking
   for selected players or all guild mains if not specified.
 * `/sdkp stat total [<count>]` — Displays total DKP ranking.
 * `/sdkp stat zone` — Displays zone breakdown.
@@ -314,7 +314,7 @@ A few settings of sDKP can be adjusted with option management commands.
   > This decides what goes between curly braces in officer notes. By default,
   > sDKP uses QDKP compatible format of `Net:%n Tot:%t Hrs:%h`. As you can see,
   > there are some special placeholders for player data. These are:
-  > * `%n` for netto DKP,
+  > * `%n` for net DKP,
   > * `%t` for total DKP,
   > * `%h` for hour counter,
   > * `%d` for current day,

@@ -159,7 +159,7 @@ sDKP.Slash = {
                 },
                 dkpformat = {
                     name = "DKP note format",
-                    desc = "Sets DKP format for officer notes. Use %n for netto, %t - total, %h - hour counter.",
+                    desc = "Sets DKP format for officer notes. Use %n for net, %t - total, %h - hour counter.",
                     type = "execute",
                     usage = "<format>",
                     func = function(self, param)

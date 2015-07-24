@@ -75,7 +75,7 @@ function sDKP:CHAT_MSG_WHISPER(msg, sender)
         dkp = dkp and tonumber(dkp)
 
         if not name then
-            self:SendWhisper(sender, format("<sDKP> Binding usage: ?bind main netto_dkp"))
+            self:SendWhisper(sender, format("<sDKP> Binding usage: ?bind main net_dkp"))
 
         elseif self(sender) then
             self:SendWhisper(sender, format("<sDKP> Your character is already bound. Use ?dkp"))
