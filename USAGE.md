@@ -301,6 +301,15 @@ as weak inequalities (`parameter >= value` and `parameter <= value`).
 
 A few settings of sDKP can be adjusted with option management commands.
 
+* `/sdkp option binding off|on`
+  — Toggles creating character aliases through `?bind` command.
+
+  > If the option is enabled, out of the guild characters that are with you
+  > in the raid group can bind themselves to their main character to get DKP.
+  >
+  > By sending the `?bind <main> <net_dkp>` whisper, the sender will be marked
+  > as an alt of his main if the net DKP amount matches the actual value.
+
 * `/sdkp option dkpformat <format>` — Sets DKP format for officer notes.
   This decides what goes between curly braces in officer notes. By default,
   sDKP uses QDKP compatible format of `Net:%n Tot:%t Hrs:%h`. As you can see,

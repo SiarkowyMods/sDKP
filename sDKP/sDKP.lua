@@ -61,6 +61,7 @@ function sDKP:VARIABLES_LOADED()
             },
 
             -- Whispers
+            ["whisper.binding"] = true,                 -- toggle ?bind command
                                                         -- DKP modify whisper
             ["whisper.modify"] = "<sDKP> Points modified: %d net, %d tot, %+d change.",
             ["whisper.toggle"] = true,                  -- toggle whisper announce

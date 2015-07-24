@@ -147,6 +147,16 @@ sDKP.Slash = {
             desc = "Options management.",
             type = "group",
             args = {
+                binding = {
+                    name = "External character binding",
+                    desc = "Toggles character binding through ?bind command.",
+                    type = "execute",
+                    usage = "off||on",
+                    func = function(self, param)
+                        self:Set("whisper.binding", param:match("^on$") and true or nil)
+                        self:Printf("Whisper binding through ?bind command %s.", self:Get("whisper.binding") and "enabled" or "disabled")
+                    end
+                },
                 dkpformat = {
                     name = "DKP note format",
                     desc = "Sets DKP format for officer notes. Use %n for netto, %t - total, %h - hour counter.",
