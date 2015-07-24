@@ -53,14 +53,15 @@ List of available qualifiers (alternate form in braces):
   `warlocks`, `warriors` — class members
 * `main` (`mains`) — mains only
 * `alt` (`alts`) — alts only
-* `zone` — characters in the same zone
-* `otherzone` — characters in other zones
+* `zone` — characters in the same zone as you
+* `otherzone` — characters in zones other than yours
 * `guild ` — all guild members
 * `officer` (`officers`) — officers
 * `online` — online characters only
 
-> Filter matching does not distinguish between online/offline players and treats
-> offline characters as matching specified conditions **unless the `online`
+> **ATTENTION!**
+> Filter matching does not distinguish between online/offline players by default
+> and treats offline characters as matching specified filter **unless the `online`
 > qualifier** is used. This stands in contrast to QDKP default behaviour.
 
 You may combine multiple qualifiers to obtain particular lists of characters.
@@ -86,7 +87,7 @@ You can even mix both. Look at the examples:
 > `Steven Helen Jack` → `named Steven AND Helen AND Jack` →
 > player named simultaneously Steven, Helen and Jack
 >
-> Such filter always returns no characters because they can only have one name.
+> Such filter always returns no characters because a character can only have one name.
 
 Example usage with DKP awarding:
 
@@ -135,14 +136,14 @@ Categorized commands
 
 Alt management functions can be accessed with `/sdkp alt`.
 
-* `/sdkp alt set <alt> <main>` — Set alt status for specified character.
+* `/sdkp alt set <alt> <main>` — Sets alt status for specified character.
 * `/sdkp alt clear <character>` — Clears character's alt status.
-* `/sdkp alt swap <oldmain> <newmain>` — Swap player's main.
+* `/sdkp alt swap <oldmain> <newmain>` — Swaps player's main.
 
 ### Aliasing `/sdkp alias ...`
 
 Aliases are a way of binding out of guild characters with their guild characters.
-Aliasing functions are grouped uncer `/sdkp alias`.
+Aliasing functions are grouped under `/sdkp alias`.
 
 * `/sdkp alias set <alias> <main>` — Sets alias as a main's character.
   This will affect only out of guild characters.
@@ -152,16 +153,13 @@ Aliasing functions are grouped uncer `/sdkp alias`.
 ### Backups `/sdkp backup ...`
 
 Backup module provides functionality dedicated to creating, restoring, comparing
-and deleting of officer note backups.
+and deleting of officer note backups. It requires enabled sDKP Backups addon.
 
 * `/sdkp backup create` — Saves a new officer note backup.
 * `/sdkp backup restore <timestamp>` — Loads specified backup to officer notes.
-* `/sdkp backup list [<guild>]`
-  — Lists all saved backups. Guild name parameter is optional.
-* `/sdkp backup diff <timestamp>`
-  — Shows differences from specified to current roster DKP data.
-* `/sdkp backup delete <timestamp>`
-  — Deletes backup specified by creation timestamp.
+* `/sdkp backup list [<guild>]` — Lists all saved backups. Guild name parameter is optional.
+* `/sdkp backup diff <timestamp>` — Shows differences from specified to current roster DKP data.
+* `/sdkp backup delete <timestamp>` — Deletes backup specified by creation timestamp.
 
 ### Iron man `/sdkp ironman ...`
 
@@ -169,23 +167,17 @@ sDKP has built-in iron man support. These commands are used for flagging players
 eligible for iron man bonus.
 
 > **Keep in mind** that iron man flag is set for the main character
-> (which applies later to alts).
+> (which applies later to alts) and won't be cleared unless
+> `/sdkp ironman clear` or `/sdkp ironman start` is issued!
 
-* `/sdkp ironman start [<filter>]`
-  — Saves entire raid (groups 1-8) or selected players (if specified) for iron
-  man bonus. Clears previously stored iron man data.
-* `/sdkp ironman clear` — Cancels entirely iron man bonus awarning no DKP.
-* `/sdkp ironman add <filter>` — Adds selected players to the iron man list.
-  Does not clear any iron man data.
-* `/sdkp ironman remove <filter>` — Removes selected players from ironman list.
+* `/sdkp ironman start [<filter>]` — Saves entire raid (groups 1-8) or selected
+  players (if specified) for iron man bonus. Clears previously stored iron man data.
+* `/sdkp ironman clear` — Cancels entirely iron man bonus awarding no DKP.
+* `/sdkp ironman add <filter>` — Adds selected players to the iron man list. Does not clear any iron man data.
+* `/sdkp ironman remove <filter>` — Removes selected players from iron man list.
 * `/sdkp ironman list` — Lists players eligible for iron man bonus.
-* `/sdkp ironman reinvite`
-  — Reinvites iron man eligible players who remain online out of raid.
-* `/sdkp award! ironman 50`
-  — Use this example to award players the iron man bonus.
-
-> **Bear in mind** that iron man data won't be cleared unless
-> `/sdkp ironman clear` or until `/sdkp ironman start` is issued!
+* `/sdkp ironman reinvite` — Reinvites iron man eligible players who remain online out of raid.
+* `/sdkp award! ironman 50` — Use this example to award players the iron man bonus.
 
 ### Logs management `/sdkp log ...`
 
@@ -195,25 +187,29 @@ commands under `/sdkp log`.
 
 * `/sdkp log search <query>[, ...] [[from<]time[<to]] [@<channel>]`
   — Shows all entries matching given string(s).
-    * Search query in `/sdkp log search` can be a character name, part of reason
-    or an item name. All log entries are matched against specified pattern and
-    shown if positive. You can also provide multiple patterns by separating them
-    with comma character. The entry will be shown if any of the patterns matches.
-    Example: `/sdkp log search Jeff, Helen, Jack`.
-    * The `time` parameter allows specifying the searching period. Its
-    argument has the form of `YYYYMMDD` (absolute) or `3d20h` (relative,
-    3d20h ago). Examples of valid timestamps:
-    `20140211`, `201302`, `2010`, `3M` (months), `7d`, `8h30m`.
-    * Example usage of `/sdkp log search`:
-    ```
-    /sdkp log search time>8h (changes newer than 8 hours ago)
 
-    /sdkp log search Jeff time>201406
+  >  Search query in `/sdkp log search` can be a character name, part of reason
+  >  or an item name. All log entries are matched against specified pattern and
+  >  shown if positive. You can also provide multiple patterns by separating them
+  >  with comma character. The entry will be shown if any of the patterns matches.
+  >  Example: `/sdkp log search Jeff, Helen, Jack`.
+  >
+  > The `time` parameter allows specifying the searching period. Its
+  > argument has the form of `YYYYMMDD` (absolute) or `3d20h` (relative,
+  > 3d20h ago). Examples of valid timestamps:
+  > `20140211`, `201302`, `2010`, `3M` (months), `7d`, `8h30m`.
+  >
+  > Example usage of `/sdkp log search`:
+  > ```
+  > /sdkp log search time>8h (changes newer than 8 hours ago)
+  >
+  > /sdkp log search Jeff time>201406
+  >
+  > /sdkp log search Helen, Jack time<2010
+  >
+  > /sdkp log search Badge of Justice 201206<time<201207
+  > ```
 
-    /sdkp log search Helen, Jack time<2010
-
-    /sdkp log search Badge of Justice 201206<time<201207
-    ```
 * `/sdkp log purge [<timestamp>]` — Deletes log entries for current guild older
   than specified or at least 4 weeks old if no parameter given.
 * `/sdkp log dump` — Prints all entries from log into the chat frame.
@@ -238,25 +234,27 @@ actively.
 
 ### Statistics `/sdkp stat ...`
 
-Statictics commands require `sDKP_Stat` addon enabled. All ranges are evaluated
+Statistics commands require sDKP Stat addon enabled. All ranges are evaluated
 as weak inequalities (`parameter >= value` and `parameter <= value`).
 
-* `/sdkp who params` — Who-like utility for guild. Params may include:
-  * `n-Name` — name lookup
-  * `c-Class` — class lookup
-  * `z-Zone` — zone lookup
-  * `N-PlayerNote` — player note match
-  * `O-OfficerNote` — officer note match
-  * `R-RankName` — rank name match
-  * `lvl-L`, `lvl<M`, `lvl>m`, `m<lvl<M` — specified level or level range
-  * `rank-R`, `rank<M`, `rank>m`, `m<rank<M` — specified rank ID or rank range
-  * `net<M`, `net>m`, `m<net<M` — netto DKP range
-  * `tot<M`, `tot>m`, `m<tot<M` — total DKP range
-  * `hrs<M`, `hrs>m`, `m<hrs<M` — hour counter range
-  * `online` — online players only
-  * `raid` — raid members only
-  * `main` or `alt` — character status filter
+* `/sdkp who params` — Who-like utility for guild
 
+  > Params may include:
+  > * `n-Name` — name lookup
+  > * `c-Class` — class lookup
+  > * `z-Zone` — zone lookup
+  > * `N-PlayerNote` — player note match
+  > * `O-OfficerNote` — officer note match
+  > * `R-RankName` — rank name match
+  > * `lvl-L`, `lvl<M`, `lvl>m`, `m<lvl<M` — specified level or level range
+  > * `rank-R`, `rank<M`, `rank>m`, `m<rank<M` — specified rank ID or rank range
+  > * `net<M`, `net>m`, `m<net<M` — netto DKP range
+  > * `tot<M`, `tot>m`, `m<tot<M` — total DKP range
+  > * `hrs<M`, `hrs>m`, `m<hrs<M` — hour counter range
+  > * `online` — online players only
+  > * `raid` — raid members only
+  > * `main` or `alt` — character status filter
+  >
   > You may combine multiple search conditions
   > by listing them separated with spaces. Examples:
   >
@@ -283,14 +281,16 @@ as weak inequalities (`parameter >= value` and `parameter <= value`).
 * `/sdkp stat guild` — Displays overall player, main and alt counts.
 * `/sdkp stat level` — Displays level breakdown.
 * `/sdkp stat rank` — Displays rank breakdown.
-* `/sdkp stat spec` — Displays specialization breakdown. Specialization data is
-  loaded from player note data and has to be stored between square braces `[spec]`.
-  Recognized specialization symbols include:
-  * `D` — melee DPS
-  * `H` — healer
-  * `L` — leveling
-  * `RD` — ranged dps
-  * `T` — tank
+* `/sdkp stat spec` — Displays specialization breakdown.
+
+  > Specialization data is loaded from player note data and has to be stored
+  > between square braces `[spec]`. Recognized specialization symbols include:
+  > * `D` — melee DPS
+  > * `H` — healer
+  > * `L` — leveling
+  > * `RD` — ranged dps
+  > * `T` — tank
+
 * `/sdkp stat spent` — Displays spent DKP ranking.
 * `/sdkp stat top [<count>] [<filter>]` — Displays netto DKP ranking
   for selected players or all guild mains if not specified.
@@ -301,28 +301,27 @@ as weak inequalities (`parameter >= value` and `parameter <= value`).
 
 A few settings of sDKP can be adjusted with option management commands.
 
-* `/sdkp option binding off|on`
-  — Toggles creating character aliases through `?bind` command.
+* `/sdkp option binding off|on` — Toggles creating character aliases through `?bind` command. On by default.
 
-  > If the option is enabled, out of the guild characters that are with you
+  > If the option is enabled, out of guild characters that are with you
   > in the raid group can bind themselves to their main character to get DKP.
   >
   > By sending the `?bind <main> <net_dkp>` whisper, the sender will be marked
   > as an alt of his main if the net DKP amount matches the actual value.
 
 * `/sdkp option dkpformat <format>` — Sets DKP format for officer notes.
-  This decides what goes between curly braces in officer notes. By default,
-  sDKP uses QDKP compatible format of `Net:%n Tot:%t Hrs:%h`. As you can see,
-  there are some special placeholders for player data. These are:
-  * `%n` for netto DKP,
-  * `%t` for total DKP,
-  * `%h` for hour counter,
-  * `%d` for current day,
-  * `%m` for current month,
-  so that `%d.%m` produces a standard date.
 
-* `/sdkp option ignoreginfo off|on`
-  — Toggles ignoring of guild info DKP note format.
+  > This decides what goes between curly braces in officer notes. By default,
+  > sDKP uses QDKP compatible format of `Net:%n Tot:%t Hrs:%h`. As you can see,
+  > there are some special placeholders for player data. These are:
+  > * `%n` for netto DKP,
+  > * `%t` for total DKP,
+  > * `%h` for hour counter,
+  > * `%d` for current day,
+  > * `%m` for current month,
+  > so that `%d.%m` produces a standard date.
+
+* `/sdkp option ignoreginfo off|on` — Toggles ignoring of guild info DKP note format. Off by default.
 
   > You may specify the DKP note format for sDKP in guild info message so that
   > all officers share the same format. Just use the following string:
@@ -331,7 +330,5 @@ A few settings of sDKP can be adjusted with option management commands.
   > This option comes handy if you want not to synchronize note format from
   > guild info.
 
-* `/sdkp option verbosediff off|on`
-  — Specifies whether to print chat notifications on DKP changes. On by default.
-* `/sdkp option whispers off|on`
-  — Toggles whisper announces of DKP changes made by you. On by default.
+* `/sdkp option verbosediff off|on` — Specifies whether to print chat notifications on DKP changes. On by default.
+* `/sdkp option whispers off|on` — Toggles whisper announces of DKP changes made by you. On by default.
