@@ -93,6 +93,30 @@ sDKP.Slash.args.alias = {
                 self:Print(self:SetAlias(alias, main) and "Alias status set successfully."
                     or "Could not set alias status for specified character.")
             end
-        }
+        },
+        unbound = {
+            name = "Unbound",
+            desc = "Print raid members not bound to any guild character.",
+            type = "execute",
+            func = function(self, param)
+                if not UnitInRaid("player") then
+                    return self:Print(ERR_NOT_IN_RAID)
+                end
+
+                self:Print("Unbound characters:")
+
+                local count = 0
+                for i = 1, GetNumRaidMembers() do
+                    local name, _, _, _, _, class = GetRaidRosterInfo(i)
+
+                    if not self(name) then
+                        self:Echo("   %s", self.ClassColoredPlayerName(name, class))
+                        count = count + 1
+                    end
+                end
+
+                self:Echo("Total of %d unbound |4character:characters;.", count)
+            end
+        },
     }
 }
