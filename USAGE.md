@@ -149,6 +149,7 @@ Aliasing functions are grouped under `/sdkp alias`.
   This will affect only out of guild characters.
 * `/sdkp alias list` — Lists saved aliases to chat frame.
 * `/sdkp alias clear <alias>` — Clears alias status from character.
+* `/sdkp alias unbound` — Displays raid members not bound to any guild character.
 
 ### Backups `/sdkp backup ...`
 
