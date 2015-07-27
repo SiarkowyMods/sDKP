@@ -51,6 +51,10 @@ Character.Printf = sDKP.Printf
 
 function Character:GetColoredName()
     local c = RAID_CLASS_COLORS[self.class]
+    if not c then
+        return self.name
+    end
+
     return format("%s%s|r", dec2hex(c.r, c.g, c.b), self.name)
 end
 
@@ -62,11 +66,11 @@ end
 -- @param fmt (string) Officer note format.
 -- @return string - Formatted note data.
 function Character:GetNote(fmt)
-    local data = new()
-
     if self.altof then
         return format("{%s}", self.altof)
     end
+
+    local data = new()
 
     data.d = date("%d")
     data.m = date("%m")
@@ -95,7 +99,9 @@ function Character:GetRaidSubgroup()
 end
 
 function Character:GetZone()
-    return select(6, GetGuildRosterInfo(self.id))
+    return self:IsExternal() and UnitInRaid(self.name)
+       and select(7, GetRaidRosterInfo(UnitInRaid(self.name) + 1))
+        or select(6, GetGuildRosterInfo(self.id))
 end
 
 function Character:IsAlt()
@@ -127,6 +133,10 @@ function Character:IsMain()
 end
 
 function Character:IsOfficer()
+    if self:IsExternal() then
+        return false
+    end
+
     GuildControlSetRank(select(3, GetGuildRosterInfo(self.id)) + 1)
     return (select(12, GuildControlGetRankFlags()))
 end
