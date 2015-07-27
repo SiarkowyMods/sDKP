@@ -25,10 +25,10 @@ local LOG_DKP_CLASS     = 3
 
 function sDKP:ModifySlashWrapper(param, method, announce)
     local who, points, reason = param:match("(.-)%s+(%d+)%s*(.*)")
-    local reason, chan = self.ExtractChannel(reason)
+    local reason, chan = self.ExtractChannel(reason or "")
 
     if not who then
-        return self:Print("Both character filter and DKP amount required.")
+        return self:Printf("Usage: /sdkp %s[!] <character filter> <points>[ <reason>]", method:lower())
     end
 
     local list, num = self:Select(who)
