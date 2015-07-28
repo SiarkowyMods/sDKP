@@ -432,7 +432,7 @@ sDKP.Slash.args.stat = {
 sDKP.Slash.args.who = {
     name = "Who",
     desc = "Who-like utility for the guild.",
-    usage = "help || <query>",
+    usage = "help||<query>[ @channel]",
     type = "execute",
     func = "StatWho"
 }
