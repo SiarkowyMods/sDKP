@@ -126,6 +126,8 @@ Remaining commands:
 * `/sdkp set <player> <net> [<tot> [<hrs>]]` — Sets fixed player DKP amounts
   and stores them immediately to officer note.
 * `/sdkp info <player>` — Prints DKP info for given player.
+* `/sdkp invite [<filter>]` — Invites selected players into the raid group.
+  By default matches any online characters.
 * `/sdkp usage` — Prints some help about usage strings.
 * `/sdkp versions` — Prints out guild mates' addon versions.
 

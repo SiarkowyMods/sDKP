@@ -125,6 +125,22 @@ sDKP.Slash = {
                     main:GetPoints())
             end,
         },
+        invite = {
+            name = "Invite",
+            desc = "Invite selected player(s) into the raid group. Defaults to any online characters.",
+            type = "execute",
+            usage = "[<filter>]",
+            func = function(self, param)
+                local list, num = self:Select(param ~= "" and param or "online")
+                for main, char in pairs(list) do
+                    char = self(char)
+                    if char.on and not UnitInRaid(char.name) and char.name ~= self.player then
+                        InviteUnit(char.name)
+                    end
+                end
+                self.dispose(list)
+            end
+        },
         modify = {
             name = "Modify",
             desc = "Change player's DKP amounts as relative values.",
