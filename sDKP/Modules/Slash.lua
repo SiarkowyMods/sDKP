@@ -110,17 +110,18 @@ sDKP.Slash = {
             name = "Info",
             desc = "Print DKP info for given player.",
             type = "execute",
-            usage = "<player>",
+            usage = "<player> [@channel]",
             func = function(self, param)
-                local char = self(param or "")
+                local param, chan = self.ExtractChannel(param, "SELF")
+                local char = self(param)
 
                 if not char then
                     return self:Print("No character specified or player not in your guild.")
                 end
 
                 local main = char:GetMain()
-                self:Printf("Info for %s: %d net, %d tot, %d hrs.",
-                    format(char.name ~= main.name and "%s <%s>" or "%2$s",
+                self:Announce(chan, "DKP info for %s: %d net, %d tot, %d hrs.",
+                    format(char.name ~= main.name and "%s -> %s" or "%2$s",
                         char:GetColoredName(), main:GetColoredName()),
                     main:GetPoints())
             end,
