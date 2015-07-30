@@ -1,11 +1,11 @@
 ## Interface: 20400
 ## Title: sDKP
-## Notes: Siarkowy's Dragon Kill Points manager.
+## Notes: Siarkowy's Dragon Kill Points manager. Usage: /sdkp
 ## Author: Siarkowy <siarkowy@siarkowy.net>
 ## X-Website: https://github.com/SiarkowyMods/sDKP
 ## X-License: GNU GPL v3
 ## SavedVariables: sDKP_DB
-## Version: 1.6
+## Version: 1.7
 
 # Libs
 Libs\ChatThrottleLib\ChatThrottleLib.lua

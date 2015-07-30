@@ -62,13 +62,49 @@ end
 sDKP:RegisterEvent("CHAT_MSG_LOOT")
 
 function sDKP:CHAT_MSG_WHISPER(msg, sender)
-    if msg:sub(1, 1) ~= "?" or not sender or not self(sender) then
+    if msg:sub(1, 1) ~= "?" or not sender then
+        return
+    end
+
+    if msg:sub(1, 5) == "?bind" and UnitInRaid(sender) then
+        if not self:Get("whisper.binding") then
+            return
+        end
+
+        local name, dkp = msg:match("?bind%s*(%S+)%s*(%d+)")
+        dkp = dkp and tonumber(dkp)
+
+        if not name then
+            self:SendWhisper(sender, format("<sDKP> Binding usage: ?bind main net_dkp"))
+
+        elseif self(sender) then
+            self:SendWhisper(sender, format("<sDKP> Your character is already bound. Use ?dkp"))
+
+        elseif not self(name) then
+            self:SendWhisper(sender, format("<sDKP> Your target has to be in the guild."))
+
+        elseif self(name):GetMain().net ~= dkp or not dkp then
+            self:SendWhisper(sender, format("<sDKP> You supplied wrong amount of points."))
+
+        else -- all right, bind me!
+            if self:SetAlias(sender, self(name):GetMain().name) then
+                self:SendWhisper(sender, format("<sDKP> You have been bound successfully. Use ?dkp"))
+            else
+                assert(false, "Could not bind external character.")
+            end
+        end
+
+        return
+    end
+
+    if not self(sender) then
         return
     end
 
     if msg == "?dkp" then
         self:SendWhisper(sender, format("<sDKP> Point info: %d net, %d tot, %d hrs.",
             self(sender):GetMain():GetPoints()))
+
     elseif msg == "?standby" then
         local list, num = self:Select("standby")
         local t = self.table()

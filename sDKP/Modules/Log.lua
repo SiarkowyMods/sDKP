@@ -155,6 +155,7 @@ end
 --- Logs data to current guild's log.
 -- @param type (integer) Entry type integer, see LOG_* locals.
 -- @param ... (tuple) Data list to serialize. Nils are ignored.
+-- @return mixed - Entry timestamp or nil if not logged.
 function sDKP:Log(type, ...)
     if not self.guild then return end
 
@@ -172,6 +173,9 @@ function sDKP:Log(type, ...)
     end
 
     log[stamp] = serialize(type, unpack(t))
+    self.dispose(t)
+
+    return stamp
 end
 
 local result = { }
@@ -219,6 +223,16 @@ function sDKP:LogPurge(param)
     self:Printf("%d |4entry:entries; purged.", count)
 end
 
+local function entry_matches_all(entry, regexp, query)
+    for str in query:gmatch(regexp) do
+        if not entry:match(str) then
+            return false
+        end
+    end
+
+    return true
+end
+
 function sDKP:LogSearch(param)
     local LOG_DATEFORMAT = self:Get("log.dateformat")
 
@@ -244,8 +258,8 @@ function sDKP:LogSearch(param)
         if (not min_time or time >= min_time) and (not max_time or time <= max_time) then
             local flag = param == ""
 
-            for str in param:gmatch("[^|]+") do
-                flag = flag or entry:match(str)
+            for subquery in param:gmatch("[^,]+") do
+                flag = flag or entry_matches_all(self.LogToString(entry), "%S+", subquery)
             end
 
             if flag then
@@ -283,7 +297,7 @@ sDKP.Slash.args.log = {
             name = "Search",
             desc = "Shows all entries matching given string(s).",
             type = "execute",
-            usage = "<query>[||...] [[from<]time[<to]] [@<channel>]",
+            usage = "<query>[, ...] [[from<]time[<to]] [@<channel>]",
             func = "LogSearch",
             order = 3
         },

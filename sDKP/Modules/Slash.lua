@@ -25,10 +25,10 @@ local LOG_DKP_CLASS     = 3
 
 function sDKP:ModifySlashWrapper(param, method, announce)
     local who, points, reason = param:match("(.-)%s+(%d+)%s*(.*)")
-    local reason, chan = self.ExtractChannel(reason)
+    local reason, chan = self.ExtractChannel(reason or "")
 
     if not who then
-        return self:Print("Both character filter and DKP amount required.")
+        return self:Printf("Usage: /sdkp %s[!] <character filter> <points>[ <reason>]", method:lower())
     end
 
     local list, num = self:Select(who)
@@ -59,7 +59,7 @@ end
 
 -- Slash command table
 sDKP.Slash = {
-    name = format("Dragon Kill Points manager version %s.", sDKP.version),
+    name = format("Siarkowy's Dragon Kill Points manager version %s.", sDKP.version),
     type = "group",
     args = {
         award = {
@@ -110,20 +110,37 @@ sDKP.Slash = {
             name = "Info",
             desc = "Print DKP info for given player.",
             type = "execute",
-            usage = "<player>",
+            usage = "<player>[ @channel]",
             func = function(self, param)
-                local char = self(param or "")
+                local param, chan = self.ExtractChannel(param, "SELF")
+                local char = self(param)
 
                 if not char then
                     return self:Print("No character specified or player not in your guild.")
                 end
 
                 local main = char:GetMain()
-                self:Printf("Info for %s: %d net, %d tot, %d hrs.",
-                    format(char.name ~= main.name and "%s <%s>" or "%2$s",
+                self:Announce(chan, "DKP info for %s: %d net, %d tot, %d hrs.",
+                    format(char.name ~= main.name and "%s -> %s" or "%2$s",
                         char:GetColoredName(), main:GetColoredName()),
                     main:GetPoints())
             end,
+        },
+        invite = {
+            name = "Invite",
+            desc = "Invite selected player(s) into the raid group. Defaults to any online characters.",
+            type = "execute",
+            usage = "[<filter>]",
+            func = function(self, param)
+                local list, num = self:Select(param ~= "" and param or "online")
+                for main, char in pairs(list) do
+                    char = self(char)
+                    if char.on and not UnitInRaid(char.name) and char.name ~= self.player then
+                        InviteUnit(char.name)
+                    end
+                end
+                self.dispose(list)
+            end
         },
         modify = {
             name = "Modify",
@@ -147,9 +164,19 @@ sDKP.Slash = {
             desc = "Options management.",
             type = "group",
             args = {
+                binding = {
+                    name = "External character binding",
+                    desc = "Toggles character binding through ?bind command.",
+                    type = "execute",
+                    usage = "off||on",
+                    func = function(self, param)
+                        self:Set("whisper.binding", param:match("^on$") and true or nil)
+                        self:Printf("Whisper binding through ?bind command %s.", self:Get("whisper.binding") and "enabled" or "disabled")
+                    end
+                },
                 dkpformat = {
                     name = "DKP note format",
-                    desc = "Sets DKP format for officer notes. Use %n for netto, %t - total, %h - hour counter.",
+                    desc = "Sets DKP format for officer notes. Use %n for net, %t - total, %h - hour counter.",
                     type = "execute",
                     usage = "<format>",
                     func = function(self, param)

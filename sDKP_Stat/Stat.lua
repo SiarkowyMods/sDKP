@@ -22,7 +22,7 @@ local upper = string.upper
 local data = { }
 local function clear() for k, _ in pairs(data) do data[k] = nil end end
 
---- Displays netto DKP ranking.
+--- Displays net DKP ranking.
 -- @param param (string) Optional player query or channel redirection string.
 function sDKP:StatTopQuery(param)
     local chan
@@ -408,7 +408,7 @@ sDKP.Slash.args.stat = {
         },
         top = {
             name = "Top",
-            desc = "Displays netto DKP ranking. Accepts optional player query.",
+            desc = "Displays net DKP ranking. Accepts optional player query.",
             type = "execute",
             usage = "[<count>] [<query>]",
             func = "StatTopQuery"
@@ -432,7 +432,7 @@ sDKP.Slash.args.stat = {
 sDKP.Slash.args.who = {
     name = "Who",
     desc = "Who-like utility for the guild.",
-    usage = "help || <query>",
+    usage = "help||<query>[ @channel]",
     type = "execute",
     func = "StatWho"
 }

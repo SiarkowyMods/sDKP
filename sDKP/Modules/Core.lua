@@ -184,8 +184,17 @@ function sDKP:GetOwnerOnline(main)
     assert(main, "Main name required.")
 
     for name, char in self:GetChars() do
-        if char.on and (char.name == main or char.altof == main) then
-            return name
+        if char.name == main or char.altof == main then
+            -- check for guild character
+            if char.on then
+                return name
+            end
+
+            -- check for external character
+            if char.id == 0 and UnitInRaid(char.name)
+            and select(8, GetRaidRosterInfo(UnitInRaid(char.name) + 1)) then
+                return name
+            end
         end
     end
 
