@@ -59,7 +59,7 @@ end
 
 -- Slash command table
 sDKP.Slash = {
-    name = format("Dragon Kill Points manager version %s.", sDKP.version),
+    name = format("Siarkowy's Dragon Kill Points manager version %s.", sDKP.version),
     type = "group",
     args = {
         award = {
