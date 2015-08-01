@@ -7,6 +7,7 @@ local sDKP = sDKP
 
 local COLORS = RAID_CLASS_COLORS
 local assert = assert
+local colorize_diff = sDKP.DiffColorize
 local format = format
 local gsub = gsub
 local lower = string.lower
@@ -55,6 +56,24 @@ function sDKP:ModifySlashWrapper(param, method, announce)
     end
 
     self.dispose(list)
+end
+
+function sDKP:ShowPendingChanges()
+    self:Print("Pending changes - Follow with /sdkp store||discard||modify")
+
+    local count = 0
+    for name, char in self:GetChars() do
+        if char.new then
+            self:Echo("   %s %s%+d net|r, %s%+d tot|r, %s%+d hrs|r",
+                char:GetColoredName(),
+                colorize_diff(char.netD), char.netD,
+                colorize_diff(char.totD), char.totD,
+                colorize_diff(char.hrsD), char.hrsD)
+            count = count + 1
+        end
+    end
+
+    self:Echo("Total of %d pending |4change:changes;.", count)
 end
 
 -- Slash command table
@@ -144,19 +163,26 @@ sDKP.Slash = {
         },
         modify = {
             name = "Modify",
-            desc = "Change player's DKP amounts as relative values.",
+            desc = "Change DKP amounts of selected player(s) as relative values.",
             type = "execute",
-            usage = "<player> <netDelta> [<totDelta> [<hrsDelta>]]",
+            usage = "<filter> <netDelta> [<totDelta> [<hrsDelta>]]",
             func = function(self, param)
-                local name, netD, totD, hrsD = param:match("(%S+)%s*([-]?%d*)%s*([-]?%d*)%s*([-]?%d*)")
+                local who, netD, totD, hrsD = param:match("(.-)%s+(%-?%d+)%s*(%-?%d*)%s*(%-?%d*)")
 
-                local char = self(name or "")
-
-                if not char then
-                    return self:Print("No character specified or player not in your guild.")
+                if not who then
+                    return self:Print("Usage: /sdkp modify <character filter> <netDelta>[ <totDelta>[ <hrsDelta>]]")
                 end
 
-                char:Modify(netD, totD, hrsD)
+                local list, num = self:Select(who)
+
+                if num > 0 then
+                    self:ForEach(list, "Modify", netD, totD, hrsD)
+                    self:ShowPendingChanges()
+                else
+                    self:Printf("No characters match %s.", who)
+                end
+
+                self.dispose(list)
             end
         },
         option = {
@@ -215,6 +241,12 @@ sDKP.Slash = {
                     end
                 },
             }
+        },
+        pending = {
+            name = "Pending",
+            desc = "Displays pending changes to officer notes.",
+            type = "execute",
+            func = "ShowPendingChanges"
         },
         set = {
             name = "Set",

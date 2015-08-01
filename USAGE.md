@@ -116,8 +116,9 @@ Other core commands
 You can also modify DKP values without immediately storing them to officer notes.
 These changes stay in roster data until explicitly stored to notes or discarded.
 
-* `/sdkp modify <player> <netDelta> [<totDelta> [<hrsDelta>]]`
-  — Changes player's DKP amounts as relative values.
+* `/sdkp modify <filter> <netDelta> [<totDelta> [<hrsDelta>]]`
+  — Change DKP amounts of selected player(s) as relative values.
+* `/sdkp pending` — Displays pending changes to officer notes.
 * `/sdkp store` — Stores pending DKP changes to officer notes.
 * `/sdkp discard` — Discards all pending roster changes.
 
