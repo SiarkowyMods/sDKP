@@ -316,14 +316,13 @@ function sDKP:StatWho(param)
     if _minHrs and _maxHrs and _minHrs > _maxHrs then _minHrs, _maxHrs = _maxHrs, _minHrs end
 
     local dkp = _minNet or _maxNet or _minTot or _maxTot or _minHrs or _maxHrs
-    local parse = self.ParseOfficerNote
     local count = 0
 
     self:Announce(chan, "Guild Who List: %s", param)
 
     for i = 1, GetNumGuildMembers() do
         local name, rankname, rnk, lvl, class, zone, note, onote, online = GetGuildRosterInfo(i)
-        local alt, net, tot, hrs = parse(onote)
+        local alt, net, tot, hrs = self:ParseOfficerNote(onote)
 
         if (not _name or name:lower():match(_name:lower()))
             and (not _zone or zone:lower():match(_zone:lower()))

@@ -159,11 +159,14 @@ end
 -- @return number - Net amount.
 -- @return number - Total amount.
 -- @return number - Hours count.
-function sDKP.ParseOfficerNote(o)
-    local data = (o or ""):match("{(.-)}") or ""
+function sDKP:ParseOfficerNote(o)
+    o = (o or ""):trim()
+    local data = o:match("{(.-)}") or ""
 
     if data:match("%D+") == data then -- alt
         return data, 0, 0, 0
+    elseif self(o) then -- alt
+        return o, 0, 0, 0
     end
 
     return nil,
@@ -186,8 +189,8 @@ end
 -- @param ver2 Version string.
 -- @return boolean - True if first version is newer than second, false otherwise.
 function sDKP.VersionCompare(ver1, ver2)
-    local a, b, c = ver1:match("(%d+).(%d+).(%d+)")
-    local d, e, f = ver2:match("(%d+).(%d+).(%d+)")
+    local a, b, c = ver1:match("(%d+).(%d+).?(%d*)")
+    local d, e, f = ver2:match("(%d+).(%d+).?(%d*)")
 
     if a > d then return true
     elseif a < d then return false

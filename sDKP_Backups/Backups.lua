@@ -115,7 +115,7 @@ do
 
             local count = 0
             for name, note in pairs(backup) do
-                local _, net, tot, hrs = self.ParseOfficerNote(note)
+                local _, net, tot, hrs = self:ParseOfficerNote(note)
                 local char = self:GetCharacter(name)
 
                 if char and (net ~= char.net or tot ~= char.tot or hrs ~= char.hrs) then

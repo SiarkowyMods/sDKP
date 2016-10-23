@@ -13,7 +13,6 @@ local dec2hex = sDKP.DecimalToHexColor
 local dispose = sDKP.dispose
 local getmetatable = getmetatable
 local new = sDKP.table
-local parse = sDKP.ParseOfficerNote
 local select = select
 local setmetatable = setmetatable
 local tonumber = tonumber
@@ -191,7 +190,7 @@ end
 function Character:OnUpdate(id, name, _, _, _, _, _, _, o, on, _, class, diff)
     local net, tot, hrs = self.net, self.tot, self.hrs
     self.id, self.name, self.on, self.class = id, name, on, class
-    self.altof, self.net, self.tot, self.hrs = parse(o)
+    self.altof, self.net, self.tot, self.hrs = sDKP:ParseOfficerNote(o)
     if net and tot and hrs then
         self:OnDiff(net, tot, hrs, diff)
     end
