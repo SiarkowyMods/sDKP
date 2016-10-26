@@ -25,7 +25,7 @@ StaticPopupDialogs["SDKP_BACKUP"] = {
 local Popup = StaticPopupDialogs.SDKP_BACKUP
 
 sDKP.HyperlinkHandlers.bkp = function(btn, data)
-    local action, id = string.split(":", data)
+    local action, id, rest = string.split(":", data, 3)
 
     action = tonumber(action) or 0
     id = tonumber(id) or 0
@@ -61,5 +61,8 @@ sDKP.HyperlinkHandlers.bkp = function(btn, data)
 
     elseif action == 3 then -- diff
         self:VisualDiff(id)
+
+    elseif action == 4 then -- revert
+        self:RevertFromBackup(id, rest)
     end
 end

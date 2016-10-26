@@ -59,8 +59,8 @@ function sDKP:BackupNotes()
 end
 
 function sDKP:RestoreNotes(timestamp)
-    local backup = self:GetBackup(timestamp)
-    if not (backup and IsInGuild() and CanViewOfficerNote() and CanEditOfficerNote()) then return end
+    local backup = assert(self:GetBackup(timestamp), "Specified backup does not exist")
+    assert(IsInGuild() and CanViewOfficerNote() and CanEditOfficerNote(), "Cannot write to officer notes")
 
     local num = 0
     for i = 1, GetNumGuildMembers() do
@@ -72,6 +72,17 @@ function sDKP:RestoreNotes(timestamp)
     end
 
     return num
+end
+
+function sDKP:RevertFromBackup(timestamp, name)
+    assert(name ~= "" and name, "Player name required")
+
+    local backup = assert(self:GetBackup(timestamp), "Specified backup does not exist")
+    assert(IsInGuild() and CanViewOfficerNote() and CanEditOfficerNote(), "Cannot write to officer notes")
+
+    local char = assert(self(name), "Player not in your guild")
+    GuildRosterSetOfficerNote(char:GetMain().id, assert(backup[name], "No backup data for specified player"))
+    return true
 end
 
 function sDKP:DeleteBackup(timestamp)
@@ -107,11 +118,12 @@ do
         return GRAY
     end
 
-    function sDKP:VisualDiff(timestamp)
+    function sDKP:VisualDiff(timestamp, chan)
+        chan = chan or "SELF"
         local backup = self:GetBackup(timestamp)
 
         if backup then
-            self:Printf("Current to %s note differences:", date(self:Get("log.dateformat"), timestamp))
+            self:Announce(chan, "Roster differences vs. %s:", date(self:Get("log.dateformat"), timestamp))
 
             local count = 0
             for name, note in pairs(backup) do
@@ -119,14 +131,18 @@ do
                 local char = self:GetCharacter(name)
 
                 if char and (net ~= char.net or tot ~= char.tot or hrs ~= char.hrs) then
-                    self:Echo("   %s: %s%+d net|r, %s%+d tot|r, %s%+d hrs|r", name,
+                    self:Announce(chan, "   %s %s%+d net|r, %s%+d tot|r, %s%+d hrs|r%s",
+                        self.ClassColoredPlayerName(name),
                         col(net, char.net), char.net - net,
                         col(tot, char.tot), char.tot - tot,
-                        col(hrs, char.hrs), char.hrs - hrs)
+                        col(hrs, char.hrs), char.hrs - hrs,
+                        chan ~= "SELF" and "" or (
+                            " |Hsdkp:bkp:4:%d:%s|h|cff88ffff(revert)|r|h"):format(
+                                timestamp, name))
                     count = count + 1
                 end
             end
-            self:Echo("Total of %d |4difference:differences;.", count)
+            self:Announce(chan, "Total of %d difference(s).", count)
         else
             self:Print("Non-existent backup ID supplied.")
         end

@@ -161,6 +161,7 @@ and deleting of officer note backups. It requires enabled sDKP Backups addon.
 
 * `/sdkp backup create` — Saves a new officer note backup.
 * `/sdkp backup restore <timestamp>` — Loads specified backup to officer notes.
+* `/sdkp backup revert <player> <timestamp>` — Reverts player's DKP from specified backup.
 * `/sdkp backup list [<guild>]` — Lists all saved backups. Guild name parameter is optional.
 * `/sdkp backup diff <timestamp>` — Shows differences from specified to current roster DKP data.
 * `/sdkp backup delete <timestamp>` — Deletes backup specified by creation timestamp.

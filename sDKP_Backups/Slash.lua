@@ -37,9 +37,10 @@ sDKP.Slash.args.backup = {
             name = "Diff",
             desc = "Show differences between saved and current roster DKP values.",
             type = "execute",
-            usage = "<timestamp>",
+            usage = "<timestamp>[ @<channel>]",
             func = function(self, param)
-                self:VisualDiff(self.ParamToTimestamp(param))
+                local param, chan = self.ExtractChannel(param, "SELF")
+                self:VisualDiff(self.ParamToTimestamp(param), chan)
             end
         },
         list = {
@@ -57,6 +58,17 @@ sDKP.Slash.args.backup = {
             func = function(self, param)
                 self:Printf("%d |4note:notes; restored.", self:RestoreNotes(self.ParamToTimestamp(param)) or 0)
             end
-        }
+        },
+        revert = {
+            name = "Revert",
+            desc = "Reverts player's DKP from backup.",
+            type = "execute",
+            usage = "<player> <timestamp>",
+            func = function(self, param)
+                local player, backup = param:match("(%w+) (%d+)")
+                assert(player and backup, "Specify both player and timestamp")
+                self:RevertFromBackup(self.ParamToTimestamp(backup), player)
+            end
+        },
     }
 }
