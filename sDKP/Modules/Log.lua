@@ -243,9 +243,9 @@ end
 function sDKP:LogSearch(param)
     local LOG_DATEFORMAT = self:Get("log.dateformat")
 
-    param = param ~= "" and param or "time>8h"
     local param, chan = self.ExtractChannel(param, "SELF")
     local param, guild = self.ExtractGuild(param, self:GetLogGuild())
+    param = param ~= "" and param or "time>8h"
 
     local max_time = param:match('time<(%w+)')
     local min_time = param:match('time>(%w+)') or param:match('(%w+)<time')
