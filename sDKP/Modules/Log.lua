@@ -146,9 +146,18 @@ end
 
 -- Logging methods -------------------------------------------------------------
 
+local noguild = "_"
+
+--- Returns guild name for logging purposes.
+-- @return string - Guild name or default placeholder if not present.
+function sDKP:GetLogGuild()
+    return self.guild or noguild
+end
+
 function sDKP:CheckLogPresence()
-    if self.guild and not self.LogData[self.guild] then
-        self.LogData[self.guild] = { }
+    local guild = self:GetLogGuild()
+    if not self.LogData[guild] then
+        self.LogData[guild] = { }
     end
 end
 
@@ -157,9 +166,7 @@ end
 -- @param ... (tuple) Data list to serialize. Nils are ignored.
 -- @return mixed - Entry timestamp or nil if not logged.
 function sDKP:Log(type, ...)
-    if not self.guild then return end
-
-    local log = self.LogData[self.guild]
+    local log = self.LogData[self:GetLogGuild()]
     local t = self.table()
 
     for i = 1, select("#", ...) do
@@ -183,7 +190,7 @@ function sDKP:PrepareLog(startTime, endTime)
     startTime = startTime or time() - 86400 -- 1 day
     endTime = endTime or time()
     while (tremove(result)) do end
-    for timestamp, data in pairs(self.LogData[self.guild]) do
+    for timestamp, data in pairs(self.LogData[self:GetLogGuild()]) do
         if timestamp >= startTime and timestamp <= endTime then
             tinsert(result, timestamp)
         end
@@ -197,7 +204,7 @@ end
 function sDKP:LogDump()
     self:Print("Full log entry list:")
 
-    local node = self.LogData[self.guild]
+    local node = self.LogData[self:GetLogGuild()]
     local count = 0
     local LOG_DATEFORMAT = self:Get("log.dateformat")
 
@@ -212,7 +219,7 @@ end
 function sDKP:LogPurge(param)
     param = param ~= "" and param or "4w"
     local timestamp = self.ParamToTimestamp(param)
-    local node = self.LogData[self.guild]
+    local node = self.LogData[self:GetLogGuild()]
     local count = 0
     for t, d in pairs(node) do
         if t < timestamp then
@@ -254,7 +261,7 @@ function sDKP:LogSearch(param)
     local param = param:gsub("[%w<>]*time[%w<>]*", ""):trim()
 
     local count = 0
-    for time, entry in self.PairsByKeys(self.LogData[self.guild]) do
+    for time, entry in self.PairsByKeys(self.LogData[self:GetLogGuild()]) do
         if (not min_time or time >= min_time) and (not max_time or time <= max_time) then
             local flag = param == ""
 
