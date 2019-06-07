@@ -245,6 +245,7 @@ function sDKP:LogSearch(param)
 
     param = param ~= "" and param or "time>8h"
     local param, chan = self.ExtractChannel(param, "SELF")
+    local param, guild = self.ExtractGuild(param, self:GetLogGuild())
 
     local max_time = param:match('time<(%w+)')
     local min_time = param:match('time>(%w+)') or param:match('(%w+)<time')
@@ -261,7 +262,7 @@ function sDKP:LogSearch(param)
     local param = param:gsub("[%w<>]*time[%w<>]*", ""):trim()
 
     local count = 0
-    for time, entry in self.PairsByKeys(self.LogData[self:GetLogGuild()]) do
+    for time, entry in self.PairsByKeys(self.LogData[guild]) do
         if (not min_time or time >= min_time) and (not max_time or time <= max_time) then
             local flag = param == ""
 
@@ -304,7 +305,7 @@ sDKP.Slash.args.log = {
             name = "Search",
             desc = "Shows all entries matching given string(s).",
             type = "execute",
-            usage = "<query>[, ...] [[from<]time[<to]] [@<channel>]",
+            usage = "<query>[, ...] [[from<]time[<to]] [#<guild>] [@<channel>]",
             func = "LogSearch",
             order = 3
         },
