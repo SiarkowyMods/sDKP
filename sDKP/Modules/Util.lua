@@ -79,6 +79,20 @@ function sDKP.ExtractChannel(msg, chan)
     return msg, chan
 end
 
+--- Cuts out #guild part from string and returns it as second parameter.
+-- @param msg Message to extract guild from.
+-- @param guild Default guild if not found.
+-- @return string - Message without guild part.
+-- @return string - Extracted or default guild.
+function sDKP.ExtractGuild(msg, guild)
+    msg = msg:gsub("#(.+)", function(m)
+        guild = m
+        return ""
+    end):trim()
+
+    return msg, guild
+end
+
 --- Returns an iterator to traverse hash indexed table in alphabetical order.
 -- @param t Table.
 -- @param f Sort function for table's keys.

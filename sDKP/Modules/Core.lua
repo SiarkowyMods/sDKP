@@ -66,6 +66,8 @@ end
 -- Prepares roster and log tables. Reconfigures local variables.
 function sDKP:PLAYER_GUILD_UPDATE(unit)
     if not unit or unit ~= "player" then return end
+    self:CheckLogPresence() -- ensure creation of noguild logging table
+
     local guild = GetGuildInfo("player")
     if not guild or self.guild == guild then return end
 

@@ -146,9 +146,18 @@ end
 
 -- Logging methods -------------------------------------------------------------
 
+local noguild = "_"
+
+--- Returns guild name for logging purposes.
+-- @return string - Guild name or default placeholder if not present.
+function sDKP:GetLogGuild()
+    return self.guild or noguild
+end
+
 function sDKP:CheckLogPresence()
-    if self.guild and not self.LogData[self.guild] then
-        self.LogData[self.guild] = { }
+    local guild = self:GetLogGuild()
+    if not self.LogData[guild] then
+        self.LogData[guild] = { }
     end
 end
 
@@ -157,9 +166,7 @@ end
 -- @param ... (tuple) Data list to serialize. Nils are ignored.
 -- @return mixed - Entry timestamp or nil if not logged.
 function sDKP:Log(type, ...)
-    if not self.guild then return end
-
-    local log = self.LogData[self.guild]
+    local log = self.LogData[self:GetLogGuild()]
     local t = self.table()
 
     for i = 1, select("#", ...) do
@@ -183,7 +190,7 @@ function sDKP:PrepareLog(startTime, endTime)
     startTime = startTime or time() - 86400 -- 1 day
     endTime = endTime or time()
     while (tremove(result)) do end
-    for timestamp, data in pairs(self.LogData[self.guild]) do
+    for timestamp, data in pairs(self.LogData[self:GetLogGuild()]) do
         if timestamp >= startTime and timestamp <= endTime then
             tinsert(result, timestamp)
         end
@@ -197,7 +204,7 @@ end
 function sDKP:LogDump()
     self:Print("Full log entry list:")
 
-    local node = self.LogData[self.guild]
+    local node = self.LogData[self:GetLogGuild()]
     local count = 0
     local LOG_DATEFORMAT = self:Get("log.dateformat")
 
@@ -212,7 +219,7 @@ end
 function sDKP:LogPurge(param)
     param = param ~= "" and param or "4w"
     local timestamp = self.ParamToTimestamp(param)
-    local node = self.LogData[self.guild]
+    local node = self.LogData[self:GetLogGuild()]
     local count = 0
     for t, d in pairs(node) do
         if t < timestamp then
@@ -233,14 +240,13 @@ local function entry_matches_all(entry, regexp, query)
     return true
 end
 
-function sDKP:LogSearch(param)
-    local LOG_DATEFORMAT = self:Get("log.dateformat")
-
-    param = param ~= "" and param or "time>8h"
-    local param, chan = self.ExtractChannel(param, "SELF")
+local _logs = { }
+function sDKP:LogLookup(param, guild)
+    self.wipe(_logs)
 
     local max_time = param:match('time<(%w+)')
     local min_time = param:match('time>(%w+)') or param:match('(%w+)<time')
+    local param = param:gsub("[%w<>]*time[%w<>]*", ""):trim()
 
     if max_time then max_time = self.ParamToTimestamp(max_time) end
     if min_time then min_time = self.ParamToTimestamp(min_time) end
@@ -249,28 +255,53 @@ function sDKP:LogSearch(param)
         min_time, max_time = max_time, min_time
     end
 
-    self:Announce(chan, "Log search: %s", param)
-
-    local param = param:gsub("[%w<>]*time[%w<>]*", ""):trim()
-
     local count = 0
-    for time, entry in self.PairsByKeys(self.LogData[self.guild]) do
-        if (not min_time or time >= min_time) and (not max_time or time <= max_time) then
-            local flag = param == ""
+    for _guild, data in pairs(self.LogData) do
+        if not guild or guild == "all" or guild == _guild then
+            for time, entry in pairs(data) do
+                if (not min_time or time >= min_time) and (not max_time or time <= max_time) then
+                    local flag = param == ""
 
-            for subquery in param:gmatch("[^,]+") do
-                flag = flag or entry_matches_all(self.LogToString(entry), "%S+", subquery)
-            end
+                    for subquery in param:gmatch("[^,]+") do
+                        flag = flag or entry_matches_all(self.LogToString(entry), "%S+", subquery)
+                    end
 
-            if flag then
-                self:Announce(chan, "|cff888888[%s]|r %s",
-                    date(LOG_DATEFORMAT, time), self.LogToString(entry))
+                    if flag then
+                        while _logs[time] do -- if already used
+                            time = time + 0.01
+                        end
+                        _logs[time] = entry
 
-                count = count + 1
+                        count = count + 1
+                    end
+                end
             end
         end
     end
+
+    return _logs, count
+end
+
+function sDKP:LogSearch(param)
+    local LOG_DATEFORMAT = self:Get("log.dateformat")
+
+    local param, chan = self.ExtractChannel(param, "SELF")
+    local param, guild = self.ExtractGuild(param, self:GetLogGuild())
+    param = param ~= "" and param or "time>8h"
+
+    local logs, count = self:LogLookup(param, guild)
+    self:Announce(chan, "Log search: %s", param)
+
+    for time, entry in self.PairsByKeys(logs) do
+        self:Announce(chan, "|cff888888[%s]|r %s",
+            date(LOG_DATEFORMAT, time), self.LogToString(entry))
+    end
+
     self:Announce(chan, "Total entries: %d", count)
+end
+
+function sDKP:LogSearchAllGuilds(param)
+    self:LogSearch(param .. " #all")
 end
 
 sDKP.Slash.args.log = {
@@ -297,9 +328,17 @@ sDKP.Slash.args.log = {
             name = "Search",
             desc = "Shows all entries matching given string(s).",
             type = "execute",
-            usage = "<query>[, ...] [[from<]time[<to]] [@<channel>]",
+            usage = "<query>[, ...] [[from<]time[<to]] [#<guild>] [@<channel>]",
             func = "LogSearch",
             order = 3
+        },
+        ["search!"] = {
+            name = "Search all guilds",
+            desc = "Shows all entries matching given string(s) for any guild.",
+            type = "execute",
+            usage = "<query>[, ...] [[from<]time[<to]] [@<channel>]",
+            func = "LogSearchAllGuilds",
+            order = 4
         },
     }
 }
