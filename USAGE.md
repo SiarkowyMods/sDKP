@@ -345,10 +345,21 @@ All DKP operations are stored in the account-wide per-guild log. Same applies
 to loot above specified threshold (epic by default). To manage the log, use
 commands under `/sdkp log`.
 
+> The guild for logging purposes is your character's current guild,
+> not the player being logged.
+
 ```
-/sdkp log search <query>[, ...] [[from<]time[<to]] [@<channel>]
+/sdkp log search <query>[, ...] [[from<]time[<to]] [#<guild>] [@<channel>]
 ```
-Shows all entries matching given string(s).
+Shows all entries matching given string(s). You may optionally provide a guild
+name to use instead of the current one or when your character is out of guild.
+You may also look in all guilds' logs with `#all` or in out-of-guild logs with
+`#_`.
+
+```
+/sdkp log search! [...]
+```
+A shorthand for `/sdkp log search [...] #all` to search in any guild.
 
 ```
 /sdkp log search time>8h (changes newer than 8 hours ago)
