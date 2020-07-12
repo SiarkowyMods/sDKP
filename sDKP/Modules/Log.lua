@@ -186,11 +186,12 @@ function sDKP:Log(type, ...)
 end
 
 local result = { }
-function sDKP:PrepareLog(startTime, endTime)
+function sDKP:PrepareLog(startTime, endTime, log)
     startTime = startTime or time() - 86400 -- 1 day
     endTime = endTime or time()
+    log = log or self.LogData[self:GetLogGuild()]
     while (tremove(result)) do end
-    for timestamp, data in pairs(self.LogData[self:GetLogGuild()]) do
+    for timestamp, data in pairs(log) do
         if timestamp >= startTime and timestamp <= endTime then
             tinsert(result, timestamp)
         end
@@ -201,14 +202,18 @@ end
 
 -- Slash handlers --------------------------------------------------------------
 
-function sDKP:LogDump()
+function sDKP:LogDump(msg)
+    local msg, guild = self.ExtractGuild(msg)
     self:Print("Full log entry list:")
 
-    local node = self.LogData[self:GetLogGuild()]
+    local node = self.LogData[guild or self:GetLogGuild()]
+    if not node then
+        return
+    end
     local count = 0
     local LOG_DATEFORMAT = self:Get("log.dateformat")
 
-    for _, timestamp in pairs(self:PrepareLog(0)) do
+    for _, timestamp in pairs(self:PrepareLog(0, nil, node)) do
         self:Echo("|cff888888[%s]|r %s", date(LOG_DATEFORMAT, timestamp), self.LogToString(node[timestamp]))
         count = count + 1
     end
@@ -313,6 +318,7 @@ sDKP.Slash.args.log = {
             name = "Dump",
             desc = "Prints all entries from log into chat frame.",
             type = "execute",
+            usage = "[#<guild>]",
             func = "LogDump",
             order = 1
         },
