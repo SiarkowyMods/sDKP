@@ -48,13 +48,20 @@ StaticPopupDialogs["SDKP_CHAT_CHARGE_PLAYER"] = {
     end,
 }
 
-function sDKP:CHAT_MSG_LOOT(msg)
-    if not self.inRaid then return end
-    player, id, count = self.ParseLootMessage(msg)
-    if player and id then
-        local _, link, rarity = GetItemInfo(id)
-        if rarity >= self:Get("log.rarity") or self:Get("log.includeitems")[tonumber(id)] then
-            self:Log(LOG_LOOT, player, link, count)
+do
+    local prevPlayer, prevItemId
+
+    function sDKP:CHAT_MSG_LOOT(msg)
+        if not self.inRaid then return end
+
+        local player, itemId, itemCount = self.ParseLootMessage(msg)
+        if player and itemId and (player ~= prevPlayer or itemId ~= prevItemId) then
+            prevPlayer, prevItemId = player, itemId
+
+            local _, link, rarity = GetItemInfo(itemId)
+            if rarity >= self:Get("log.rarity") or self:Get("log.includeitems")[tonumber(itemId)] then
+                self:Log(LOG_LOOT, player, link, itemCount)
+            end
         end
     end
 end

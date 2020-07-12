@@ -388,7 +388,7 @@ Deletes log entries for current guild older  than specified or at least 4 weeks
 old if no parameter given.
 
 ```
-/sdkp log dump
+/sdkp log dump [#<guild>]
 ```
 Prints all entries from log into the chat frame.
 

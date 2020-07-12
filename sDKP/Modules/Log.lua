@@ -185,12 +185,39 @@ function sDKP:Log(type, ...)
     return stamp
 end
 
+function sDKP:DedupeLog(guild, entryType)
+    entryType = entryType and tostring(entryType)
+
+    local log = self.LogData[guild or self:GetLogGuild()]
+    if not log then
+        return
+    end
+
+    local curEntry, prevTimestamp, prevEntry
+    local count = 0
+
+    for _, curTimestamp in pairs(self:PrepareLog(0, nil, log)) do
+        if prevTimestamp then assert(curTimestamp > prevTimestamp, "DedupeLog: Timestamps should only increase") end
+
+        curEntry = log[curTimestamp]
+        if curEntry == prevEntry and (not entryType or unserialize(curEntry) == entryType) then
+            log[curTimestamp] = nil
+            count = count + 1
+        end
+
+        prevTimestamp, prevEntry = curTimestamp, curEntry
+    end
+
+    return count
+end
+
 local result = { }
-function sDKP:PrepareLog(startTime, endTime)
+function sDKP:PrepareLog(startTime, endTime, log)
     startTime = startTime or time() - 86400 -- 1 day
     endTime = endTime or time()
+    log = log or self.LogData[self:GetLogGuild()]
     while (tremove(result)) do end
-    for timestamp, data in pairs(self.LogData[self:GetLogGuild()]) do
+    for timestamp, data in pairs(log) do
         if timestamp >= startTime and timestamp <= endTime then
             tinsert(result, timestamp)
         end
@@ -201,14 +228,18 @@ end
 
 -- Slash handlers --------------------------------------------------------------
 
-function sDKP:LogDump()
+function sDKP:LogDump(msg)
+    local msg, guild = self.ExtractGuild(msg)
     self:Print("Full log entry list:")
 
-    local node = self.LogData[self:GetLogGuild()]
+    local node = self.LogData[guild or self:GetLogGuild()]
+    if not node then
+        return
+    end
     local count = 0
     local LOG_DATEFORMAT = self:Get("log.dateformat")
 
-    for _, timestamp in pairs(self:PrepareLog(0)) do
+    for _, timestamp in pairs(self:PrepareLog(0, nil, node)) do
         self:Echo("|cff888888[%s]|r %s", date(LOG_DATEFORMAT, timestamp), self.LogToString(node[timestamp]))
         count = count + 1
     end
@@ -313,6 +344,7 @@ sDKP.Slash.args.log = {
             name = "Dump",
             desc = "Prints all entries from log into chat frame.",
             type = "execute",
+            usage = "[#<guild>]",
             func = "LogDump",
             order = 1
         },
@@ -339,6 +371,38 @@ sDKP.Slash.args.log = {
             usage = "<query>[, ...] [[from<]time[<to]] [@<channel>]",
             func = "LogSearchAllGuilds",
             order = 4
+        },
+        dedup = {
+            name = "Dedup",
+            type = "group",
+            desc = "Log deduplication actions",
+            order = 5,
+            args = {
+                loot = {
+                    name = "Loot",
+                    desc = "Removes duplicate loot entries from operation log.",
+                    type = "execute",
+                    usage = "[#<guild>]",
+                    func = function(self, param)
+                        local param, guild = self.ExtractGuild(param)
+                        local count = self:DedupeLog(guild, LOG_PLAYER_LOOT)
+                        self:Printf("Deduped a total of %d |4entry:entries;.", count or 0)
+                    end,
+                    order = 5
+                },
+                all = {
+                    name = "All",
+                    desc = "Removes all duplicate entries from operation log.",
+                    type = "execute",
+                    usage = "[#<guild>]",
+                    func = function(self, param)
+                        local param, guild = self.ExtractGuild(param)
+                        local count = self:DedupeLog(guild, nil)
+                        self:Printf("Deduped a total of %d |4entry:entries;.", count or 0)
+                    end,
+                    order = 10
+                }
+            }
         },
     }
 }
